@@ -1,6 +1,5 @@
 package org.example.dln.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.example.dln.entity.Note;
 import org.example.dln.entity.NoteAttachment;
 import org.example.dln.exception.BusinessException;
@@ -30,7 +29,7 @@ import java.util.UUID;
 /**
  * 包名：org.example.dln.service
  * 类名：AttachmentService
- * 类描述：处理笔记附件上传、查询、删除和下载逻辑。
+ * 类描述：处理笔记附件上传、查询、删除和资源访问逻辑。
  * 创建人：@author Rain_润
  */
 @Service
@@ -47,6 +46,9 @@ public class AttachmentService {
     @Value("${app.attachment.upload-dir:uploads/attachments}")
     private String uploadDir;
 
+    /**
+    * 上传附件并保存记录。
+    */
     @Transactional(rollbackFor = Exception.class)
     public NoteAttachmentVO uploadAttachment(Long userId, Long noteId, MultipartFile file, String fileType) {
         if (file == null || file.isEmpty()) {
@@ -87,14 +89,18 @@ public class AttachmentService {
         return toAttachmentVO(attachment);
     }
 
+    /**
+    * 查询笔记附件列表。
+    */
     public List<NoteAttachmentVO> listNoteAttachments(Long userId, Long noteId) {
         getNoteOrThrow(userId, noteId);
-        List<NoteAttachment> attachments = noteAttachmentMapper.selectList(new LambdaQueryWrapper<NoteAttachment>()
-                .eq(NoteAttachment::getNoteId, noteId)
-                .orderByDesc(NoteAttachment::getCreatedTime));
+        List<NoteAttachment> attachments = noteAttachmentMapper.selectByNoteIdOrderByCreatedTimeDesc(noteId);
         return buildAttachmentVOList(attachments);
     }
 
+    /**
+    * 删除附件。
+    */
     @Transactional(rollbackFor = Exception.class)
     public void deleteAttachment(Long userId, Long attachmentId) {
         NoteAttachment attachment = getAttachmentOrThrow(userId, attachmentId);
@@ -105,10 +111,16 @@ public class AttachmentService {
         deletePhysicalFile(absolutePath);
     }
 
+    /**
+    * 获取用于下载的附件实体。
+    */
     public NoteAttachment getAttachmentForDownload(Long userId, Long attachmentId) {
         return getAttachmentOrThrow(userId, attachmentId);
     }
 
+    /**
+    * 将附件加载为资源对象。
+    */
     public Resource loadAsResource(NoteAttachment attachment) {
         Path absolutePath = buildAbsolutePath(attachment.getFileUrl());
         Resource resource = new FileSystemResource(absolutePath);
@@ -118,8 +130,11 @@ public class AttachmentService {
         return resource;
     }
 
+    /**
+    * 获取附件，不存在时抛出异常。
+    */
     private NoteAttachment getAttachmentOrThrow(Long userId, Long attachmentId) {
-        NoteAttachment attachment = noteAttachmentMapper.selectById(attachmentId);
+        NoteAttachment attachment = noteAttachmentMapper.selectByAttachmentId(attachmentId);
         if (attachment == null) {
             throw new BusinessException("附件不存在");
         }
@@ -127,15 +142,25 @@ public class AttachmentService {
         return attachment;
     }
 
+    /**
+    * 获取笔记，不存在时抛出异常。
+    */
     private Note getNoteOrThrow(Long userId, Long noteId) {
-        Note note = noteMapper.selectById(noteId);
-        if (note == null || !Objects.equals(note.getUserId(), userId) || note.getStatus() == null || note.getStatus() != 1) {
+        Note note = noteMapper.selectByNoteId(noteId);
+        if (note == null
+                || !Objects.equals(note.getUserId(), userId)
+                || note.getStatus() == null
+                || note.getStatus() != 1
+                || !Objects.equals(note.getDeleteToken(), 0L)) {
             throw new BusinessException("笔记不存在或无权限访问");
         }
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, note.getKnowledgeBaseId());
         return note;
     }
 
+    /**
+    * 清理文件名。
+    */
     private String sanitizeFileName(String originalFileName) {
         String fileName = StringUtils.cleanPath(originalFileName == null ? "" : originalFileName);
         if (!StringUtils.hasText(fileName)) {
@@ -144,6 +169,9 @@ public class AttachmentService {
         return Path.of(fileName).getFileName().toString();
     }
 
+    /**
+    * 提取文件扩展名。
+    */
     private String getFileExtension(String fileName) {
         int index = fileName.lastIndexOf('.');
         if (index < 0 || index == fileName.length() - 1) {
@@ -152,6 +180,9 @@ public class AttachmentService {
         return fileName.substring(index);
     }
 
+    /**
+    * 构建相对路径。
+    */
     private String buildRelativePath(String extension) {
         LocalDate today = LocalDate.now();
         return Paths.get(String.valueOf(today.getYear()),
@@ -161,10 +192,16 @@ public class AttachmentService {
                 .toString();
     }
 
+    /**
+    * 构建绝对路径。
+    */
     private Path buildAbsolutePath(String relativePath) {
         return Paths.get(uploadDir).toAbsolutePath().normalize().resolve(relativePath).normalize();
     }
 
+    /**
+    * 解析文件类型。
+    */
     private String resolveFileType(String fileType, String mimeType, String fileName) {
         if (StringUtils.hasText(fileType)) {
             return fileType.trim();
@@ -187,6 +224,9 @@ public class AttachmentService {
         return "file";
     }
 
+    /**
+    * 删除物理文件。
+    */
     private void deletePhysicalFile(Path path) {
         try {
             Files.deleteIfExists(path);
@@ -194,6 +234,9 @@ public class AttachmentService {
         }
     }
 
+    /**
+    * 构建附件视图对象列表。
+    */
     private List<NoteAttachmentVO> buildAttachmentVOList(List<NoteAttachment> attachments) {
         List<NoteAttachmentVO> result = new ArrayList<>();
         for (NoteAttachment attachment : attachments) {
@@ -202,6 +245,9 @@ public class AttachmentService {
         return result;
     }
 
+    /**
+    * 将附件实体转换为附件视图对象。
+    */
     private NoteAttachmentVO toAttachmentVO(NoteAttachment attachment) {
         NoteAttachmentVO vo = new NoteAttachmentVO();
         BeanUtils.copyProperties(attachment, vo);

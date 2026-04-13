@@ -5,13 +5,42 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.example.dln.entity.User;
-import org.springframework.stereotype.Component;
 
+/**
+ * 包名：org.example.dln.mapper
+ * 类名：UserMapper
+ * 类描述：提供用户数据访问操作。
+ * 创建人：@author Rain_润
+ */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-    @Select("SELECT * FROM t_user WHERE username = #{username}")
-    User findByUsername(@Param("username") String username);
-    
-    @Select("SELECT * FROM t_user WHERE email = #{email}")
-    User findByEmail(@Param("email") String email);
+    /**
+    * 根据用户 ID 查询数据。
+    */
+    @Select("""
+            SELECT *
+            FROM t_user
+            WHERE id = #{userId}
+            """)
+    User selectByUserId(@Param("userId") Long userId);
+
+    /**
+    * 根据用户名查询用户。
+    */
+    @Select("""
+            SELECT *
+            FROM t_user
+            WHERE username = #{username}
+            """)
+    User selectByUsername(@Param("username") String username);
+
+    /**
+    * 根据邮箱查询用户。
+    */
+    @Select("""
+            SELECT *
+            FROM t_user
+            WHERE email = #{email}
+            """)
+    User selectByEmail(@Param("email") String email);
 }

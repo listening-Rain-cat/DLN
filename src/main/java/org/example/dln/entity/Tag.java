@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：Tag
- * 类描述：标签实体类，映射到数据库表 t_tag。
+ * 类描述：定义标签实体。
  * 创建人：@author Rain_润
  */
 @Data

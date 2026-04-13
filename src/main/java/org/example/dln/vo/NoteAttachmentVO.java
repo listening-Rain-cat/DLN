@@ -5,7 +5,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 附件返回对象。
+ * 包名：org.example.dln.vo
+ * 类名：NoteAttachmentVO
+ * 类描述：定义笔记附件展示视图对象。
+ * 创建人：@author Rain_润
  */
 @Data
 public class NoteAttachmentVO {

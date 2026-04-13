@@ -4,6 +4,12 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 包名：org.example.dln.vo
+ * 类名：LoginVO
+ * 类描述：定义登录结果展示视图对象。
+ * 创建人：@author Rain_润
+ */
 @Data
 public class LoginVO {
     private Long id;

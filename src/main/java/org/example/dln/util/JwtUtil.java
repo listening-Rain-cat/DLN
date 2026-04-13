@@ -9,21 +9,26 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
- * 包名称：org.example.dln.util
- * 类名称：JwtUtil
- * 类描述：Jwt 工具类，用于生成和验证 JWT
+ * 包名：org.example.dln.util
+ * 类名：JwtUtil
+ * 类描述：提供 JWT 生成、解析与校验工具方法。
  * 创建人：@author Rain_润
- * 创建时间：2026-03-20 14:28
  */
 public class JwtUtil {
     private static final String SECRET_KEY = "Rain_Run_Secret_Key_For_JWT_Token_Generation_And_Verification_Must_Be_Long_Enough";
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
     
+    /**
+    * 获取 JWT 签名密钥。
+    */
     private static SecretKey getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+    * 生成 JWT token。
+    */
     public static String generateToken(Long userId, String username) {
         return Jwts.builder()
                 .id(userId.toString())
@@ -34,6 +39,9 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+    * 解析 JWT token。
+    */
     public static Claims parseToken(String token) {
         try {
             return Jwts.parser()
@@ -48,6 +56,9 @@ public class JwtUtil {
         }
     }
 
+    /**
+    * 校验 token 是否有效。
+    */
     public static boolean validateToken(String token) {
         try {
             Claims claims = parseToken(token);
@@ -58,6 +69,9 @@ public class JwtUtil {
         }
     }
 
+    /**
+    * 从 token 中提取用户 ID。
+    */
     public static Long getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
         String id = claims.getId();
@@ -68,6 +82,9 @@ public class JwtUtil {
         }
     }
 
+    /**
+    * 从 token 中提取用户名。
+    */
     public static String getUsernameFromToken(String token) {
         return parseToken(token).getSubject();
     }

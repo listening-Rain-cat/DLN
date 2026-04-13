@@ -5,7 +5,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 修改知识库参数。
+ * 包名：org.example.dln.dto
+ * 类名：UpdateKnowledgeBaseDTO
+ * 类描述：用于承载更新知识库请求参数。
+ * 创建人：@author Rain_润
  */
 @Data
 public class UpdateKnowledgeBaseDTO {

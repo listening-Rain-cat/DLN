@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：NoteLink
- * 类描述：笔记双链关系实体类。
+ * 类描述：定义笔记双链关系实体。
  * 创建人：@author Rain_润
  */
 @Data

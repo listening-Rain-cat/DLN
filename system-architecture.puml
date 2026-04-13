@@ -1,0 +1,176 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Microsoft YaHei
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam roundCorner 14
+skinparam ArrowColor #7A7A7A
+skinparam ArrowThickness 1.3
+
+skinparam rectangle {
+  BorderColor #FFFFFF
+  FontColor #333333
+}
+
+skinparam rectangle<<layer>> {
+  BackgroundColor #F5F5F5
+  BorderColor #E7E7E7
+  FontStyle bold
+  FontSize 16
+}
+
+skinparam rectangle<<app>> {
+  BackgroundColor #FAD9CF
+  BorderColor #FAD9CF
+}
+
+skinparam rectangle<<front>> {
+  BackgroundColor #DDEBFF
+  BorderColor #DDEBFF
+}
+
+skinparam rectangle<<backend>> {
+  BackgroundColor #E7D7FF
+  BorderColor #E7D7FF
+}
+
+skinparam rectangle<<support>> {
+  BackgroundColor #EFEFEF
+  BorderColor #EFEFEF
+}
+
+skinparam rectangle<<data>> {
+  BackgroundColor #DDF3E8
+  BorderColor #DDF3E8
+}
+
+skinparam rectangle<<infra>> {
+  BackgroundColor #D8ECFF
+  BorderColor #D8ECFF
+}
+
+skinparam rectangle<<group>> {
+  BackgroundColor #FAFAFA
+  BorderColor #FAFAFA
+  FontStyle bold
+  FontSize 14
+}
+
+top to bottom direction
+title 双链笔记系统总体架构图
+
+rectangle "应用层" as APP <<layer>> {
+  together {
+    rectangle "登录注册" as A1 <<app>>
+    rectangle "知识库管理" as A2 <<app>>
+    rectangle "目录树浏览" as A3 <<app>>
+    rectangle "Vditor 笔记编辑" as A4 <<app>>
+    rectangle "标签与模板" as A5 <<app>>
+    rectangle "知识图谱" as A6 <<app>>
+    rectangle "个人设置" as A7 <<app>>
+  }
+}
+
+A1 -[hidden]right-> A2
+A2 -[hidden]right-> A3
+A3 -[hidden]right-> A4
+A4 -[hidden]right-> A5
+A5 -[hidden]right-> A6
+A6 -[hidden]right-> A7
+
+rectangle "前端表示层" as FE <<layer>> {
+  together {
+    rectangle "Vue 3 工作台" as F1 <<front>>
+    rectangle "页面组件视图\nHome / Template / Settings / Graph" as F2 <<front>>
+    rectangle "状态与会话管理" as F3 <<front>>
+    rectangle "Ajax / Fetch 通信" as F4 <<front>>
+    rectangle "文件上传与预览" as F5 <<front>>
+  }
+}
+
+F1 -[hidden]right-> F2
+F2 -[hidden]right-> F3
+F3 -[hidden]right-> F4
+F4 -[hidden]right-> F5
+
+rectangle "后端核心层（Spring Boot）" as BE <<layer>> {
+  rectangle "公共支撑" as BE1 <<group>> {
+    together {
+      rectangle "统一认证\nJWT + Spring Security" as B1 <<support>>
+      rectangle "全局配置\napplication.yaml" as B2 <<support>>
+      rectangle "异常处理\nGlobalExceptionHandler" as B3 <<support>>
+    }
+  }
+
+  rectangle "业务处理链路" as BE2 <<group>> {
+    together {
+      rectangle "控制层\nUserController\nKnowledgeBaseController\nNoteController\nTemplate / Tag / Attachment" as B4 <<backend>>
+      rectangle "服务层\nUserService\nKnowledgeBaseService\nNoteService\nTagService / TemplateService\nAttachmentService" as B5 <<backend>>
+      rectangle "持久层\nMapper / MyBatis-Plus" as B6 <<backend>>
+    }
+  }
+
+  rectangle "核心能力与资源" as BE3 <<group>> {
+    together {
+      rectangle "数据对象\nEntity / DTO / VO" as B7 <<support>>
+      rectangle "核心能力\n双链解析\n自动保存\n知识图谱构建" as B8 <<support>>
+      rectangle "资源管理\n头像上传\n附件上传\nVditor 图片上传" as B9 <<support>>
+    }
+  }
+}
+
+B1 -[hidden]right-> B2
+B2 -[hidden]right-> B3
+B4 -[hidden]right-> B5
+B5 -[hidden]right-> B6
+B7 -[hidden]right-> B8
+B8 -[hidden]right-> B9
+BE1 -[hidden]down-> BE2
+BE2 -[hidden]down-> BE3
+
+rectangle "数据存储层" as DATA <<layer>> {
+  together {
+    rectangle "业务数据库\nMySQL\n用户 / 知识库 / 文件夹\n笔记 / 标签 / 模板 / 链接" as D1 <<data>>
+    rectangle "文件存储\nuploads/avatars\nuploads/attachments" as D2 <<data>>
+  }
+}
+
+D1 -[hidden]right-> D2
+
+rectangle "基础支撑层" as BASE <<layer>> {
+  together {
+    rectangle "JDK 17" as I1 <<infra>>
+    rectangle "Spring Boot 3" as I2 <<infra>>
+    rectangle "MyBatis-Plus" as I3 <<infra>>
+    rectangle "MySQL" as I4 <<infra>>
+    rectangle "Vue 3 + Vite" as I5 <<infra>>
+    rectangle "Vditor" as I6 <<infra>>
+  }
+}
+
+I1 -[hidden]right-> I2
+I2 -[hidden]right-> I3
+I3 -[hidden]right-> I4
+I4 -[hidden]right-> I5
+I5 -[hidden]right-> I6
+
+APP -down-> FE
+F4 -down-> B4 : HTTP / JSON
+B4 -right-> B5
+B5 -right-> B6
+B6 -down-> D1
+B9 -down-> D2
+BASE -up-> D1
+BASE -up-> D2
+
+B1 ..> B4
+B2 ..> B4
+B2 ..> B5
+B3 ..> B4
+B7 ..> B4
+B8 ..> B5
+
+@enduml

@@ -1,0 +1,241 @@
+@startuml DLN Entity Relationship Diagram
+
+' 设置样式
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+skinparam linetype ortho
+
+' ==================== 核心实体类 ====================
+
+class User {
+    +Long id
+    +String username
+    +String email
+    +String password
+    +String nickname
+    +String avatarUrl
+    +Integer status
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class KnowledgeBase {
+    +Long id
+    +Long userId
+    +String name
+    +String description
+    +Integer status
+    +Long deleteToken
+    +LocalDateTime deletedTime
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class Folder {
+    +Long id
+    +Long knowledgeBaseId
+    +Long parentId
+    +String name
+    +Integer status
+    +Long deleteToken
+    +LocalDateTime deletedTime
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class Note {
+    +Long id
+    +Long userId
+    +Long knowledgeBaseId
+    +Long folderId
+    +String title
+    +Integer status
+    +Long deleteToken
+    +LocalDateTime deletedTime
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class NoteContent {
+    +Long noteId
+    +String markdownContent
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class NoteHistory {
+    +Long id
+    +Long noteId
+    +Integer versionNo
+    +String title
+    +String markdownContent
+    +Long createdBy
+    +LocalDateTime createdTime
+}
+
+' ==================== 关联实体类 ====================
+
+class Tag {
+    +Long id
+    +Long knowledgeBaseId
+    +String name
+    +LocalDateTime createdTime
+}
+
+class NoteTag {
+    +Long id
+    +Long noteId
+    +Long tagId
+    +LocalDateTime createdTime
+}
+
+class NoteLink {
+    +Long id
+    +Long knowledgeBaseId
+    +Long sourceNoteId
+    +Long targetNoteId
+    +String targetNoteName
+    +String anchorText
+    +String contextSnippet
+    +Integer isBroken
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class NoteAttachment {
+    +Long id
+    +Long noteId
+    +String fileName
+    +String fileType
+    +String fileUrl
+    +Long fileSize
+    +String mimeType
+    +LocalDateTime createdTime
+}
+
+class NoteTemplate {
+    +Long id
+    +Long userId
+    +String name
+    +String description
+    +String templateContent
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+class UserSettings {
+    +Long id
+    +Long userId
+    +String codeTheme
+    +String contentTheme
+    +LocalDateTime createdTime
+    +LocalDateTime updatedTime
+}
+
+' ==================== 关系定义 ====================
+
+' 用户与知识库 (1:N)
+User "1" -- "*" KnowledgeBase : 拥有 >
+
+' 用户与笔记模板 (1:N)
+User "1" -- "*" NoteTemplate : 创建 >
+
+' 用户与用户设置 (1:1)
+User "1" -- "1" UserSettings : 配置 >
+
+' 知识库与文件夹 (1:N)
+KnowledgeBase "1" -- "*" Folder : 包含 >
+
+' 知识库与标签 (1:N)
+KnowledgeBase "1" -- "*" Tag : 包含 >
+
+' 知识库与笔记 (1:N)
+KnowledgeBase "1" -- "*" Note : 包含 >
+
+' 知识库与笔记链接 (1:N)
+KnowledgeBase "1" -- "*" NoteLink : 包含 >
+
+' 文件夹自引用 (树形结构)
+Folder "1" -- "0..*" Folder : 父子关系 >
+
+' 文件夹与笔记 (1:N)
+Folder "1" -- "*" Note : 组织 >
+
+' 笔记与笔记内容 (1:1)
+Note "1" -- "1" NoteContent : 包含 >
+
+' 笔记与笔记历史 (1:N)
+Note "1" -- "*" NoteHistory : 版本记录 >
+
+' 笔记与附件 (1:N)
+Note "1" -- "*" NoteAttachment : 附加 >
+
+' 笔记与标签 (多对多,通过NoteTag)
+Note "*" -- "*" Tag : 标记 >
+NoteTag ..> Note : 引用
+NoteTag ..> Tag : 引用
+
+' 笔记自引用 (双链关系)
+NoteLink ..> Note : 源笔记
+NoteLink ..> Note : 目标笔记
+
+note right of User
+  <b>核心用户实体</b>
+  - 存储用户基本信息
+  - 密码使用BCrypt加密
+  - status: 1正常/0禁用
+end note
+
+note right of KnowledgeBase
+  <b>知识库实体</b>
+  - 软删除机制
+  - deleteToken标记删除状态
+  - 用户级数据隔离
+end note
+
+note bottom of Folder
+  <b>文件夹实体</b>
+  - 支持树形结构
+  - parentId指向父文件夹
+  - 软删除机制
+end note
+
+note bottom of Note
+  <b>笔记基础信息</b>
+  - 内容与元数据分离
+  - 支持软删除
+  - 归属知识库和文件夹
+end note
+
+note left of NoteContent
+  <b>笔记内容实体</b>
+  - noteId作为主键
+  - 存储Markdown内容
+  - 与Note一对一关系
+end note
+
+note left of NoteHistory
+  <b>笔记历史版本</b>
+  - 记录每次修改
+  - versionNo递增
+  - 支持版本回溯
+end note
+
+note right of Tag
+  <b>标签实体</b>
+  - 属于特定知识库
+  - 通过NoteTag与笔记关联
+end note
+
+note right of NoteLink
+  <b>双链关系实体</b>
+  - 实现笔记间双向链接
+  - isBroken标记失效链接
+  - 存储锚文本和上下文
+end note
+
+@enduml

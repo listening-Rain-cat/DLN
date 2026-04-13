@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：NoteContent
- * 类描述：笔记正文实体类。
+ * 类描述：定义笔记内容实体。
  * 创建人：@author Rain_润
  */
 @Data

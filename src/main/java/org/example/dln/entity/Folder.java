@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：Folder
- * 类描述：文件夹实体类，支持树形父子结构。
+ * 类描述：定义知识库文件夹实体。
  * 创建人：@author Rain_润
  */
 @Data
@@ -32,6 +32,12 @@ public class Folder {
 
     @TableField("status")
     private Integer status;
+
+    @TableField("delete_token")
+    private Long deleteToken;
+
+    @TableField("deleted_time")
+    private LocalDateTime deletedTime;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)
     private LocalDateTime createdTime;

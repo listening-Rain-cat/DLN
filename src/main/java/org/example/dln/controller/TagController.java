@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * 包名：org.example.dln.controller
  * 类名：TagController
- * 类描述：标签控制器。
+ * 类描述：提供标签创建、查询、删除和笔记标签绑定相关接口。
  * 创建人：@author Rain_润
  */
 @RestController
@@ -31,6 +31,9 @@ public class TagController {
     @Autowired
     private TagService tagService;
 
+    /**
+    * 创建标签。
+    */
     @PostMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<TagVO> createTag(@PathVariable Long knowledgeBaseId,
                                    @Valid @RequestBody CreateTagDTO dto,
@@ -38,12 +41,18 @@ public class TagController {
         return Result.success("创建标签成功", tagService.createTag(userId, knowledgeBaseId, dto));
     }
 
+    /**
+    * 查询知识库标签列表。
+    */
     @GetMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<List<TagVO>> listKnowledgeBaseTags(@PathVariable Long knowledgeBaseId,
                                                      @RequestAttribute("userId") Long userId) {
         return Result.success(tagService.listKnowledgeBaseTags(userId, knowledgeBaseId));
     }
 
+    /**
+    * 删除标签。
+    */
     @DeleteMapping("/tags/{tagId}")
     public Result<Void> deleteTag(@PathVariable Long tagId,
                                   @RequestAttribute("userId") Long userId) {
@@ -51,12 +60,18 @@ public class TagController {
         return Result.success("删除标签成功", null);
     }
 
+    /**
+    * 查询笔记标签列表。
+    */
     @GetMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> listNoteTags(@PathVariable Long noteId,
                                             @RequestAttribute("userId") Long userId) {
         return Result.success(tagService.listNoteTags(userId, noteId));
     }
 
+    /**
+    * 设置笔记标签。
+    */
     @PutMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> setNoteTags(@PathVariable Long noteId,
                                            @RequestBody SetNoteTagsDTO dto,

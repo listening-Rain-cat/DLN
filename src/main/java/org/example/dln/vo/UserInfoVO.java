@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.vo
  * 类名：UserInfoVO
- * 类描述：用户信息返回对象，用于向前端返回不含密码的用户资料。
+ * 类描述：定义用户信息展示视图对象。
  * 创建人：@author Rain_润
  */
 @Data

@@ -3,7 +3,10 @@ package org.example.dln.vo;
 import lombok.Data;
 
 /**
- * 双链返回对象。
+ * 包名：org.example.dln.vo
+ * 类名：NoteLinkVO
+ * 类描述：定义笔记双链展示视图对象。
+ * 创建人：@author Rain_润
  */
 @Data
 public class NoteLinkVO {

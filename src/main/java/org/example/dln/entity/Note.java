@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：Note
- * 类描述：笔记基础信息实体类。
+ * 类描述：定义笔记基础信息实体。
  * 创建人：@author Rain_润
  */
 @Data
@@ -35,6 +35,9 @@ public class Note {
 
     @TableField("status")
     private Integer status;
+
+    @TableField("delete_token")
+    private Long deleteToken;
 
     @TableField("deleted_time")
     private LocalDateTime deletedTime;

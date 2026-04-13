@@ -5,6 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * 包名：org.example.dln.dto
+ * 类名：UpdateUserDTO
+ * 类描述：用于承载更新用户信息请求参数。
+ * 创建人：@author Rain_润
+ */
 @Data
 public class UpdateUserDTO {
     @Size(min = 6, max = 20, message = "密码长度必须在 6-20 个字符之间")

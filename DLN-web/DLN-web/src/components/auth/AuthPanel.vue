@@ -112,12 +112,7 @@ defineEmits<{
         </label>
 
         <div v-if="authForm.mode === 'login'" class="auth-card-fill">
-          <div class="auth-card-intro">
-            <p class="auth-card-kicker">快速开始</p>
-            <strong>登录后继续你的知识整理</strong>
-            <span>回到知识库和编辑区，延续上一次的写作与关联。</span>
-          </div>
-
+          
           <div class="auth-card-highlights">
             <div class="auth-card-highlight">
               <strong>知识库分区</strong>

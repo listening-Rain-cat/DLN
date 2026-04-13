@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 笔记详情返回对象。
+ * 包名：org.example.dln.vo
+ * 类名：NoteDetailVO
+ * 类描述：定义笔记详情展示视图对象。
+ * 创建人：@author Rain_润
  */
 @Data
 public class NoteDetailVO {

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：KnowledgeBase
- * 类描述：知识库实体类，映射到数据库表 t_knowledge_base。
+ * 类描述：定义知识库实体。
  * 创建人：@author Rain_润
  */
 @Data
@@ -32,6 +32,12 @@ public class KnowledgeBase {
 
     @TableField("status")
     private Integer status;
+
+    @TableField("delete_token")
+    private Long deleteToken;
+
+    @TableField("deleted_time")
+    private LocalDateTime deletedTime;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)
     private LocalDateTime createdTime;

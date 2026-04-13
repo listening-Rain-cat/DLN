@@ -1,0 +1,119 @@
+@startuml DLN_System_Architecture_V3
+
+title 双链笔记系统架构设计图
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam defaultFontName Microsoft YaHei
+skinparam wrapWidth 170
+skinparam ranksep 28
+skinparam nodesep 18
+skinparam linetype ortho
+
+skinparam rectangle {
+  RoundCorner 0
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+skinparam database {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+top to bottom direction
+
+actor "用户" as User
+
+rectangle "应用与表示层" as APP {
+  together {
+    rectangle "登录注册" as APP1
+    rectangle "知识库管理" as APP2
+    rectangle "Markdown / Vditor\n笔记编辑" as APP3
+    rectangle "标签与模板" as APP4
+    rectangle "知识图谱" as APP5
+    rectangle "目录树" as APP6
+    rectangle "Ajax / Fetch\n异步通信" as APP7
+  }
+}
+
+APP1 -[hidden]right-> APP2
+APP2 -[hidden]right-> APP3
+APP3 -[hidden]right-> APP4
+APP4 -[hidden]right-> APP5
+APP5 -[hidden]right-> APP6
+APP6 -[hidden]right-> APP7
+
+rectangle "控制层 Controller" as CTRL {
+  rectangle "Controllers\n\nUserController\nKnowledgeBaseController\nNoteController\nTagController\nNoteTemplateController\nAttachmentController" as CTRL1
+
+  rectangle "接口接入与安全控制" as CTRL2 {
+    together {
+      rectangle "拦截器 / 异常处理" as CTRL21
+      rectangle "JWT 身份认证" as CTRL22
+      rectangle "Spring Security" as CTRL23
+      rectangle "RESTful API" as CTRL24
+    }
+  }
+}
+
+CTRL1 -[hidden]right-> CTRL2
+CTRL21 -[hidden]right-> CTRL22
+CTRL22 -[hidden]right-> CTRL23
+CTRL23 -[hidden]right-> CTRL24
+
+rectangle "业务服务层 Service" as SERVICE {
+  together {
+    rectangle "用户服务\n注册 / 登录 / 资料维护 / 头像管理" as S1
+    rectangle "知识库服务\n知识库 / 文件夹 / 目录树 / 图谱概览" as S2
+    rectangle "笔记服务\n创建 / 编辑 / 自动保存 / 双链解析" as S3
+    rectangle "标签服务" as S4
+  }
+
+  together {
+    rectangle "模板服务" as S5
+    rectangle "附件服务\n上传 / 下载 / Vditor 图片上传" as S6
+    rectangle "用户设置服务" as S7
+    rectangle "知识图谱能力" as S8
+  }
+}
+
+S1 -[hidden]right-> S2
+S2 -[hidden]right-> S3
+S3 -[hidden]right-> S4
+S5 -[hidden]right-> S6
+S6 -[hidden]right-> S7
+S7 -[hidden]right-> S8
+S1 -[hidden]down-> S5
+
+rectangle "数据访问层 Persistence" as DAO {
+  together {
+    rectangle "Mapper / MyBatis-Plus\nUserMapper / KnowledgeBaseMapper / FolderMapper\nNoteMapper / NoteContentMapper / NoteHistoryMapper\nTagMapper / NoteTagMapper / NoteLinkMapper\nNoteTemplateMapper / NoteAttachmentMapper / UserSettingsMapper" as D1
+    rectangle "实体与数据对象\nEntity / DTO / VO / Result" as D2
+    rectangle "配置与工具\napplication.yaml / JwtUtil / VditorThemeCatalog" as D3
+    rectangle "文件资源管理\nuploads/avatars / uploads/attachments" as D4
+  }
+}
+
+D1 -[hidden]right-> D2
+D2 -[hidden]right-> D3
+D3 -[hidden]right-> D4
+
+database "MySQL" as DB
+
+User --> APP
+APP7 --> CTRL24 : HTTP / JSON
+CTRL24 --> CTRL1 : 接口分发
+CTRL --> SERVICE : 业务调用
+SERVICE --> DAO : 数据访问
+DAO --> DB : 持久化存储
+
+S6 ..> D4 : 文件读写
+S8 ..> D1 : 关联关系分析
+
+@enduml

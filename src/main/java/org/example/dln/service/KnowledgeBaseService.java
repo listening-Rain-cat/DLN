@@ -1,6 +1,5 @@
 package org.example.dln.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.example.dln.dto.CreateFolderDTO;
 import org.example.dln.dto.CreateKnowledgeBaseDTO;
 import org.example.dln.dto.UpdateFolderDTO;
@@ -8,26 +7,42 @@ import org.example.dln.dto.UpdateKnowledgeBaseDTO;
 import org.example.dln.entity.Folder;
 import org.example.dln.entity.KnowledgeBase;
 import org.example.dln.entity.Note;
+import org.example.dln.entity.NoteLink;
+import org.example.dln.entity.NoteTag;
+import org.example.dln.entity.Tag;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.FolderMapper;
 import org.example.dln.mapper.KnowledgeBaseMapper;
+import org.example.dln.mapper.NoteLinkMapper;
 import org.example.dln.mapper.NoteMapper;
+import org.example.dln.mapper.NoteTagMapper;
+import org.example.dln.mapper.TagMapper;
 import org.example.dln.vo.KnowledgeBaseVO;
+import org.example.dln.vo.KnowledgeGraphEdgeVO;
+import org.example.dln.vo.KnowledgeGraphNodeVO;
+import org.example.dln.vo.KnowledgeGraphVO;
+import org.example.dln.vo.TagVO;
 import org.example.dln.vo.TreeNodeVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * 知识库与目录树业务逻辑。
+ * 包名：org.example.dln.service
+ * 类名：KnowledgeBaseService
+ * 类描述：处理知识库、文件夹和树结构相关业务逻辑。
+ * 创建人：@author Rain_润
  */
 @Service
 public class KnowledgeBaseService {
@@ -39,7 +54,19 @@ public class KnowledgeBaseService {
 
     @Autowired
     private NoteMapper noteMapper;
-    // 创建知识库
+
+    @Autowired
+    private NoteLinkMapper noteLinkMapper;
+
+    @Autowired
+    private NoteTagMapper noteTagMapper;
+
+    @Autowired
+    private TagMapper tagMapper;
+
+    /**
+    * 创建知识库。
+    */
     public KnowledgeBaseVO createKnowledgeBase(Long userId, CreateKnowledgeBaseDTO dto) {
         String name = dto.getName().trim();
         checkKnowledgeBaseNameExists(userId, name, null);
@@ -49,27 +76,32 @@ public class KnowledgeBaseService {
         knowledgeBase.setName(name);
         knowledgeBase.setDescription(trimToNull(dto.getDescription()));
         knowledgeBase.setStatus(1);
+        knowledgeBase.setDeleteToken(0L);
         if (knowledgeBaseMapper.insert(knowledgeBase) <= 0) {
             throw new BusinessException("创建知识库失败");
         }
         return toKnowledgeBaseVO(knowledgeBase);
     }
-    // 获取全部知识库
+
+    /**
+    * 查询知识库列表。
+    */
     public List<KnowledgeBaseVO> listKnowledgeBases(Long userId) {
-        return knowledgeBaseMapper.selectList(new LambdaQueryWrapper<KnowledgeBase>()
-                        .eq(KnowledgeBase::getUserId, userId)
-                        .eq(KnowledgeBase::getStatus, 1)
-                        .orderByDesc(KnowledgeBase::getUpdatedTime))
+        return knowledgeBaseMapper.selectActiveByUserIdOrderByUpdatedTimeDesc(userId)
                 .stream()
                 .map(this::toKnowledgeBaseVO)
                 .toList();
     }
-    // 更新知识库
+
+    /**
+    * 更新知识库。
+    */
     @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseVO updateKnowledgeBase(Long userId, Long knowledgeBaseId, UpdateKnowledgeBaseDTO dto) {
         KnowledgeBase knowledgeBase = getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
         String name = dto.getName().trim();
         checkKnowledgeBaseNameExists(userId, name, knowledgeBaseId);
+
         knowledgeBase.setName(name);
         knowledgeBase.setDescription(trimToNull(dto.getDescription()));
         if (knowledgeBaseMapper.updateById(knowledgeBase) <= 0) {
@@ -77,28 +109,52 @@ public class KnowledgeBaseService {
         }
         return toKnowledgeBaseVO(knowledgeBase);
     }
-    // 删除知识库
+
+    /**
+    * 删除知识库。
+    */
     @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledgeBase(Long userId, Long knowledgeBaseId) {
         KnowledgeBase knowledgeBase = getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
+        List<Folder> folders = folderMapper.selectActiveByKnowledgeBaseIdOrderByNameAsc(knowledgeBaseId);
+        List<Note> notes = noteMapper.selectActiveByKnowledgeBaseId(knowledgeBaseId);
+        LocalDateTime deletedTime = LocalDateTime.now();
+        for (Note note : notes) {
+            note.setStatus(2);
+            note.setDeletedTime(deletedTime);
+            note.setDeleteToken(note.getId());
+            if (noteMapper.updateById(note) <= 0) {
+                throw new BusinessException("删除知识库下的笔记失败");
+            }
+            noteLinkMapper.deleteBySourceNoteId(note.getId());
+            noteTagMapper.deleteByNoteId(note.getId());
+        }
+        for (Folder folder : folders) {
+            folder.setStatus(2);
+            folder.setDeletedTime(deletedTime);
+            folder.setDeleteToken(folder.getId());
+            if (folderMapper.updateById(folder) <= 0) {
+                throw new BusinessException("删除知识库下的文件夹失败");
+            }
+        }
+        tagMapper.deleteByKnowledgeBaseId(knowledgeBaseId);
         knowledgeBase.setStatus(0);
+        knowledgeBase.setDeletedTime(deletedTime);
+        knowledgeBase.setDeleteToken(knowledgeBase.getId());
         if (knowledgeBaseMapper.updateById(knowledgeBase) <= 0) {
             throw new BusinessException("删除知识库失败");
         }
     }
-    // 获取知识库目录树
+
+    /**
+    * 获取知识库目录树。
+    */
     public List<TreeNodeVO> getKnowledgeBaseTree(Long userId, Long knowledgeBaseId) {
         getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
 
-        List<Folder> folders = folderMapper.selectList(new LambdaQueryWrapper<Folder>()
-                .eq(Folder::getKnowledgeBaseId, knowledgeBaseId)
-                .eq(Folder::getStatus, 1)
-                .orderByAsc(Folder::getName));
-        List<Note> notes = noteMapper.selectList(new LambdaQueryWrapper<Note>()
-                .eq(Note::getUserId, userId)
-                .eq(Note::getKnowledgeBaseId, knowledgeBaseId)
-                .eq(Note::getStatus, 1)
-                .orderByAsc(Note::getTitle));
+        List<Folder> folders = folderMapper.selectActiveByKnowledgeBaseIdOrderByNameAsc(knowledgeBaseId);
+        List<Note> notes = noteMapper.selectActiveByUserIdAndKnowledgeBaseIdOrderByTitleAsc(userId, knowledgeBaseId);
+        Map<Long, List<TagVO>> noteTagMap = buildNoteTagMap(notes);
 
         Map<Long, TreeNodeVO> folderNodeMap = new HashMap<>();
         for (Folder folder : folders) {
@@ -112,6 +168,7 @@ public class KnowledgeBaseService {
                 roots.add(folderNode);
                 continue;
             }
+
             TreeNodeVO parent = folderNodeMap.get(folderNode.getParentId());
             if (parent != null) {
                 parent.getChildren().add(folderNode);
@@ -125,7 +182,10 @@ public class KnowledgeBaseService {
             node.setName(note.getTitle());
             node.setType("note");
             node.setKnowledgeBaseId(note.getKnowledgeBaseId());
+            node.setCreatedTime(note.getCreatedTime());
             node.setUpdatedTime(note.getUpdatedTime());
+            node.setTags(noteTagMap.getOrDefault(note.getId(), new ArrayList<>()));
+
             if (note.getFolderId() == null) {
                 roots.add(node);
             } else {
@@ -141,7 +201,68 @@ public class KnowledgeBaseService {
         sortNodesRecursively(roots);
         return roots;
     }
-    // 创建文件夹
+
+    /**
+    * 获取知识图谱。
+    */
+    public KnowledgeGraphVO getKnowledgeGraph(Long userId, Long knowledgeBaseId) {
+        getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
+
+        List<Note> notes = noteMapper.selectActiveByUserIdAndKnowledgeBaseIdOrderByTitleAsc(userId, knowledgeBaseId);
+        List<NoteLink> links = noteLinkMapper.selectByKnowledgeBaseId(knowledgeBaseId);
+
+        Map<Long, Note> noteMap = new HashMap<>();
+        Map<Long, Integer> incomingCountMap = new HashMap<>();
+        Map<Long, Integer> outgoingCountMap = new HashMap<>();
+
+        for (Note note : notes) {
+            noteMap.put(note.getId(), note);
+            incomingCountMap.put(note.getId(), 0);
+            outgoingCountMap.put(note.getId(), 0);
+        }
+
+        List<KnowledgeGraphEdgeVO> edgeList = new ArrayList<>();
+        for (NoteLink link : links) {
+            if (link.getTargetNoteId() == null) {
+                continue;
+            }
+            if (!noteMap.containsKey(link.getSourceNoteId()) || !noteMap.containsKey(link.getTargetNoteId())) {
+                continue;
+            }
+
+            outgoingCountMap.computeIfPresent(link.getSourceNoteId(), (key, value) -> value + 1);
+            incomingCountMap.computeIfPresent(link.getTargetNoteId(), (key, value) -> value + 1);
+
+            KnowledgeGraphEdgeVO edge = new KnowledgeGraphEdgeVO();
+            edge.setId(link.getId());
+            edge.setSourceNoteId(link.getSourceNoteId());
+            edge.setTargetNoteId(link.getTargetNoteId());
+            edge.setTargetNoteName(link.getTargetNoteName());
+            edge.setIsBroken(link.getIsBroken());
+            edgeList.add(edge);
+        }
+
+        List<KnowledgeGraphNodeVO> nodeList = new ArrayList<>();
+        for (Note note : notes) {
+            KnowledgeGraphNodeVO node = new KnowledgeGraphNodeVO();
+            node.setNoteId(note.getId());
+            node.setFolderId(note.getFolderId());
+            node.setTitle(note.getTitle());
+            node.setIncomingCount(incomingCountMap.getOrDefault(note.getId(), 0));
+            node.setOutgoingCount(outgoingCountMap.getOrDefault(note.getId(), 0));
+            nodeList.add(node);
+        }
+
+        KnowledgeGraphVO graph = new KnowledgeGraphVO();
+        graph.setKnowledgeBaseId(knowledgeBaseId);
+        graph.setNodes(nodeList);
+        graph.setEdges(edgeList);
+        return graph;
+    }
+
+    /**
+    * 创建文件夹。
+    */
     @Transactional(rollbackFor = Exception.class)
     public TreeNodeVO createFolder(Long userId, CreateFolderDTO dto) {
         KnowledgeBase knowledgeBase = getKnowledgeBaseOrThrow(userId, dto.getKnowledgeBaseId());
@@ -154,18 +275,25 @@ public class KnowledgeBaseService {
         folder.setParentId(dto.getParentId());
         folder.setName(name);
         folder.setStatus(1);
+        folder.setDeleteToken(0L);
         if (folderMapper.insert(folder) <= 0) {
             throw new BusinessException("创建文件夹失败");
         }
+
+        touchKnowledgeBase(knowledgeBase.getId());
         return toFolderNode(folder);
     }
-    // 更新文件夹
+
+    /**
+    * 更新文件夹。
+    */
     @Transactional(rollbackFor = Exception.class)
     public TreeNodeVO updateFolder(Long userId, Long folderId, UpdateFolderDTO dto) {
         Folder folder = getFolderByIdOrThrow(folderId);
         getKnowledgeBaseOrThrow(userId, folder.getKnowledgeBaseId());
         validateParentFolder(folder.getKnowledgeBaseId(), dto.getParentId());
-        if (folder.getId().equals(dto.getParentId())) {
+
+        if (Objects.equals(folder.getId(), dto.getParentId())) {
             throw new BusinessException("文件夹不能移动到自身下面");
         }
         if (dto.getParentId() != null && isDescendantFolder(folder.getId(), dto.getParentId())) {
@@ -174,75 +302,127 @@ public class KnowledgeBaseService {
 
         String name = dto.getName().trim();
         checkFolderNameExists(folder.getKnowledgeBaseId(), dto.getParentId(), name, folderId);
+
         folder.setParentId(dto.getParentId());
         folder.setName(name);
         if (folderMapper.updateById(folder) <= 0) {
             throw new BusinessException("更新文件夹失败");
         }
+
+        touchKnowledgeBase(folder.getKnowledgeBaseId());
         return toFolderNode(folder);
     }
-    // 删除文件夹
+
+    /**
+    * 删除文件夹。
+    */
     @Transactional(rollbackFor = Exception.class)
     public void deleteFolder(Long userId, Long folderId) {
         Folder folder = getFolderByIdOrThrow(folderId);
         getKnowledgeBaseOrThrow(userId, folder.getKnowledgeBaseId());
 
-        Long childFolderCount = folderMapper.selectCount(new LambdaQueryWrapper<Folder>()
-                .eq(Folder::getParentId, folderId)
-                .eq(Folder::getStatus, 1));
-        if (childFolderCount > 0) {
-            throw new BusinessException("请先清空子文件夹后再删除");
+        List<Folder> folders = folderMapper.selectActiveByKnowledgeBaseIdOrderByNameAsc(folder.getKnowledgeBaseId());
+        Set<Long> folderIdsToDelete = collectFolderIdsToDelete(folders, folderId);
+        LocalDateTime deletedTime = LocalDateTime.now();
+
+        List<Note> notes = noteMapper.selectActiveByKnowledgeBaseId(folder.getKnowledgeBaseId());
+        for (Note note : notes) {
+            if (!folderIdsToDelete.contains(note.getFolderId())) {
+                continue;
+            }
+
+            note.setStatus(2);
+            note.setDeletedTime(deletedTime);
+            note.setDeleteToken(note.getId());
+            if (noteMapper.updateById(note) <= 0) {
+                throw new BusinessException("删除文件夹下的笔记失败");
+            }
+            noteLinkMapper.deleteBySourceNoteId(note.getId());
+            noteTagMapper.deleteByNoteId(note.getId());
         }
 
-        Long childNoteCount = noteMapper.selectCount(new LambdaQueryWrapper<Note>()
-                .eq(Note::getFolderId, folderId)
-                .eq(Note::getStatus, 1));
-        if (childNoteCount > 0) {
-            throw new BusinessException("请先清空文件夹中的笔记后再删除");
+        for (Folder currentFolder : folders) {
+            if (!folderIdsToDelete.contains(currentFolder.getId())) {
+                continue;
+            }
+
+            currentFolder.setStatus(2);
+            currentFolder.setDeletedTime(deletedTime);
+            currentFolder.setDeleteToken(currentFolder.getId());
+            if (folderMapper.updateById(currentFolder) <= 0) {
+                throw new BusinessException("删除文件夹失败");
+            }
         }
 
-        folder.setStatus(2);
-        if (folderMapper.updateById(folder) <= 0) {
-            throw new BusinessException("删除文件夹失败");
+        refreshBrokenLinks(folder.getKnowledgeBaseId());
+        touchKnowledgeBase(folder.getKnowledgeBaseId());
+    }
+
+    /**
+    * 刷新知识库更新时间。
+    */
+    public void touchKnowledgeBase(Long knowledgeBaseId) {
+        if (knowledgeBaseId == null) {
+            return;
+        }
+        if (knowledgeBaseMapper.touchUpdatedTime(knowledgeBaseId) <= 0) {
+            throw new BusinessException("更新知识库更新时间失败");
         }
     }
-    // 获取知识库
+
+    /**
+    * 获取知识库，不存在时抛出异常。
+    */
     public KnowledgeBase getKnowledgeBaseOrThrow(Long userId, Long knowledgeBaseId) {
-        KnowledgeBase knowledgeBase = knowledgeBaseMapper.selectById(knowledgeBaseId);
+        KnowledgeBase knowledgeBase = knowledgeBaseMapper.selectByKnowledgeBaseId(knowledgeBaseId);
         if (knowledgeBase == null
                 || !Objects.equals(knowledgeBase.getUserId(), userId)
                 || knowledgeBase.getStatus() == null
-                || knowledgeBase.getStatus() != 1) {
+                || knowledgeBase.getStatus() != 1
+                || !Objects.equals(knowledgeBase.getDeleteToken(), 0L)) {
             throw new BusinessException("知识库不存在或无权限访问");
         }
         return knowledgeBase;
     }
 
+    /**
+    * 获取知识库中的文件夹，不存在时抛出异常。
+    */
     public Folder getFolderInKnowledgeBaseOrThrow(Long knowledgeBaseId, Long folderId) {
         Folder folder = getFolderByIdOrThrow(folderId);
         if (!Objects.equals(folder.getKnowledgeBaseId(), knowledgeBaseId)
                 || folder.getStatus() == null
-                || folder.getStatus() != 1) {
+                || folder.getStatus() != 1
+                || !Objects.equals(folder.getDeleteToken(), 0L)) {
             throw new BusinessException("文件夹不存在");
         }
         return folder;
     }
-    // 获取文件夹
+
+    /**
+    * 根据 ID 获取文件夹，不存在时抛出异常。
+    */
     private Folder getFolderByIdOrThrow(Long folderId) {
-        Folder folder = folderMapper.selectById(folderId);
-        if (folder == null || folder.getStatus() == null || folder.getStatus() != 1) {
+        Folder folder = folderMapper.selectByFolderId(folderId);
+        if (folder == null
+                || folder.getStatus() == null
+                || folder.getStatus() != 1
+                || !Objects.equals(folder.getDeleteToken(), 0L)) {
             throw new BusinessException("文件夹不存在");
         }
         return folder;
     }
-    // 判断文件夹是否是子文件夹
+
+    /**
+    * 判断目标文件夹是否为子级目录。
+    */
     private boolean isDescendantFolder(Long folderId, Long targetParentId) {
         Long currentParentId = targetParentId;
         while (currentParentId != null) {
             if (Objects.equals(currentParentId, folderId)) {
                 return true;
             }
-            Folder parent = folderMapper.selectById(currentParentId);
+            Folder parent = folderMapper.selectByFolderId(currentParentId);
             if (parent == null) {
                 return false;
             }
@@ -250,7 +430,59 @@ public class KnowledgeBaseService {
         }
         return false;
     }
-    // 验证父文件夹
+
+    /**
+    * 收集待删除的文件夹 ID。
+    */
+    private Set<Long> collectFolderIdsToDelete(List<Folder> folders, Long rootFolderId) {
+        Map<Long, List<Long>> childrenMap = new HashMap<>();
+        for (Folder folder : folders) {
+            if (folder.getParentId() == null) {
+                continue;
+            }
+            childrenMap.computeIfAbsent(folder.getParentId(), key -> new ArrayList<>()).add(folder.getId());
+        }
+
+        Set<Long> folderIds = new HashSet<>();
+        collectFolderIdsRecursively(rootFolderId, childrenMap, folderIds);
+        return folderIds;
+    }
+
+    /**
+    * 递归收集文件夹 ID。
+    */
+    private void collectFolderIdsRecursively(Long folderId, Map<Long, List<Long>> childrenMap, Set<Long> collector) {
+        if (folderId == null || !collector.add(folderId)) {
+            return;
+        }
+
+        for (Long childFolderId : childrenMap.getOrDefault(folderId, List.of())) {
+            collectFolderIdsRecursively(childFolderId, childrenMap, collector);
+        }
+    }
+
+    /**
+    * 刷新失效双链状态。
+    */
+    private void refreshBrokenLinks(Long knowledgeBaseId) {
+        List<Note> activeNotes = noteMapper.selectActiveByKnowledgeBaseId(knowledgeBaseId);
+        Map<String, Long> titleMap = new HashMap<>();
+        for (Note note : activeNotes) {
+            titleMap.put(note.getTitle(), note.getId());
+        }
+
+        List<NoteLink> links = noteLinkMapper.selectByKnowledgeBaseId(knowledgeBaseId);
+        for (NoteLink link : links) {
+            Long targetNoteId = titleMap.get(link.getTargetNoteName());
+            link.setTargetNoteId(targetNoteId);
+            link.setIsBroken(targetNoteId == null ? 1 : 0);
+            noteLinkMapper.updateById(link);
+        }
+    }
+
+    /**
+    * 校验父级文件夹是否合法。
+    */
     private void validateParentFolder(Long knowledgeBaseId, Long parentId) {
         if (parentId == null) {
             return;
@@ -260,31 +492,32 @@ public class KnowledgeBaseService {
             throw new BusinessException("父文件夹不属于当前知识库");
         }
     }
-    // 检查知识库名称是否存在
+
+    /**
+    * 检查知识库名称是否已存在。
+    */
     private void checkKnowledgeBaseNameExists(Long userId, String name, Long excludeId) {
-        List<KnowledgeBase> existing = knowledgeBaseMapper.selectList(new LambdaQueryWrapper<KnowledgeBase>()
-                .eq(KnowledgeBase::getUserId, userId)
-                .eq(KnowledgeBase::getName, name)
-                .eq(KnowledgeBase::getStatus, 1));
+        List<KnowledgeBase> existing = knowledgeBaseMapper.selectActiveByUserIdAndName(userId, name);
         boolean exists = existing.stream().anyMatch(item -> !Objects.equals(item.getId(), excludeId));
         if (exists) {
             throw new BusinessException("知识库名称已存在");
         }
     }
-    // 检查文件夹名称是否存在
+
+    /**
+    * 检查文件夹名称是否已存在。
+    */
     private void checkFolderNameExists(Long knowledgeBaseId, Long parentId, String name, Long excludeId) {
-        List<Folder> folders = folderMapper.selectList(new LambdaQueryWrapper<Folder>()
-                .eq(Folder::getKnowledgeBaseId, knowledgeBaseId)
-                .eq(Folder::getName, name)
-                .eq(Folder::getStatus, 1));
-        boolean exists = folders.stream()
-                .filter(folder -> Objects.equals(folder.getParentId(), parentId))
-                .anyMatch(folder -> !Objects.equals(folder.getId(), excludeId));
+        List<Folder> folders = folderMapper.selectActiveByKnowledgeBaseIdAndParentIdAndName(knowledgeBaseId, parentId, name);
+        boolean exists = folders.stream().anyMatch(folder -> !Objects.equals(folder.getId(), excludeId));
         if (exists) {
             throw new BusinessException("同级目录下已存在同名文件夹");
         }
     }
-    // 排序节点
+
+    /**
+    * 递归排序树节点。
+    */
     private void sortNodesRecursively(List<TreeNodeVO> nodes) {
         nodes.sort(Comparator.comparing(TreeNodeVO::getType).reversed()
                 .thenComparing(TreeNodeVO::getName, String.CASE_INSENSITIVE_ORDER));
@@ -294,13 +527,19 @@ public class KnowledgeBaseService {
             }
         }
     }
-    // 转换为知识库
+
+    /**
+    * 将知识库实体转换为知识库视图对象。
+    */
     private KnowledgeBaseVO toKnowledgeBaseVO(KnowledgeBase knowledgeBase) {
         KnowledgeBaseVO vo = new KnowledgeBaseVO();
         BeanUtils.copyProperties(knowledgeBase, vo);
         return vo;
     }
-    // 转换为文件夹
+
+    /**
+    * 将文件夹实体转换为树节点对象。
+    */
     private TreeNodeVO toFolderNode(Folder folder) {
         TreeNodeVO node = new TreeNodeVO();
         node.setId(folder.getId());
@@ -308,10 +547,66 @@ public class KnowledgeBaseService {
         node.setName(folder.getName());
         node.setType("folder");
         node.setKnowledgeBaseId(folder.getKnowledgeBaseId());
+        node.setCreatedTime(folder.getCreatedTime());
         node.setUpdatedTime(folder.getUpdatedTime());
         return node;
     }
-    // 去空
+
+    /**
+    * 构建笔记标签映射。
+    */
+    private Map<Long, List<TagVO>> buildNoteTagMap(List<Note> notes) {
+        Map<Long, List<TagVO>> result = new HashMap<>();
+        if (notes == null || notes.isEmpty()) {
+            return result;
+        }
+
+        List<Long> noteIds = new ArrayList<>();
+        for (Note note : notes) {
+            noteIds.add(note.getId());
+        }
+
+        List<NoteTag> noteTags = noteTagMapper.selectByNoteIds(noteIds);
+        if (noteTags == null || noteTags.isEmpty()) {
+            return result;
+        }
+
+        Set<Long> tagIds = new HashSet<>();
+        for (NoteTag noteTag : noteTags) {
+            tagIds.add(noteTag.getTagId());
+        }
+
+        Map<Long, TagVO> tagMap = new HashMap<>();
+        for (Tag tag : tagMapper.selectByTagIds(tagIds)) {
+            tagMap.put(tag.getId(), toTagVO(tag));
+        }
+
+        for (NoteTag noteTag : noteTags) {
+            TagVO tag = tagMap.get(noteTag.getTagId());
+            if (tag == null) {
+                continue;
+            }
+            result.computeIfAbsent(noteTag.getNoteId(), key -> new ArrayList<>()).add(tag);
+        }
+
+        for (List<TagVO> tags : result.values()) {
+            tags.sort(Comparator.comparing(TagVO::getName, String.CASE_INSENSITIVE_ORDER));
+        }
+        return result;
+    }
+
+    /**
+    * 将标签实体转换为标签视图对象。
+    */
+    private TagVO toTagVO(Tag tag) {
+        TagVO vo = new TagVO();
+        BeanUtils.copyProperties(tag, vo);
+        return vo;
+    }
+
+    /**
+    * 去除字符串首尾空白并在为空时返回 null。
+    */
     private String trimToNull(String value) {
         if (value == null) {
             return null;

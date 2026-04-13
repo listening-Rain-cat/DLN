@@ -15,19 +15,24 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 /**
- * 包名称： org.example.dln.config
- * 类名称：SecurityConfig
- * 类描述：
+ * 包名：org.example.dln.config
+ * 类名：SecurityConfig
+ * 类描述：配置应用安全相关组件。
  * 创建人：@author Rain_润
- * 创建时间：2026-03-19 19:59
  */
 @Configuration
-@EnableWebSecurity//启用Spring Security
+@EnableWebSecurity//閸氼垳鏁pring Security
 public class SecurityConfig {
+    /**
+    * 创建密码编码器。
+    */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    /**
+    * 构建安全过滤器链。
+    */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -40,6 +45,9 @@ public class SecurityConfig {
 
         return http.build();
     }
+    /**
+    * 构建跨域配置源。
+    */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

@@ -1,148 +1,90 @@
 ﻿<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, provide, reactive, ref, watch } from 'vue'
+import {
+  buildGraphLayout,
+  clearAuthCookie,
+  collectSubtreeIds,
+  DEFAULT_CODE_THEME,
+  DEFAULT_CONTENT_THEME,
+  DEFAULT_CONTENT_THEME_OPTIONS,
+  extractTagIds,
+  findTreeNodeById,
+  formatDateTime,
+  GRAPH_VIEW_HEIGHT,
+  GRAPH_VIEW_WIDTH,
+  LEGACY_TOKEN_KEY,
+  loadStoredUser,
+  normalizeNote,
+  normalizeOptionalText,
+  normalizeTagIds,
+  previewTemplateContent,
+  resolveAssetUrl,
+  setAuthCookie,
+  TOKEN_KEY,
+} from './app/shared'
+import type {
+  AuthMode,
+  CreateItemType,
+  DeleteKind,
+  Id,
+  KnowledgeBase,
+  KnowledgeBaseModalMode,
+  KnowledgeGraph,
+  NoteDetail,
+  NoteLinkCandidate,
+  NoteLinkOpenHandler,
+  NoteLinkPreview,
+  NoteTemplate,
+  NoticeType,
+  TagItem,
+  TemplateModalMode,
+  TreeNode,
+  UserInfo,
+  ViewMode,
+} from './app/shared'
+import { useKnowledgeBaseData } from './app/useKnowledgeBaseData'
+import { useNoteAutosave } from './app/useNoteAutosave'
+import { useWorkspaceChrome } from './app/useWorkspaceChrome'
+import { useSessionManager } from './app/useSessionManager'
+import AppRail from './components/AppRail.vue'
+import AvatarCropModal from './components/AvatarCropModal.vue'
 import AuthPanel from './components/auth/AuthPanel.vue'
+import KnowledgeGraphSvgView from './components/graph/KnowledgeGraphSvgView.vue'
+import KnowledgeGraphCytoscape from './components/KnowledgeGraphCytoscape.vue'
 import LibraryPanel from './components/layout/LibraryPanel.vue'
+import CreateItemModal from './components/modals/CreateItemModal.vue'
+import DeleteConfirmModal from './components/modals/DeleteConfirmModal.vue'
+import EditFolderModal from './components/modals/EditFolderModal.vue'
+import KnowledgeBaseModalView from './components/modals/KnowledgeBaseModal.vue'
+import NoteTemplateModal from './components/modals/NoteTemplateModal.vue'
+import UserSettingsView from './components/settings/UserSettingsView.vue'
+import NoteTemplatesView from './components/templates/NoteTemplatesView.vue'
 import HomeView from './components/workspace/HomeView.vue'
-
-type Id = string
-type ViewMode = 'home' | 'settings' | 'graph'
-type NoticeType = 'success' | 'error'
-type AuthMode = 'login' | 'register'
-type KnowledgeBaseModalMode = 'create' | 'edit'
-type CreateItemType = 'folder' | 'note'
-type DeleteKind = 'knowledge-base' | 'folder' | 'note'
-
-interface ApiResult<T> {
-  code: number
-  message: string
-  data: T
-}
-
-interface LoginResponse {
-  id: Id
-  username: string
-  email: string
-  nickname: string
-  avatarUrl?: string | null
-  status?: number
-  createdTime?: string
-  updatedTime?: string
-  token: string
-}
-
-interface UserInfo {
-  id: Id
-  username: string
-  email: string
-  nickname: string
-  avatarUrl?: string | null
-  status?: number
-  createdTime?: string
-  updatedTime?: string
-}
-
-interface KnowledgeBase {
-  id: Id
-  name: string
-  description?: string | null
-  status?: number
-  createdTime?: string
-  updatedTime?: string
-}
-
-interface TreeNode {
-  id: Id
-  parentId: Id | null
-  name: string
-  type: 'folder' | 'note'
-  knowledgeBaseId: Id
-  updatedTime?: string
-  children?: TreeNode[]
-}
-
-interface TagItem {
-  id: Id
-  name: string
-}
-
-interface AttachmentItem {
-  id: Id
-  fileName: string
-  fileUrl: string
-}
-
-interface LinkItem {
-  id: Id
-  sourceNoteId?: Id
-  targetNoteId?: Id | null
-  targetNoteName?: string
-}
-
-interface NoteDetail {
-  id: Id
-  knowledgeBaseId: Id
-  folderId: Id | null
-  title: string
-  status?: number
-  markdownContent: string
-  createdTime?: string
-  updatedTime?: string
-  tags?: TagItem[]
-  attachments?: AttachmentItem[]
-  outgoingLinks?: LinkItem[]
-  incomingLinks?: LinkItem[]
-}
-
-const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080')
-  .trim()
-  .replace(/\/+$/, '')
-
-const TOKEN_KEY = 'dln-token'
-const LEGACY_TOKEN_KEY = 'token'
-const USER_KEY = 'dln-user'
-
-function loadStoredUser(): UserInfo | null {
-  const raw = localStorage.getItem(USER_KEY)
-  if (!raw) {
-    return null
-  }
-
-  try {
-    return JSON.parse(raw) as UserInfo
-  } catch {
-    localStorage.removeItem(USER_KEY)
-    return null
-  }
-}
-
-function normalizeOptionalText(value: string) {
-  const trimmed = value.trim()
-  return trimmed ? trimmed : null
-}
-
-function normalizeNote(note: NoteDetail): NoteDetail {
-  return {
-    ...note,
-    markdownContent: note.markdownContent || '',
-    tags: note.tags ?? [],
-    attachments: note.attachments ?? [],
-    outgoingLinks: note.outgoingLinks ?? [],
-    incomingLinks: note.incomingLinks ?? [],
-  }
-}
 
 const token = ref(localStorage.getItem(TOKEN_KEY) || localStorage.getItem(LEGACY_TOKEN_KEY) || '')
 const currentUser = ref<UserInfo | null>(loadStoredUser())
 const viewMode = ref<ViewMode>('home')
+const userContentTheme = ref(DEFAULT_CONTENT_THEME)
+const userCodeTheme = ref(DEFAULT_CODE_THEME)
+const contentThemeOptions = ref<string[]>([...DEFAULT_CONTENT_THEME_OPTIONS])
+const codeThemeOptions = ref<string[]>([DEFAULT_CODE_THEME])
 
 const knowledgeBases = ref<KnowledgeBase[]>([])
+const knowledgeBaseTags = ref<TagItem[]>([])
+const noteTemplates = ref<NoteTemplate[]>([])
 const treeNodes = ref<TreeNode[]>([])
+const knowledgeGraph = ref<KnowledgeGraph | null>(null)
 const selectedKnowledgeBaseId = ref<Id | null>(null)
 const selectedFolderId = ref<Id | null>(null)
 const selectedNoteId = ref<Id | null>(null)
 const currentNote = ref<NoteDetail | null>(null)
+const selectedNoteTagIds = ref<Id[]>([])
+const knowledgeBaseTagCreateTick = ref(0)
+const noteTagCreateTick = ref(0)
 const noteTitle = ref('')
 const noteContent = ref('')
+const libraryCollapsed = ref(false)
+const workspaceFullscreen = ref(false)
 
 const notice = reactive({
   text: '',
@@ -154,11 +96,32 @@ let noticeTimer: number | null = null
 const loading = reactive({
   auth: false,
   knowledgeBases: false,
+  tags: false,
+  tagSubmit: false,
+  templates: false,
+  graph: false,
   tree: false,
   note: false,
   save: false,
   profile: false,
+  userSettings: false,
+  themeOptions: false,
+  avatarUpload: false,
+  templateSubmit: false,
 })
+
+watch(
+  token,
+  (value) => {
+    if (value.trim()) {
+      setAuthCookie(value)
+      return
+    }
+
+    clearAuthCookie()
+  },
+  { immediate: true },
+)
 
 const authForm = reactive({
   mode: 'login' as AuthMode,
@@ -178,6 +141,12 @@ const profileForm = reactive({
   confirmPassword: '',
 })
 
+const avatarCropModal = reactive({
+  open: false,
+  imageUrl: '',
+  fileName: '',
+})
+
 const knowledgeBaseModal = reactive({
   open: false,
   mode: 'create' as KnowledgeBaseModalMode,
@@ -186,11 +155,29 @@ const knowledgeBaseModal = reactive({
   description: '',
 })
 
+const templateModal = reactive({
+  open: false,
+  mode: 'create' as TemplateModalMode,
+  id: null as Id | null,
+  name: '',
+  description: '',
+  templateContent: '',
+})
+
 const createItemModal = reactive({
   open: false,
   type: 'folder' as CreateItemType,
   parentId: null as Id | null,
   name: '',
+  templateId: null as Id | null,
+})
+
+const editFolderModal = reactive({
+  open: false,
+  id: null as Id | null,
+  parentId: null as Id | null,
+  name: '',
+  busy: false,
 })
 
 const deleteModal = reactive({
@@ -219,6 +206,9 @@ const userInitial = computed(() => {
   return displayName.value.slice(0, 1).toUpperCase()
 })
 
+const currentAvatarUrl = computed(() => resolveAssetUrl(currentUser.value?.avatarUrl))
+const profileAvatarUrl = computed(() => resolveAssetUrl(profileForm.avatarUrl || currentUser.value?.avatarUrl))
+
 const authTitle = computed(() => {
   return authForm.mode === 'login' ? '欢迎回来' : '创建你的账号'
 })
@@ -240,10 +230,26 @@ const deleteTitle = computed(() => {
     return '删除文件夹'
   }
 
+  if (deleteModal.kind === 'template') {
+    return '删除模板'
+  }
+
+  if (deleteModal.kind === 'tag') {
+    return '删除标签'
+  }
+
   return '删除笔记'
 })
 
 const deleteCopy = computed(() => {
+  if (deleteModal.kind === 'knowledge-base') {
+    return `将删除知识库“${deleteModal.targetName || '当前知识库'}”以及其下所有文件夹和笔记，此操作无法撤销。`
+  }
+
+  if (deleteModal.kind === 'tag') {
+    return `将删除标签“${deleteModal.targetName || '当前标签'}”，关联到笔记的该标签也会一并移除。`
+  }
+
   return `将删除“${deleteModal.targetName || '当前内容'}”，此操作无法撤销。`
 })
 
@@ -271,19 +277,51 @@ const noteNodes = computed(() => {
   return flatTreeNodes.value.filter((node) => node.type === 'note')
 })
 
+const graphNodeCount = computed(() => knowledgeGraph.value?.nodes.length ?? 0)
+const graphEdgeCount = computed(() => knowledgeGraph.value?.edges.length ?? 0)
+const graphLayout = computed(() => buildGraphLayout(knowledgeGraph.value))
+
 const noteCount = computed(() => {
   return noteNodes.value.length
 })
 
-const noteSaved = computed(() => {
-  if (!currentNote.value) {
-    return false
+const selectedCreateTemplate = computed(() => {
+  return noteTemplates.value.find((item) => item.id === createItemModal.templateId) ?? null
+})
+
+const currentFolder = computed(() => {
+  if (!selectedFolderId.value) {
+    return null
   }
 
-  return (
-    noteTitle.value.trim() === currentNote.value.title &&
-    noteContent.value === (currentNote.value.markdownContent || '')
-  )
+  return flatTreeNodes.value.find((node) => node.type === 'folder' && node.id === selectedFolderId.value) ?? null
+})
+
+const {
+  fetchUserInfo,
+  fetchUserSettings,
+  fetchUserThemeOptions,
+  handleEditorThemeChange,
+  handleSettingsThemeSelectionChange,
+  persistUser,
+  request,
+  saveProfile,
+  submitAuth,
+  syncProfileForm,
+} = useSessionManager({
+  token,
+  currentUser,
+  authForm,
+  profileForm,
+  loading,
+  userContentTheme,
+  userCodeTheme,
+  contentThemeOptions,
+  codeThemeOptions,
+  viewMode,
+  showNotice,
+  onUnauthorized: () => logout(false),
+  onAfterAuthSuccess: () => initializeApp(),
 })
 
 function showNotice(text: string, type: NoticeType = 'success') {
@@ -300,50 +338,114 @@ function showNotice(text: string, type: NoticeType = 'success') {
   }, 3600)
 }
 
-function syncProfileForm() {
-  profileForm.nickname = currentUser.value?.nickname ?? ''
-  profileForm.email = currentUser.value?.email ?? ''
-  profileForm.avatarUrl = currentUser.value?.avatarUrl ?? ''
-  profileForm.oldPassword = ''
-  profileForm.newPassword = ''
-  profileForm.confirmPassword = ''
+const { autoSaveError, autoSavingNote, clearCurrentNote, noteSaved, saveNote } = useNoteAutosave({
+  request,
+  showNotice,
+  refreshKnowledgeBasesSnapshot: () => refreshKnowledgeBasesSnapshot(),
+  currentNote,
+  selectedNoteId,
+  selectedNoteTagIds,
+  noteTitle,
+  noteContent,
+  treeNodes,
+  loading,
+})
+
+const {
+  fetchKnowledgeBases,
+  loadKnowledgeBaseContext,
+  loadKnowledgeGraph,
+  loadKnowledgeBaseTags,
+  loadKnowledgeBaseTree,
+  loadNoteTemplates,
+  refreshKnowledgeBasesSnapshot,
+} = useKnowledgeBaseData({
+  request,
+  loading,
+  viewMode,
+  knowledgeBases,
+  knowledgeBaseTags,
+  noteTemplates,
+  treeNodes,
+  knowledgeGraph,
+  selectedKnowledgeBaseId,
+  selectedFolderId,
+  selectedNoteTagIds,
+  currentNote,
+  clearCurrentNote,
+})
+
+const { showKnowledgeBaseSidebar, statusbarLeftItems, statusbarRightItems } = useWorkspaceChrome({
+  viewMode,
+  selectedKnowledgeBaseId,
+  currentNote,
+  currentFolder,
+  selectedKnowledgeBase,
+  noteTemplates,
+  knowledgeBases,
+  loading,
+  graphNodeCount,
+  graphEdgeCount,
+  autoSavingNote,
+  autoSaveError,
+  noteSaved,
+  noteCount,
+  folderCount,
+  displayName,
+})
+
+function toggleLibraryPanel(collapsed?: boolean) {
+  libraryCollapsed.value = typeof collapsed === 'boolean' ? collapsed : !libraryCollapsed.value
 }
 
-function persistUser(user: UserInfo | null) {
-  currentUser.value = user
-
-  if (user) {
-    localStorage.setItem(USER_KEY, JSON.stringify(user))
-  } else {
-    localStorage.removeItem(USER_KEY)
+function openHomeDashboard() {
+  if (currentNote.value && !noteSaved.value) {
+    showNotice('请先保存或关闭当前笔记，再返回知识库首页。', 'error')
+    return
   }
 
-  syncProfileForm()
+  viewMode.value = 'home'
+  selectedKnowledgeBaseId.value = null
+  knowledgeBaseTags.value = []
+  knowledgeGraph.value = null
+  selectedFolderId.value = null
+  treeNodes.value = []
+  clearCurrentNote()
+  libraryCollapsed.value = false
 }
 
-function applyLoginUser(user: LoginResponse) {
-  persistUser({
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    nickname: user.nickname,
-    avatarUrl: user.avatarUrl,
-    status: user.status,
-    createdTime: user.createdTime,
-    updatedTime: user.updatedTime,
-  })
-}
+async function openCurrentKnowledgeBaseWorkspace() {
+  const knowledgeBaseId = selectedKnowledgeBaseId.value
+  if (!knowledgeBaseId) {
+    return
+  }
 
-function clearCurrentNote() {
-  currentNote.value = null
-  selectedNoteId.value = null
-  noteTitle.value = ''
-  noteContent.value = ''
+  if (currentNote.value && !noteSaved.value) {
+    showNotice('请先保存当前笔记，再返回知识库页面。', 'error')
+    return
+  }
+
+  clearCurrentNote()
+  viewMode.value = 'home'
+  libraryCollapsed.value = false
+
+  try {
+    await loadKnowledgeBaseContext(knowledgeBaseId)
+  } catch (error) {
+    showNotice((error as Error).message, 'error')
+  }
 }
 
 function resetWorkspace() {
   knowledgeBases.value = []
+  knowledgeBaseTags.value = []
+  noteTemplates.value = []
   treeNodes.value = []
+  knowledgeGraph.value = null
+  userContentTheme.value = DEFAULT_CONTENT_THEME
+  userCodeTheme.value = DEFAULT_CODE_THEME
+  contentThemeOptions.value = [...DEFAULT_CONTENT_THEME_OPTIONS]
+  codeThemeOptions.value = [DEFAULT_CODE_THEME]
   selectedKnowledgeBaseId.value = null
   selectedFolderId.value = null
   clearCurrentNote()
@@ -355,6 +457,7 @@ function logout(showMessage = true) {
   localStorage.removeItem(LEGACY_TOKEN_KEY)
   persistUser(null)
   resetWorkspace()
+  libraryCollapsed.value = false
   viewMode.value = 'home'
   authForm.mode = 'login'
   authForm.password = ''
@@ -362,106 +465,6 @@ function logout(showMessage = true) {
 
   if (showMessage) {
     showNotice('已退出登录。')
-  }
-}
-
-async function request<T>(path: string, init: RequestInit = {}, withAuth = true): Promise<T> {
-  const headers = new Headers(init.headers ?? {})
-
-  if (!(init.body instanceof FormData) && init.body != null && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
-  }
-
-  if (withAuth && token.value) {
-    headers.set('Authorization', token.value.startsWith('Bearer ') ? token.value : `Bearer ${token.value}`)
-  }
-
-  let response: Response
-
-  try {
-    response = await fetch(`${API_BASE}${path}`, {
-      ...init,
-      headers,
-    })
-  } catch {
-    throw new Error('无法连接后端服务，请确认后端已启动并允许当前页面访问。')
-  }
-
-  const rawText = await response.text()
-  let payload: ApiResult<T> | null = null
-
-  if (rawText) {
-    try {
-      payload = JSON.parse(rawText) as ApiResult<T>
-    } catch {
-      payload = null
-    }
-  }
-
-  if (response.status === 401) {
-    logout(false)
-    showNotice('登录状态已过期，请重新登录。', 'error')
-    throw new Error(payload?.message || '登录状态已过期。')
-  }
-
-  if (!response.ok || !payload || payload.code !== 200) {
-    throw new Error(payload?.message || `请求失败，状态码 ${response.status}。`)
-  }
-
-  return payload.data
-}
-
-async function fetchUserInfo() {
-  const user = await request<UserInfo>('/userInfo')
-  persistUser(user)
-}
-
-async function loadKnowledgeBaseTree(knowledgeBaseId: Id) {
-  viewMode.value = 'home'
-  selectedKnowledgeBaseId.value = knowledgeBaseId
-
-  if (currentNote.value?.knowledgeBaseId !== knowledgeBaseId) {
-    selectedFolderId.value = null
-    clearCurrentNote()
-  }
-
-  loading.tree = true
-
-  try {
-    treeNodes.value = await request<TreeNode[]>(`/knowledgeBases/${knowledgeBaseId}/tree`)
-  } finally {
-    loading.tree = false
-  }
-
-  if (currentNote.value?.knowledgeBaseId === knowledgeBaseId) {
-    selectedFolderId.value = currentNote.value.folderId
-  }
-}
-
-async function fetchKnowledgeBases() {
-  loading.knowledgeBases = true
-
-  try {
-    const data = await request<KnowledgeBase[]>('/knowledgeBases')
-    knowledgeBases.value = data
-
-    if (!data.length) {
-      selectedKnowledgeBaseId.value = null
-      treeNodes.value = []
-      selectedFolderId.value = null
-      clearCurrentNote()
-      return
-    }
-
-    const nextId = data.some((item) => item.id === selectedKnowledgeBaseId.value)
-      ? selectedKnowledgeBaseId.value
-      : data[0].id
-
-    if (nextId) {
-      await loadKnowledgeBaseTree(nextId)
-    }
-  } finally {
-    loading.knowledgeBases = false
   }
 }
 
@@ -473,124 +476,79 @@ async function initializeApp() {
   }
 
   try {
-    await Promise.all([fetchKnowledgeBases(), fetchUserInfo()])
+    await Promise.all([
+      fetchKnowledgeBases(),
+      fetchUserInfo(),
+      fetchUserSettings(),
+      fetchUserThemeOptions(),
+      loadNoteTemplates(),
+    ])
   } catch (error) {
     showNotice((error as Error).message, 'error')
   }
 }
 
-async function submitAuth() {
-  const mode = authForm.mode
+function closeAvatarCropModal() {
+  if (avatarCropModal.imageUrl) {
+    URL.revokeObjectURL(avatarCropModal.imageUrl)
+  }
+  avatarCropModal.open = false
+  avatarCropModal.imageUrl = ''
+  avatarCropModal.fileName = ''
+}
+
+async function handleAvatarChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) {
+    return
+  }
 
   try {
-    if (!authForm.username.trim() || !authForm.password.trim()) {
-      throw new Error('用户名和密码不能为空。')
+    if (!file.type.startsWith('image/')) {
+      throw new Error('请选择图片文件作为头像。')
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('头像大小不能超过 5MB。')
     }
 
-    loading.auth = true
-
-    if (mode === 'register') {
-      if (!authForm.nickname.trim() || !authForm.email.trim()) {
-        throw new Error('注册时请填写昵称和邮箱。')
-      }
-
-      if (authForm.password !== authForm.confirmPassword) {
-        throw new Error('两次输入的密码不一致。')
-      }
-
-      await request(
-        '/register',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            username: authForm.username.trim(),
-            password: authForm.password,
-            confirmPassword: authForm.confirmPassword,
-            email: authForm.email.trim(),
-            nickname: authForm.nickname.trim(),
-          }),
-        },
-        false,
-      )
-    }
-
-    const loginData = await request<LoginResponse>(
-      '/login',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          username: authForm.username.trim(),
-          password: authForm.password,
-        }),
-      },
-      false,
-    )
-
-    token.value = loginData.token
-    localStorage.setItem(TOKEN_KEY, loginData.token)
-    localStorage.setItem(LEGACY_TOKEN_KEY, loginData.token)
-    applyLoginUser(loginData)
-    authForm.mode = 'login'
-    authForm.password = ''
-    authForm.confirmPassword = ''
-    viewMode.value = 'home'
-    await initializeApp()
-    showNotice(mode === 'login' ? '登录成功。' : '注册成功。')
+    closeAvatarCropModal()
+    avatarCropModal.imageUrl = URL.createObjectURL(file)
+    avatarCropModal.fileName = file.name
+    avatarCropModal.open = true
   } catch (error) {
     showNotice((error as Error).message, 'error')
   } finally {
-    loading.auth = false
+    input.value = ''
   }
 }
 
-async function saveProfile() {
+async function uploadCroppedAvatar(file: File) {
   try {
-    if (!profileForm.nickname.trim() || !profileForm.email.trim()) {
-      throw new Error('昵称和邮箱不能为空。')
-    }
+    loading.avatarUpload = true
+    const formData = new FormData()
+    formData.append('file', file)
 
-    if (profileForm.oldPassword || profileForm.newPassword || profileForm.confirmPassword) {
-      if (!profileForm.oldPassword) {
-        throw new Error('修改密码前请先输入当前密码。')
-      }
-
-      if (!profileForm.newPassword) {
-        throw new Error('请输入新密码。')
-      }
-
-      if (profileForm.newPassword !== profileForm.confirmPassword) {
-        throw new Error('两次输入的新密码不一致。')
-      }
-    }
-
-    loading.profile = true
-
-    await request('/user', {
-      method: 'PUT',
-      body: JSON.stringify({
-        nickname: profileForm.nickname.trim(),
-        email: profileForm.email.trim(),
-        avatarUrl: normalizeOptionalText(profileForm.avatarUrl),
-        oldPassword: normalizeOptionalText(profileForm.oldPassword),
-        newPassword: normalizeOptionalText(profileForm.newPassword),
-      }),
+    const user = await request<UserInfo>('/user/avatar', {
+      method: 'POST',
+      body: formData,
     })
 
-    await fetchUserInfo()
-    profileForm.oldPassword = ''
-    profileForm.newPassword = ''
-    profileForm.confirmPassword = ''
-    showNotice('个人资料已更新。')
+    persistUser(user)
+    closeAvatarCropModal()
+    showNotice('头像上传成功。')
   } catch (error) {
     showNotice((error as Error).message, 'error')
   } finally {
-    loading.profile = false
+    loading.avatarUpload = false
   }
 }
 
 async function selectKnowledgeBase(knowledgeBaseId: Id) {
   try {
-    await loadKnowledgeBaseTree(knowledgeBaseId)
+    libraryCollapsed.value = false
+    await loadKnowledgeBaseContext(knowledgeBaseId)
   } catch (error) {
     showNotice((error as Error).message, 'error')
   }
@@ -601,9 +559,15 @@ async function openNote(noteId: Id) {
 
   try {
     const detail = normalizeNote(await request<NoteDetail>(`/notes/${noteId}`))
+
+    if (selectedKnowledgeBaseId.value !== detail.knowledgeBaseId) {
+      await loadKnowledgeBaseContext(detail.knowledgeBaseId)
+    }
+
     currentNote.value = detail
     selectedNoteId.value = detail.id
     selectedFolderId.value = detail.folderId
+    selectedNoteTagIds.value = extractTagIds(detail.tags)
     noteTitle.value = detail.title
     noteContent.value = detail.markdownContent || ''
     viewMode.value = 'home'
@@ -612,10 +576,39 @@ async function openNote(noteId: Id) {
   }
 }
 
+async function fetchNoteLinkCandidates(keyword: string) {
+  if (!currentNote.value?.id) {
+    return []
+  }
+
+  return await request<NoteLinkCandidate[]>(
+    `/notes/${currentNote.value.id}/links/candidates?keyword=${encodeURIComponent(keyword)}`,
+  )
+}
+
+async function fetchNoteLinkPreview(title: string) {
+  if (!currentNote.value?.id) {
+    return null
+  }
+
+  return await request<NoteLinkPreview>(
+    `/notes/${currentNote.value.id}/links/preview?title=${encodeURIComponent(title)}`,
+  )
+}
+
+provide('noteLinkCandidatesFetcher', fetchNoteLinkCandidates)
+provide('noteLinkPreviewFetcher', fetchNoteLinkPreview)
+provide('noteLinkOpenHandler', (noteId: Id) => openNote(noteId) as ReturnType<NoteLinkOpenHandler>)
+provide('currentNoteIdGetter', () => currentNote.value?.id ?? null)
+
 function handleTreeNodeSelect(node: TreeNode) {
   viewMode.value = 'home'
 
   if (node.type === 'folder') {
+    if (currentNote.value) {
+      return
+    }
+
     selectedFolderId.value = node.id
     clearCurrentNote()
     return
@@ -624,6 +617,14 @@ function handleTreeNodeSelect(node: TreeNode) {
   void openNote(node.id).catch((error: Error) => {
     showNotice(error.message, 'error')
   })
+}
+
+function openGraphView() {
+  viewMode.value = 'graph'
+}
+
+function openGraphTestView() {
+  viewMode.value = 'graph-test'
 }
 
 function openKnowledgeBaseModal(mode: KnowledgeBaseModalMode, item?: KnowledgeBase) {
@@ -636,6 +637,23 @@ function openKnowledgeBaseModal(mode: KnowledgeBaseModalMode, item?: KnowledgeBa
 
 function closeKnowledgeBaseModal() {
   knowledgeBaseModal.open = false
+}
+
+function openTemplateModal(mode: TemplateModalMode, template?: NoteTemplate) {
+  templateModal.open = true
+  templateModal.mode = mode
+  templateModal.id = template?.id ?? null
+  templateModal.name = template?.name ?? ''
+  templateModal.description = template?.description ?? ''
+  templateModal.templateContent = template?.templateContent ?? ''
+}
+
+function closeTemplateModal() {
+  templateModal.open = false
+  templateModal.id = null
+  templateModal.name = ''
+  templateModal.description = ''
+  templateModal.templateContent = ''
 }
 
 async function submitKnowledgeBase() {
@@ -672,12 +690,123 @@ async function submitKnowledgeBase() {
     await fetchKnowledgeBases()
 
     if (targetId) {
-      await loadKnowledgeBaseTree(targetId)
+      libraryCollapsed.value = false
+      await loadKnowledgeBaseContext(targetId)
     }
 
     showNotice(modalMode === 'create' ? '知识库创建成功。' : '知识库已更新。')
   } catch (error) {
     showNotice((error as Error).message, 'error')
+  }
+}
+
+async function createKnowledgeBaseTag(name: string, options: { selectForCurrentNote?: boolean } = {}) {
+  const knowledgeBaseId = selectedKnowledgeBaseId.value
+
+  if (!knowledgeBaseId) {
+    throw new Error('请先选择一个知识库。')
+  }
+
+  const normalizedName = name.trim()
+
+  if (!normalizedName) {
+    throw new Error('标签名称不能为空。')
+  }
+
+  loading.tagSubmit = true
+
+  try {
+    const created = await request<TagItem>(`/knowledgeBases/${knowledgeBaseId}/tags`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: normalizedName,
+      }),
+    })
+
+    await loadKnowledgeBaseTags(knowledgeBaseId)
+
+    if (options.selectForCurrentNote && currentNote.value?.knowledgeBaseId === knowledgeBaseId) {
+      selectedNoteTagIds.value = normalizeTagIds([...selectedNoteTagIds.value, created.id])
+      noteTagCreateTick.value += 1
+    } else {
+      knowledgeBaseTagCreateTick.value += 1
+    }
+
+    await refreshKnowledgeBasesSnapshot()
+    showNotice(options.selectForCurrentNote ? '标签已创建并选中。' : '标签创建成功。')
+    return created
+  } finally {
+    loading.tagSubmit = false
+  }
+}
+
+async function createNoteTag(name: string) {
+  try {
+    await createKnowledgeBaseTag(name, { selectForCurrentNote: true })
+  } catch (error) {
+    showNotice((error as Error).message, 'error')
+  }
+}
+
+async function createWorkspaceTag(name: string) {
+  try {
+    await createKnowledgeBaseTag(name)
+  } catch (error) {
+    showNotice((error as Error).message, 'error')
+  }
+}
+
+function toggleNoteTag(tagId: Id) {
+  if (!currentNote.value) {
+    return
+  }
+
+  selectedNoteTagIds.value = selectedNoteTagIds.value.includes(tagId)
+    ? selectedNoteTagIds.value.filter((currentTagId) => currentTagId !== tagId)
+    : normalizeTagIds([...selectedNoteTagIds.value, tagId])
+}
+
+async function submitTemplate() {
+  const modalMode = templateModal.mode
+
+  try {
+    if (!templateModal.name.trim()) {
+      throw new Error('模板名称不能为空。')
+    }
+
+    if (!templateModal.templateContent.trim()) {
+      throw new Error('模板内容不能为空。')
+    }
+
+    loading.templateSubmit = true
+
+    if (modalMode === 'create') {
+      await request<NoteTemplate>('/templates', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: templateModal.name.trim(),
+          description: normalizeOptionalText(templateModal.description),
+          templateContent: templateModal.templateContent,
+        }),
+      })
+    } else if (templateModal.id) {
+      await request<NoteTemplate>(`/templates/${templateModal.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: templateModal.name.trim(),
+          description: normalizeOptionalText(templateModal.description),
+          templateContent: templateModal.templateContent,
+        }),
+      })
+    }
+
+    await loadNoteTemplates()
+    closeTemplateModal()
+    showNotice(modalMode === 'create' ? '模板创建成功。' : '模板已更新。')
+  } catch (error) {
+    showNotice((error as Error).message, 'error')
+  } finally {
+    loading.templateSubmit = false
   }
 }
 
@@ -691,10 +820,60 @@ function openCreateItemModal(type: CreateItemType, parentId: Id | null = null) {
   createItemModal.type = type
   createItemModal.parentId = parentId
   createItemModal.name = ''
+  createItemModal.templateId = null
 }
 
 function closeCreateItemModal() {
   createItemModal.open = false
+  createItemModal.parentId = null
+  createItemModal.name = ''
+  createItemModal.templateId = null
+}
+
+function openEditFolderModal(folder: TreeNode) {
+  editFolderModal.open = true
+  editFolderModal.id = folder.id
+  editFolderModal.parentId = folder.parentId
+  editFolderModal.name = folder.name
+  editFolderModal.busy = false
+}
+
+function closeEditFolderModal() {
+  editFolderModal.open = false
+  editFolderModal.id = null
+  editFolderModal.parentId = null
+  editFolderModal.name = ''
+  editFolderModal.busy = false
+}
+
+async function submitEditFolder() {
+  if (!selectedKnowledgeBaseId.value || !editFolderModal.id) {
+    return
+  }
+
+  try {
+    if (!editFolderModal.name.trim()) {
+      throw new Error('文件夹名称不能为空。')
+    }
+
+    editFolderModal.busy = true
+
+    await request(`/knowledgeBases/folders/${editFolderModal.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        parentId: editFolderModal.parentId,
+        name: editFolderModal.name.trim(),
+      }),
+    })
+
+    await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
+    await refreshKnowledgeBasesSnapshot()
+    closeEditFolderModal()
+    showNotice('文件夹已重命名。')
+  } catch (error) {
+    editFolderModal.busy = false
+    showNotice((error as Error).message, 'error')
+  }
 }
 
 async function submitCreateItem() {
@@ -718,6 +897,7 @@ async function submitCreateItem() {
       })
 
       await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
+      await refreshKnowledgeBasesSnapshot()
       closeCreateItemModal()
       showNotice('文件夹创建成功。')
       return
@@ -729,11 +909,13 @@ async function submitCreateItem() {
         knowledgeBaseId: selectedKnowledgeBaseId.value,
         folderId: createItemModal.parentId,
         title: createItemModal.name.trim(),
-        markdownContent: `# ${createItemModal.name.trim()}\n\n`,
+        templateId: createItemModal.templateId,
+        markdownContent: '',
       }),
     })
 
     await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
+    await refreshKnowledgeBasesSnapshot()
     await openNote(created.id)
     closeCreateItemModal()
     showNotice('笔记创建成功。')
@@ -748,6 +930,10 @@ function openDeleteModal(kind: DeleteKind, targetId: Id, targetName: string) {
   deleteModal.targetId = targetId
   deleteModal.targetName = targetName
   deleteModal.busy = false
+}
+
+function handleDeleteTag(payload: { id: Id; name: string }) {
+  openDeleteModal('tag', payload.id, payload.name)
 }
 
 function closeDeleteModal() {
@@ -785,19 +971,65 @@ async function confirmDelete() {
     }
 
     if (deleteModal.kind === 'folder') {
+      const targetFolderNode = findTreeNodeById(treeNodes.value, deleteModal.targetId)
+      const deletingFolderIds = new Set<Id>()
+      const deletingNoteIds = new Set<Id>()
+
+      if (targetFolderNode) {
+        collectSubtreeIds(targetFolderNode, deletingFolderIds, deletingNoteIds)
+      }
+
       await request(`/knowledgeBases/folders/${deleteModal.targetId}`, {
         method: 'DELETE',
       })
 
-      if (selectedFolderId.value === deleteModal.targetId) {
+      if (selectedFolderId.value && deletingFolderIds.has(selectedFolderId.value)) {
         selectedFolderId.value = null
+      }
+
+      if (selectedNoteId.value && deletingNoteIds.has(selectedNoteId.value)) {
+        clearCurrentNote()
       }
 
       if (selectedKnowledgeBaseId.value) {
         await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
       }
+      await refreshKnowledgeBasesSnapshot()
 
       showNotice('文件夹已删除。')
+      closeDeleteModal()
+      return
+    }
+
+    if (deleteModal.kind === 'template') {
+      await request(`/templates/${deleteModal.targetId}`, {
+        method: 'DELETE',
+      })
+
+      await loadNoteTemplates()
+      showNotice('模板已删除。')
+      closeDeleteModal()
+      return
+    }
+
+    if (deleteModal.kind === 'tag') {
+      await request(`/tags/${deleteModal.targetId}`, {
+        method: 'DELETE',
+      })
+
+      knowledgeBaseTags.value = knowledgeBaseTags.value.filter((tag) => tag.id !== deleteModal.targetId)
+      selectedNoteTagIds.value = selectedNoteTagIds.value.filter((tagId) => tagId !== deleteModal.targetId)
+
+      if (currentNote.value) {
+        currentNote.value = {
+          ...currentNote.value,
+          tags: (currentNote.value.tags ?? []).filter((tag) => tag.id !== deleteModal.targetId),
+        }
+      }
+
+      await refreshKnowledgeBasesSnapshot()
+
+      showNotice('标签已删除。')
       closeDeleteModal()
       return
     }
@@ -813,6 +1045,7 @@ async function confirmDelete() {
     if (selectedKnowledgeBaseId.value) {
       await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
     }
+    await refreshKnowledgeBasesSnapshot()
 
     showNotice('笔记已删除。')
     closeDeleteModal()
@@ -822,54 +1055,12 @@ async function confirmDelete() {
   }
 }
 
-async function saveNote() {
-  if (!currentNote.value) {
-    return
-  }
-
-  try {
-    if (!noteTitle.value.trim()) {
-      throw new Error('笔记标题不能为空。')
-    }
-
-    loading.save = true
-
-    const updated = normalizeNote(
-      await request<NoteDetail>(`/notes/${currentNote.value.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          folderId: currentNote.value.folderId,
-          title: noteTitle.value.trim(),
-          markdownContent: noteContent.value,
-        }),
-      }),
-    )
-
-    currentNote.value = updated
-    selectedNoteId.value = updated.id
-    selectedFolderId.value = updated.folderId
-    noteTitle.value = updated.title
-    noteContent.value = updated.markdownContent || ''
-
-    if (selectedKnowledgeBaseId.value) {
-      await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
-    }
-
-    showNotice('笔记已保存。')
-  } catch (error) {
-    showNotice((error as Error).message, 'error')
-  } finally {
-    loading.save = false
-  }
-}
-
-function graphNodeStyle(index: number) {
-  const total = Math.max(noteNodes.value.length, 1)
-  const angle = (Math.PI * 2 * index) / total - Math.PI / 2
-  const radius = 150 + (index % 3) * 24
-
+function graphNodeStyle(node: { x: number; y: number; radius: number }) {
   return {
-    transform: `translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
+    left: `${(node.x / GRAPH_VIEW_WIDTH) * 100}%`,
+    top: `${(node.y / GRAPH_VIEW_HEIGHT) * 100}%`,
+    minWidth: `${92 + node.radius * 2}px`,
+    maxWidth: `${148 + node.radius * 2}px`,
   }
 }
 
@@ -880,6 +1071,25 @@ function openGraphNote(noteId: Id) {
   })
 }
 
+watch(
+  () => [viewMode.value, selectedKnowledgeBaseId.value] as const,
+  ([mode, knowledgeBaseId]) => {
+    if (mode !== 'graph' && mode !== 'graph-test') {
+      return
+    }
+
+    if (!knowledgeBaseId) {
+      knowledgeGraph.value = null
+      return
+    }
+
+    void loadKnowledgeGraph(knowledgeBaseId).catch((error: Error) => {
+      showNotice(error.message, 'error')
+    })
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   syncProfileForm()
   void initializeApp()
@@ -887,90 +1097,58 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="hasToken" class="shell">
-    <aside class="rail">
-      <div class="logo-mark">DL</div>
-
-      <button type="button" class="rail-button" :class="{ active: viewMode === 'home' }" @click="viewMode = 'home'">
-        主页
-      </button>
-      <button
-        type="button"
-        class="rail-button"
-        :class="{ active: viewMode === 'settings' }"
-        @click="viewMode = 'settings'"
-      >
-        设置
-      </button>
-      <button type="button" class="rail-button" :class="{ active: viewMode === 'graph' }" @click="viewMode = 'graph'">
-        图谱
-      </button>
-
-      <div class="rail-bottom">
-        <strong>{{ displayName }}</strong>
-        <span>{{ displayEmail }}</span>
-      </div>
-    </aside>
-
-    <LibraryPanel
-      :knowledge-bases="knowledgeBases"
-      :selected-knowledge-base-id="selectedKnowledgeBaseId"
-      :selected-knowledge-base-name="selectedKnowledgeBase?.name || ''"
-      :tree-nodes="treeNodes"
-      :selected-folder-id="selectedFolderId"
-      :selected-note-id="selectedNoteId"
-      :loading-tree="loading.tree"
-      :loading-knowledge-bases="loading.knowledgeBases"
-      @create-knowledge-base="openKnowledgeBaseModal('create')"
-      @edit-knowledge-base="openKnowledgeBaseModal('edit', $event)"
-      @delete-knowledge-base="openDeleteModal('knowledge-base', $event.id, $event.name)"
-      @select-knowledge-base="selectKnowledgeBase"
-      @create-folder="openCreateItemModal('folder', $event)"
-      @create-note="openCreateItemModal('note', $event)"
-      @select-tree-node="handleTreeNodeSelect"
-      @delete-folder="openDeleteModal('folder', $event.id, $event.name)"
-      @delete-note="openDeleteModal('note', $event.id, $event.name)"
+  <div
+    v-if="hasToken"
+    class="shell"
+    :class="{
+      'library-collapsed': libraryCollapsed || !showKnowledgeBaseSidebar,
+      'editor-fullscreen-active': workspaceFullscreen,
+    }"
+  >
+    <AppRail
+      :view-mode="viewMode"
+      :display-name="displayName"
+      :display-email="displayEmail"
+      :current-avatar-url="currentAvatarUrl"
+      :user-initial="userInitial"
+      @open-home="openHomeDashboard"
+      @open-templates="viewMode = 'templates'"
+      @open-settings="viewMode = 'settings'"
+      @open-graph="openGraphView"
+      @open-graph-test="openGraphTestView"
+      @logout="logout()"
     />
-    <main class="workspace">
-      <header class="workspace-header">
-        <div>
-          <p class="eyebrow">
-            {{ viewMode === 'home' ? '工作台' : viewMode === 'settings' ? '用户设置' : '知识图谱' }}
-          </p>
-          <h1>
-            {{
-              viewMode === 'home'
-                ? currentNote?.title || selectedKnowledgeBase?.name || '准备开始记录'
-                : viewMode === 'settings'
-                  ? '账号设置'
-                  : selectedKnowledgeBase?.name || '图谱视图'
-            }}
-          </h1>
-          <p class="workspace-copy">
-            {{
-              viewMode === 'home'
-                ? '左侧管理目录树，中间编辑 Markdown，右侧可按标题快速跳转。'
-                : viewMode === 'settings'
-                  ? '这里可以修改个人资料和密码。后端地址已经改为通过项目配置管理，不再在界面中展示。'
-                  : '这里展示当前知识库的轻量知识图谱视图。'
-            }}
-          </p>
-        </div>
 
-        <div class="inline-actions">
-          <button
-            v-if="viewMode === 'home' && currentNote"
-            type="button"
-            class="soft-button accent"
-            :disabled="loading.save"
-            @click="saveNote"
-          >
-            {{ loading.save ? '保存中...' : noteSaved ? '已保存' : '保存笔记' }}
-          </button>
-          <button type="button" class="soft-button" @click="logout()">退出登录</button>
-        </div>
-      </header>
+    <div v-if="showKnowledgeBaseSidebar && !libraryCollapsed" class="library-column">
+      <LibraryPanel
+        :user-name="displayName"
+        :selected-knowledge-base-id="selectedKnowledgeBaseId"
+        :selected-knowledge-base-name="selectedKnowledgeBase?.name || ''"
+        :selected-knowledge-base-description="selectedKnowledgeBase?.description || ''"
+        :tree-nodes="treeNodes"
+        :selected-folder-id="selectedFolderId"
+        :selected-note-id="selectedNoteId"
+        :loading-tree="loading.tree"
+        :has-current-note="Boolean(currentNote)"
+        @create-folder="openCreateItemModal('folder', $event)"
+        @create-note="openCreateItemModal('note', $event)"
+        @edit-folder="openEditFolderModal"
+        @select-tree-node="handleTreeNodeSelect"
+        @delete-folder="openDeleteModal('folder', $event.id, $event.name)"
+        @delete-note="openDeleteModal('note', $event.id, $event.name)"
+        @exit-knowledge-base="openHomeDashboard"
+        @open-knowledge-base-directory="openCurrentKnowledgeBaseWorkspace"
+        @toggle-collapse="toggleLibraryPanel(true)"
+      />
+    </div>
 
+    <main
+      class="workspace"
+      :class="{
+        'editor-fullscreen-active': workspaceFullscreen,
+        'note-page-active': Boolean(currentNote),
+      }"
+    >
       <div v-if="notice.text" class="notice" :class="notice.type">
         {{ notice.text }}
       </div>
@@ -980,104 +1158,115 @@ onMounted(() => {
         v-model:note-title="noteTitle"
         v-model:note-content="noteContent"
         :loading-note="loading.note"
+        :loading-knowledge-bases="loading.knowledgeBases"
+        :loading-tags="loading.tags"
+        :submitting-tag="loading.tagSubmit"
+        :saving-note="loading.save"
+        :note-saved="noteSaved"
+        :knowledge-base-tag-create-tick="knowledgeBaseTagCreateTick"
+        :note-tag-create-tick="noteTagCreateTick"
+        :loading-templates="loading.templates"
+        :loading-tree="loading.tree"
         :current-note="currentNote"
+        :knowledge-base-tags="knowledgeBaseTags"
+        :selected-note-tag-ids="selectedNoteTagIds"
+        :selected-knowledge-base-id="selectedKnowledgeBaseId"
+        :selected-knowledge-base="selectedKnowledgeBase"
         :selected-knowledge-base-name="selectedKnowledgeBase?.name || ''"
+        :selected-knowledge-base-description="selectedKnowledgeBase?.description || ''"
+        :knowledge-bases="knowledgeBases"
+        :note-templates="noteTemplates"
+        :tree-nodes="treeNodes"
+        :selected-folder-id="selectedFolderId"
+        :selected-note-id="selectedNoteId"
         :knowledge-base-count="knowledgeBases.length"
         :folder-count="folderCount"
         :note-count="noteCount"
+        :show-library-panel-toggle="showKnowledgeBaseSidebar && libraryCollapsed"
+        :editor-content-theme="userContentTheme"
+        :editor-code-theme="userCodeTheme"
+        :on-create-knowledge-base-tag="createWorkspaceTag"
+        :on-create-note-tag="createNoteTag"
+        :on-toggle-note-tag="toggleNoteTag"
+        :on-delete-tag="handleDeleteTag"
+        @select-knowledge-base="selectKnowledgeBase"
+        @select-tree-node="handleTreeNodeSelect"
+        @create-folder="openCreateItemModal('folder', $event)"
+        @create-note="openCreateItemModal('note', $event)"
+        @edit-folder="openEditFolderModal"
+        @toggle-library-panel="toggleLibraryPanel(false)"
+        @save-note="saveNote"
+        @editor-fullscreen-change="workspaceFullscreen = $event"
+        @editor-theme-change="handleEditorThemeChange"
+        @create-knowledge-base="openKnowledgeBaseModal('create')"
+        @delete-folder="openDeleteModal('folder', $event.id, $event.name)"
+        @delete-note="openDeleteModal('note', $event.id, $event.name)"
+        @edit-knowledge-base="openKnowledgeBaseModal('edit', $event)"
+        @delete-knowledge-base="openDeleteModal('knowledge-base', $event.id, $event.name)"
       />
-      <div v-else-if="viewMode === 'settings'" class="settings-grid">
-        <article class="main-panel">
-          <div class="panel-heading compact">
-            <div>
-              <p class="eyebrow">个人资料</p>
-              <h3>公开显示信息</h3>
-            </div>
-            <button type="button" class="soft-button accent" :disabled="loading.profile" @click="saveProfile">
-              {{ loading.profile ? '保存中...' : '保存资料' }}
-            </button>
-          </div>
+      <UserSettingsView
+        v-else-if="viewMode === 'settings'"
+        v-model:content-theme="userContentTheme"
+        v-model:code-theme="userCodeTheme"
+        :loading-profile="loading.profile"
+        :loading-avatar-upload="loading.avatarUpload"
+        :loading-user-settings="loading.userSettings"
+        :loading-theme-options="loading.themeOptions"
+        :current-username="currentUser?.username || ''"
+        :profile-form="profileForm"
+        :display-name="displayName"
+        :display-email="displayEmail"
+        :user-initial="userInitial"
+        :profile-avatar-url="profileAvatarUrl"
+        :content-theme-options="contentThemeOptions"
+        :code-theme-options="codeThemeOptions"
+        @save-profile="saveProfile"
+        @avatar-change="handleAvatarChange"
+        @theme-selection-change="handleSettingsThemeSelectionChange"
+      />
 
-          <div class="profile-summary">
-            <div class="avatar-chip">{{ userInitial }}</div>
-            <div>
-              <strong>{{ displayName }}</strong>
-              <p>{{ displayEmail }}</p>
-            </div>
-          </div>
-
-          <label class="field">
-            <span>昵称</span>
-            <input v-model="profileForm.nickname" type="text" />
-          </label>
-
-          <label class="field">
-            <span>邮箱</span>
-            <input v-model="profileForm.email" type="email" />
-          </label>
-
-          <label class="field">
-            <span>头像地址</span>
-            <input v-model="profileForm.avatarUrl" type="text" />
-          </label>
-        </article>
-
-        <article class="main-panel">
-          <div class="panel-heading compact">
-            <div>
-              <p class="eyebrow">安全</p>
-              <h3>密码与会话</h3>
-            </div>
-            <button type="button" class="soft-button" @click="logout()">退出登录</button>
-          </div>
-
-          <label class="field">
-            <span>用户名</span>
-            <input :value="currentUser?.username || ''" type="text" readonly />
-          </label>
-
-          <label class="field">
-            <span>当前密码</span>
-            <input v-model="profileForm.oldPassword" type="password" />
-          </label>
-
-          <label class="field">
-            <span>新密码</span>
-            <input v-model="profileForm.newPassword" type="password" />
-          </label>
-
-          <label class="field">
-            <span>确认新密码</span>
-            <input v-model="profileForm.confirmPassword" type="password" />
-          </label>
-
-          <div class="empty-card compact-card">
-            界面中已经不再提供后端地址输入框。如果部署时需要修改接口地址，请配置
-            <code>VITE_API_BASE_URL</code>。
-          </div>
-        </article>
+      <NoteTemplatesView
+        v-else-if="viewMode === 'templates'"
+        :loading-templates="loading.templates"
+        :note-templates="noteTemplates"
+        :preview-template-content="previewTemplateContent"
+        :format-date-time="formatDateTime"
+        @create-template="openTemplateModal('create')"
+        @edit-template="openTemplateModal('edit', $event)"
+        @delete-template="openDeleteModal('template', $event.id, $event.name)"
+      />
+      <div v-else-if="viewMode === 'graph-test'" class="main-panel large-card graph-page-panel">
+        <KnowledgeGraphCytoscape
+          :graph="knowledgeGraph"
+          :loading="loading.graph"
+          :selected-knowledge-base-id="selectedKnowledgeBaseId"
+          :knowledge-base-name="selectedKnowledgeBase?.name || ''"
+          @open-note="openGraphNote"
+        />
       </div>
 
-      <div v-else class="main-panel large-card">
-        <div class="graph-stage">
-          <div class="graph-center">
-            <p class="eyebrow">知识图谱</p>
-            <h3>{{ selectedKnowledgeBase?.name || '请选择知识库' }}</h3>
-            <p>当前视图中共展示 {{ noteNodes.length }} 篇笔记。</p>
-          </div>
+      <KnowledgeGraphSvgView
+        v-else
+        :loading="loading.graph"
+        :selected-knowledge-base-id="selectedKnowledgeBaseId"
+        :knowledge-base-name="selectedKnowledgeBase?.name || ''"
+        :graph-node-count="graphNodeCount"
+        :graph-edge-count="graphEdgeCount"
+        :graph-view-box="`0 0 ${GRAPH_VIEW_WIDTH} ${GRAPH_VIEW_HEIGHT}`"
+        :graph-layout="graphLayout"
+        :graph-node-style="graphNodeStyle"
+        @open-note="openGraphNote"
+      />
 
-          <button
-            v-for="(note, index) in noteNodes"
-            :key="note.id"
-            type="button"
-            class="graph-node"
-            :style="graphNodeStyle(index)"
-            @click="openGraphNote(note.id)"
-          >
-            {{ note.name }}
-          </button>
+      <footer class="workspace-statusbar">
+        <div class="workspace-status-left">
+          <span v-for="item in statusbarLeftItems" :key="item" class="statusbar-item">{{ item }}</span>
         </div>
-      </div>
+
+        <div class="workspace-status-right">
+          <span v-for="item in statusbarRightItems" :key="item" class="statusbar-item">{{ item }}</span>
+        </div>
+      </footer>
     </main>
   </div>
 
@@ -1091,78 +1280,52 @@ onMounted(() => {
     :notice-type="notice.type"
     @submit="submitAuth"
   />
-  <div v-if="knowledgeBaseModal.open" class="modal-backdrop" @click.self="closeKnowledgeBaseModal">
-    <div class="modal-card">
-      <div class="modal-heading">
-        <p class="eyebrow">知识库</p>
-        <h3>{{ knowledgeBaseModal.mode === 'create' ? '新建知识库' : '编辑知识库' }}</h3>
-      </div>
+  <AvatarCropModal
+    v-if="avatarCropModal.open"
+    :image-url="avatarCropModal.imageUrl"
+    :file-name="avatarCropModal.fileName"
+    :submitting="loading.avatarUpload"
+    @close="closeAvatarCropModal"
+    @confirm="uploadCroppedAvatar"
+  />
+  <KnowledgeBaseModalView
+    v-if="knowledgeBaseModal.open"
+    :modal="knowledgeBaseModal"
+    @close="closeKnowledgeBaseModal"
+    @submit="submitKnowledgeBase"
+  />
 
-      <label class="field">
-        <span>名称</span>
-        <input v-model="knowledgeBaseModal.name" type="text" placeholder="例如：分布式系统" />
-      </label>
+  <NoteTemplateModal
+    v-if="templateModal.open"
+    :modal="templateModal"
+    :submitting="loading.templateSubmit"
+    @close="closeTemplateModal"
+    @submit="submitTemplate"
+  />
 
-      <label class="field">
-        <span>描述</span>
-        <textarea
-          v-model="knowledgeBaseModal.description"
-          rows="4"
-          placeholder="给这个知识库写一段简短说明"
-        ></textarea>
-      </label>
+  <EditFolderModal
+    v-if="editFolderModal.open"
+    :modal="editFolderModal"
+    @close="closeEditFolderModal"
+    @submit="submitEditFolder"
+  />
 
-      <div class="modal-actions">
-        <button type="button" class="soft-button" @click="closeKnowledgeBaseModal">取消</button>
-        <button type="button" class="soft-button accent" @click="submitKnowledgeBase">
-          {{ knowledgeBaseModal.mode === 'create' ? '创建' : '保存' }}
-        </button>
-      </div>
-    </div>
-  </div>
+  <CreateItemModal
+    v-if="createItemModal.open"
+    :modal="createItemModal"
+    :loading-templates="loading.templates"
+    :note-templates="noteTemplates"
+    :selected-create-template="selectedCreateTemplate"
+    @close="closeCreateItemModal"
+    @submit="submitCreateItem"
+  />
 
-  <div v-if="createItemModal.open" class="modal-backdrop" @click.self="closeCreateItemModal">
-    <div class="modal-card">
-      <div class="modal-heading">
-        <p class="eyebrow">{{ createItemModal.type === 'folder' ? '文件夹' : '笔记' }}</p>
-        <h3>{{ createItemModal.type === 'folder' ? '新建文件夹' : '新建笔记' }}</h3>
-      </div>
-
-      <label class="field">
-        <span>{{ createItemModal.type === 'folder' ? '文件夹名称' : '笔记标题' }}</span>
-        <input
-          v-model="createItemModal.name"
-          type="text"
-          :placeholder="createItemModal.type === 'folder' ? '例如：阅读清单' : '例如：Redis 基础'"
-        />
-      </label>
-
-      <div class="modal-actions">
-        <button type="button" class="soft-button" @click="closeCreateItemModal">取消</button>
-        <button type="button" class="soft-button accent" @click="submitCreateItem">
-          {{ createItemModal.type === 'folder' ? '创建文件夹' : '创建笔记' }}
-        </button>
-      </div>
-    </div>
-  </div>
-  <div v-if="deleteModal.open" class="modal-backdrop" @click.self="closeDeleteModal">
-    <div class="modal-card">
-      <div class="modal-heading">
-        <p class="eyebrow">确认操作</p>
-        <h3>{{ deleteTitle }}</h3>
-      </div>
-
-      <p class="modal-copy">{{ deleteCopy }}</p>
-
-      <div class="modal-actions">
-        <button type="button" class="soft-button" :disabled="deleteModal.busy" @click="closeDeleteModal">
-          取消
-        </button>
-        <button type="button" class="soft-button modal-danger" :disabled="deleteModal.busy" @click="confirmDelete">
-          {{ deleteModal.busy ? '删除中...' : '删除' }}
-        </button>
-      </div>
-    </div>
-  </div>
+  <DeleteConfirmModal
+    v-if="deleteModal.open"
+    :modal="deleteModal"
+    :title="deleteTitle"
+    :copy="deleteCopy"
+    @close="closeDeleteModal"
+    @confirm="confirmDelete"
+  />
 </template>
-

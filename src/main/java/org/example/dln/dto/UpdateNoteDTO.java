@@ -5,7 +5,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 修改笔记参数。
+ * 包名：org.example.dln.dto
+ * 类名：UpdateNoteDTO
+ * 类描述：用于承载更新笔记请求参数。
+ * 创建人：@author Rain_润
  */
 @Data
 public class UpdateNoteDTO {

@@ -1,6 +1,5 @@
 package org.example.dln.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.example.dln.dto.CreateTagDTO;
 import org.example.dln.entity.Note;
 import org.example.dln.entity.NoteTag;
@@ -42,6 +41,9 @@ public class TagService {
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
+    /**
+    * 创建标签。
+    */
     public TagVO createTag(Long userId, Long knowledgeBaseId, CreateTagDTO dto) {
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
         String name = dto.getName().trim();
@@ -53,41 +55,50 @@ public class TagService {
         if (tagMapper.insert(tag) <= 0) {
             throw new BusinessException("创建标签失败");
         }
+        knowledgeBaseService.touchKnowledgeBase(knowledgeBaseId);
         return toTagVO(tag);
     }
 
+    /**
+    * 查询知识库标签列表。
+    */
     public List<TagVO> listKnowledgeBaseTags(Long userId, Long knowledgeBaseId) {
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
-        List<Tag> tags = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                .eq(Tag::getKnowledgeBaseId, knowledgeBaseId)
-                .orderByAsc(Tag::getName));
+        List<Tag> tags = tagMapper.selectByKnowledgeBaseIdOrderByNameAsc(knowledgeBaseId);
         return buildTagVOList(tags);
     }
 
+    /**
+    * 删除标签。
+    */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTag(Long userId, Long tagId) {
         Tag tag = getTagByIdOrThrow(tagId);
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, tag.getKnowledgeBaseId());
 
-        noteTagMapper.delete(new LambdaQueryWrapper<NoteTag>()
-                .eq(NoteTag::getTagId, tagId));
+        noteTagMapper.deleteByTagId(tagId);
         if (tagMapper.deleteById(tagId) <= 0) {
             throw new BusinessException("删除标签失败");
         }
+        knowledgeBaseService.touchKnowledgeBase(tag.getKnowledgeBaseId());
     }
 
+    /**
+    * 设置笔记标签。
+    */
     @Transactional(rollbackFor = Exception.class)
     public List<TagVO> setNoteTags(Long userId, Long noteId, List<Long> tagIds) {
         Note note = getNoteOrThrow(userId, noteId);
         Set<Long> normalizedTagIds = normalizeTagIds(tagIds);
 
-        noteTagMapper.delete(new LambdaQueryWrapper<NoteTag>()
-                .eq(NoteTag::getNoteId, noteId));
+        noteTagMapper.deleteByNoteId(noteId);
         if (normalizedTagIds.isEmpty()) {
+            noteMapper.touchUpdatedTime(noteId);
+            knowledgeBaseService.touchKnowledgeBase(note.getKnowledgeBaseId());
             return new ArrayList<>();
         }
 
-        List<Tag> tags = tagMapper.selectByIds(normalizedTagIds);
+        List<Tag> tags = tagMapper.selectByTagIds(normalizedTagIds);
         if (tags.size() != normalizedTagIds.size()) {
             throw new BusinessException("标签不存在");
         }
@@ -103,13 +114,18 @@ public class TagService {
             noteTag.setTagId(tagId);
             noteTagMapper.insert(noteTag);
         }
+
+        noteMapper.touchUpdatedTime(noteId);
+        knowledgeBaseService.touchKnowledgeBase(note.getKnowledgeBaseId());
         return buildTagVOList(tags);
     }
 
+    /**
+    * 查询笔记标签列表。
+    */
     public List<TagVO> listNoteTags(Long userId, Long noteId) {
         Note note = getNoteOrThrow(userId, noteId);
-        List<NoteTag> noteTags = noteTagMapper.selectList(new LambdaQueryWrapper<NoteTag>()
-                .eq(NoteTag::getNoteId, noteId));
+        List<NoteTag> noteTags = noteTagMapper.selectByNoteId(noteId);
         if (noteTags.isEmpty()) {
             return new ArrayList<>();
         }
@@ -119,40 +135,54 @@ public class TagService {
             tagIds.add(noteTag.getTagId());
         }
 
-        List<Tag> tags = tagMapper.selectByIds(tagIds).stream()
+        List<Tag> tags = tagMapper.selectByTagIds(tagIds).stream()
                 .filter(tag -> Objects.equals(tag.getKnowledgeBaseId(), note.getKnowledgeBaseId()))
                 .sorted(Comparator.comparing(Tag::getName, String.CASE_INSENSITIVE_ORDER))
                 .toList();
         return buildTagVOList(tags);
     }
 
+    /**
+    * 获取笔记，不存在时抛出异常。
+    */
     private Note getNoteOrThrow(Long userId, Long noteId) {
-        Note note = noteMapper.selectById(noteId);
-        if (note == null || !Objects.equals(note.getUserId(), userId) || note.getStatus() == null || note.getStatus() != 1) {
+        Note note = noteMapper.selectByNoteId(noteId);
+        if (note == null
+                || !Objects.equals(note.getUserId(), userId)
+                || note.getStatus() == null
+                || note.getStatus() != 1
+                || !Objects.equals(note.getDeleteToken(), 0L)) {
             throw new BusinessException("笔记不存在或无权限访问");
         }
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, note.getKnowledgeBaseId());
         return note;
     }
 
+    /**
+    * 获取标签，不存在时抛出异常。
+    */
     private Tag getTagByIdOrThrow(Long tagId) {
-        Tag tag = tagMapper.selectById(tagId);
+        Tag tag = tagMapper.selectByTagId(tagId);
         if (tag == null) {
             throw new BusinessException("标签不存在");
         }
         return tag;
     }
 
+    /**
+    * 检查标签名称是否已存在。
+    */
     private void checkTagNameExists(Long knowledgeBaseId, String name, Long excludeId) {
-        List<Tag> tags = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                .eq(Tag::getKnowledgeBaseId, knowledgeBaseId)
-                .eq(Tag::getName, name));
+        List<Tag> tags = tagMapper.selectByKnowledgeBaseIdAndName(knowledgeBaseId, name);
         boolean exists = tags.stream().anyMatch(tag -> !Objects.equals(tag.getId(), excludeId));
         if (exists) {
             throw new BusinessException("标签名称已存在");
         }
     }
 
+    /**
+    * 规范化标签 ID 集合。
+    */
     private Set<Long> normalizeTagIds(List<Long> tagIds) {
         Set<Long> result = new LinkedHashSet<>();
         if (tagIds == null) {
@@ -166,6 +196,9 @@ public class TagService {
         return result;
     }
 
+    /**
+    * 构建标签视图对象列表。
+    */
     private List<TagVO> buildTagVOList(List<Tag> tags) {
         List<TagVO> result = new ArrayList<>();
         for (Tag tag : tags) {
@@ -175,6 +208,9 @@ public class TagService {
         return result;
     }
 
+    /**
+    * 将标签实体转换为标签视图对象。
+    */
     private TagVO toTagVO(Tag tag) {
         TagVO vo = new TagVO();
         BeanUtils.copyProperties(tag, vo);

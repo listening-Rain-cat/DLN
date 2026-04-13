@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 包名：org.example.dln.entity
  * 类名：NoteTag
- * 类描述：笔记和标签关联实体类。
+ * 类描述：定义笔记与标签关联实体。
  * 创建人：@author Rain_润
  */
 @Data
