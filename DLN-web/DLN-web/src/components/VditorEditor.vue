@@ -232,7 +232,7 @@ const editorToolbar: Array<string | IMenuItem> = [
   'undo',
   'redo',
   '|',
-  // 'fullscreen',
+  'fullscreen',
   'edit-mode',
 ]
 
@@ -280,6 +280,19 @@ function buildUploadHeaders() {
 
   headers.Authorization = rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`
   return headers
+}
+
+function resolveAssetUrl(value?: string | null) {
+  const trimmed = value?.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    return trimmed
+  }
+
+  return `${API_BASE}${trimmed.startsWith('/') ? trimmed : `/${trimmed}`}`
 }
 
 function extractUploadErrorMessage(responseText: string) {
@@ -413,7 +426,7 @@ function ensurePdfExportStage() {
     position: 'fixed',
     left: '-20000px',
     top: '0',
-    zIndex: '0',
+    zIndex: '-1',
     width: `${PDF_EXPORT_PAGE_WIDTH}px`,
     pointerEvents: 'none',
     overflow: 'visible',
@@ -596,6 +609,62 @@ function waitForPreviewStability(
   })
 }
 
+function getExportImageSource(image: HTMLImageElement) {
+  return (
+    image.getAttribute('data-src')?.trim() ||
+    image.getAttribute('src')?.trim() ||
+    image.currentSrc?.trim() ||
+    ''
+  )
+}
+
+function prepareExportImageElement(image: HTMLImageElement) {
+  const lazySource = image.getAttribute('data-src')?.trim()
+  if (lazySource && !image.getAttribute('src')) {
+    image.setAttribute('src', lazySource)
+  }
+
+  image.loading = 'eager'
+  image.decoding = 'sync'
+  image.fetchPriority = 'high'
+}
+
+function getExportImageRequestCredentials(url: string): RequestCredentials {
+  try {
+    return new URL(url, window.location.href).origin === window.location.origin ? 'include' : 'omit'
+  } catch {
+    return 'omit'
+  }
+}
+
+async function waitForSingleExportImage(image: HTMLImageElement) {
+  prepareExportImageElement(image)
+
+  await new Promise<void>((resolve) => {
+    if (image.complete && image.naturalWidth > 0) {
+      resolve()
+      return
+    }
+
+    const done = () => {
+      image.removeEventListener('load', done)
+      image.removeEventListener('error', done)
+      resolve()
+    }
+
+    image.addEventListener('load', done, { once: true })
+    image.addEventListener('error', done, { once: true })
+  })
+
+  if (typeof image.decode === 'function') {
+    try {
+      await image.decode()
+    } catch {
+      // Ignore decode failures so export can continue with best-effort rendering.
+    }
+  }
+}
+
 async function waitForExportImages(container: HTMLElement) {
   const images = Array.from(container.querySelectorAll('img'))
   const fontSet = 'fonts' in document ? document.fonts : null
@@ -609,26 +678,7 @@ async function waitForExportImages(container: HTMLElement) {
   }
 
   if (images.length) {
-    await Promise.all(
-      images.map(
-        (image) =>
-          new Promise<void>((resolve) => {
-            if (image.complete) {
-              resolve()
-              return
-            }
-
-            const done = () => {
-              image.removeEventListener('load', done)
-              image.removeEventListener('error', done)
-              resolve()
-            }
-
-            image.addEventListener('load', done, { once: true })
-            image.addEventListener('error', done, { once: true })
-          }),
-      ),
-    )
+    await Promise.all(images.map((image) => waitForSingleExportImage(image)))
   }
 
   await waitForNextFrame()
@@ -644,17 +694,19 @@ async function hydratePdfExportImages(container: HTMLElement) {
 
   await Promise.all(
     images.map(async (image) => {
-      const rawSrc = image.getAttribute('src')?.trim()
+      prepareExportImageElement(image)
+
+      const rawSrc = getExportImageSource(image)
       if (!rawSrc || rawSrc.startsWith('data:') || rawSrc.startsWith('blob:')) {
         return
       }
 
-      const resolvedUrl = new URL(rawSrc, window.location.href).toString()
+      const resolvedUrl = resolveAssetUrl(rawSrc)
 
       try {
         const response = await fetch(resolvedUrl, {
           headers: authHeaders,
-          credentials: 'include',
+          credentials: getExportImageRequestCredentials(resolvedUrl),
           mode: 'cors',
         })
 
@@ -670,9 +722,13 @@ async function hydratePdfExportImages(container: HTMLElement) {
         const objectUrl = URL.createObjectURL(blob)
         pdfExportObjectUrls.push(objectUrl)
         image.removeAttribute('srcset')
+        image.removeAttribute('data-src')
         image.setAttribute('src', objectUrl)
       } catch (error) {
         console.warn('Failed to hydrate export image', resolvedUrl, error)
+        image.removeAttribute('data-src')
+        image.removeAttribute('srcset')
+        image.setAttribute('src', resolvedUrl)
       }
     }),
   )
