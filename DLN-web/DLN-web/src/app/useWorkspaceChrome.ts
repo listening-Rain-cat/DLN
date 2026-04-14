@@ -66,12 +66,8 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
       return '账号设置'
     }
 
-    if (options.viewMode.value === 'graph') {
-      return options.selectedKnowledgeBase.value?.name || '图谱视图'
-    }
-
-    if (options.viewMode.value === 'graph-test') {
-      return options.selectedKnowledgeBase.value?.name || '图谱测试'
+    if (options.viewMode.value === 'graph-d3') {
+      return options.selectedKnowledgeBase.value?.name || '图谱'
     }
 
     return (
@@ -91,25 +87,13 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
       return '资料与安全设置'
     }
 
-    if (options.viewMode.value === 'graph') {
+    if (options.viewMode.value === 'graph-d3') {
       if (!options.selectedKnowledgeBase.value) {
         return '等待选择知识库'
       }
 
       if (options.loading.graph) {
-        return '知识图谱加载中'
-      }
-
-      return `${options.graphNodeCount.value} 个节点 / ${options.graphEdgeCount.value} 条边`
-    }
-
-    if (options.viewMode.value === 'graph-test') {
-      if (!options.selectedKnowledgeBase.value) {
-        return '等待选择知识库'
-      }
-
-      if (options.loading.graph) {
-        return 'Cytoscape 图谱加载中'
+        return 'D3 图谱加载中'
       }
 
       return `${options.graphNodeCount.value} 个节点 / ${options.graphEdgeCount.value} 条边`
@@ -147,16 +131,8 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
       return items
     }
 
-    if (options.viewMode.value === 'graph') {
+    if (options.viewMode.value === 'graph-d3') {
       items.push('图谱')
-      if (options.selectedKnowledgeBase.value?.name) {
-        items.push(options.selectedKnowledgeBase.value.name)
-      }
-      return items
-    }
-
-    if (options.viewMode.value === 'graph-test') {
-      items.push('图谱测试')
       if (options.selectedKnowledgeBase.value?.name) {
         items.push(options.selectedKnowledgeBase.value.name)
       }

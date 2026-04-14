@@ -17,6 +17,7 @@ interface LoadingState {
 interface UseNoteAutosaveOptions {
   request: <T>(path: string, init?: RequestInit, withAuth?: boolean) => Promise<T>
   showNotice: (text: string, type?: 'success' | 'error') => void
+  createHistorySnapshot: (noteId: Id) => Promise<void>
   refreshKnowledgeBasesSnapshot: () => Promise<void>
   currentNote: Ref<NoteDetail | null>
   selectedNoteId: Ref<Id | null>
@@ -487,6 +488,8 @@ export function useNoteAutosave(options: UseNoteAutosaveOptions) {
       if (saveResults.some((result) => !result)) {
         throw new Error(autoSaveError.value || '保存笔记失败。')
       }
+
+      await options.createHistorySnapshot(noteId)
 
       if (saveSteps.length) {
         await options.refreshKnowledgeBasesSnapshot()

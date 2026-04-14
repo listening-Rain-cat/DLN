@@ -359,15 +359,23 @@ public class NoteService {
     */
     private void saveHistory(Note note, String markdownContent, Long userId) {
         NoteHistory latest = noteHistoryMapper.selectLatestByNoteId(note.getId());
+        if (latest != null
+                && Objects.equals(latest.getTitle(), note.getTitle())
+                && Objects.equals(latest.getMarkdownContent(), markdownContent)) {
+            return;
+        }
+
         int versionNo = latest == null ? 1 : latest.getVersionNo() + 1;
 
-        NoteHistory hishory = new NoteHistory();
-        hishory.setNoteId(note.getId());
-        hishory.setVersionNo(versionNo);
-        hishory.setTitle(note.getTitle());
-        hishory.setMarkdownContent(markdownContent);
-        hishory.setCreatedBy(userId);
-        noteHistoryMapper.insert(hishory);
+        NoteHistory history = new NoteHistory();
+        history.setNoteId(note.getId());
+        history.setVersionNo(versionNo);
+        history.setTitle(note.getTitle());
+        history.setMarkdownContent(markdownContent);
+        history.setCreatedBy(userId);
+        if (noteHistoryMapper.insert(history) <= 0) {
+            throw new BusinessException("保存笔记历史版本失败");
+        }
     }
 
     /**

@@ -1948,7 +1948,7 @@ function handleHostMouseMove(event: MouseEvent) {
   hoverLinkRange = linkAtPoint.range.cloneRange()
   scheduleWikiLinkHighlightRefresh()
   if (currentEditorElement) {
-    currentEditorElement.style.cursor = 'pointer'
+    currentEditorElement.style.cursor = event.metaKey || event.ctrlKey ? 'pointer' : ''
   }
   void openLinkPreview(linkAtPoint.title, linkAtPoint.range.getBoundingClientRect())
 }
@@ -1960,6 +1960,10 @@ function handleHostClick(event: MouseEvent) {
 
   const target = event.target as HTMLElement | null
   if (target?.closest('.note-link-preview, .note-link-hint')) {
+    return
+  }
+
+  if (!event.metaKey && !event.ctrlKey) {
     return
   }
 

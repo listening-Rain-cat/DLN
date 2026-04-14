@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.example.dln.entity.NoteHistory;
 
+import java.util.List;
+
 /**
  * 包名：org.example.dln.mapper
  * 类名：NoteHistoryMapper
@@ -14,6 +16,14 @@ import org.example.dln.entity.NoteHistory;
  */
 @Mapper
 public interface NoteHistoryMapper extends BaseMapper<NoteHistory> {
+    @Select("""
+            SELECT *
+            FROM t_note_history
+            WHERE note_id = #{noteId}
+            ORDER BY version_no DESC, created_time DESC
+            """)
+    List<NoteHistory> selectByNoteIdOrderByVersionNoDesc(@Param("noteId") Long noteId);
+
     /**
     * 查询笔记最新历史版本。
     */
@@ -25,4 +35,14 @@ public interface NoteHistoryMapper extends BaseMapper<NoteHistory> {
             LIMIT 1
             """)
     NoteHistory selectLatestByNoteId(@Param("noteId") Long noteId);
+
+    @Select("""
+            SELECT *
+            FROM t_note_history
+            WHERE note_id = #{noteId}
+              AND id = #{historyId}
+            LIMIT 1
+            """)
+    NoteHistory selectByNoteIdAndHistoryId(@Param("noteId") Long noteId,
+                                           @Param("historyId") Long historyId);
 }

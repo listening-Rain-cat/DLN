@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type ViewMode = 'home' | 'templates' | 'settings' | 'graph' | 'graph-test'
+type ViewMode = 'home' | 'templates' | 'settings' | 'graph-d3'
 
 defineProps<{
   viewMode: ViewMode
@@ -13,8 +13,7 @@ defineEmits<{
   (e: 'open-home'): void
   (e: 'open-templates'): void
   (e: 'open-settings'): void
-  (e: 'open-graph'): void
-  (e: 'open-graph-test'): void
+  (e: 'open-graph-d3'): void
   (e: 'logout'): void
 }>()
 </script>
@@ -89,13 +88,19 @@ defineEmits<{
         </svg>
         <span class="rail-button-label">设置</span>
       </button>
-      <button type="button" class="rail-button" :class="{ active: viewMode === 'graph' }" @click="$emit('open-graph')">
+
+      <button
+        type="button"
+        class="rail-button"
+        :class="{ active: viewMode === 'graph-d3' }"
+        @click="$emit('open-graph-d3')"
+      >
         <svg class="rail-button-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="6" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
-          <circle cx="18" cy="6" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
-          <circle cx="12" cy="18" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="6" cy="6.5" r="2.1" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="18" cy="6.5" r="2.1" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="12" cy="17.5" r="2.1" fill="none" stroke="currentColor" stroke-width="1.8" />
           <path
-            d="M7.9 8.2 10.3 15M16.2 7.7 13.7 15M8 7.2h7.8"
+            d="M7.8 7.7 10.8 15.3M16.2 7.7l-3 7.6M8.5 6.5h7"
             fill="none"
             stroke="currentColor"
             stroke-linecap="round"
@@ -103,34 +108,6 @@ defineEmits<{
           />
         </svg>
         <span class="rail-button-label">图谱</span>
-      </button>
-
-      <button
-        type="button"
-        class="rail-button"
-        :class="{ active: viewMode === 'graph-test' }"
-        @click="$emit('open-graph-test')"
-      >
-        <svg class="rail-button-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="6" cy="7" r="1.9" fill="currentColor" />
-          <circle cx="18" cy="6.5" r="1.9" fill="currentColor" />
-          <circle cx="12" cy="17.5" r="1.9" fill="currentColor" />
-          <path
-            d="M7.7 7.5h8.6M7.2 8.7l3.5 6.3M16.8 8.2l-3.5 6.7"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="1.8"
-          />
-          <path
-            d="M4.5 18.5h4.2M15.3 18.5h4.2"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="1.8"
-          />
-        </svg>
-        <span class="rail-button-label">图测</span>
       </button>
 
       <button type="button" class="rail-button" @click="$emit('logout')">

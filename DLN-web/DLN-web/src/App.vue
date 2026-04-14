@@ -1,7 +1,6 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, provide, reactive, ref, watch } from 'vue'
 import {
-  buildGraphLayout,
   clearAuthCookie,
   collectSubtreeIds,
   DEFAULT_CODE_THEME,
@@ -10,8 +9,6 @@ import {
   extractTagIds,
   findTreeNodeById,
   formatDateTime,
-  GRAPH_VIEW_HEIGHT,
-  GRAPH_VIEW_WIDTH,
   LEGACY_TOKEN_KEY,
   loadStoredUser,
   normalizeNote,
@@ -31,6 +28,8 @@ import type {
   KnowledgeBaseModalMode,
   KnowledgeGraph,
   NoteDetail,
+  NoteHistoryDetail,
+  NoteHistoryVersion,
   NoteLinkCandidate,
   NoteLinkOpenHandler,
   NoteLinkPreview,
@@ -49,13 +48,13 @@ import { useSessionManager } from './app/useSessionManager'
 import AppRail from './components/AppRail.vue'
 import AvatarCropModal from './components/AvatarCropModal.vue'
 import AuthPanel from './components/auth/AuthPanel.vue'
-import KnowledgeGraphSvgView from './components/graph/KnowledgeGraphSvgView.vue'
-import KnowledgeGraphCytoscape from './components/KnowledgeGraphCytoscape.vue'
+import KnowledgeGraphD3View from './components/graph/KnowledgeGraphD3View.vue'
 import LibraryPanel from './components/layout/LibraryPanel.vue'
 import CreateItemModal from './components/modals/CreateItemModal.vue'
 import DeleteConfirmModal from './components/modals/DeleteConfirmModal.vue'
 import EditFolderModal from './components/modals/EditFolderModal.vue'
 import KnowledgeBaseModalView from './components/modals/KnowledgeBaseModal.vue'
+import NoteHistoryModal from './components/modals/NoteHistoryModal.vue'
 import NoteTemplateModal from './components/modals/NoteTemplateModal.vue'
 import UserSettingsView from './components/settings/UserSettingsView.vue'
 import NoteTemplatesView from './components/templates/NoteTemplatesView.vue'
@@ -162,6 +161,16 @@ const templateModal = reactive({
   name: '',
   description: '',
   templateContent: '',
+})
+
+const noteHistoryModal = reactive({
+  open: false,
+  loadingList: false,
+  loadingDetail: false,
+  restoring: false,
+  versions: [] as NoteHistoryVersion[],
+  selectedVersionId: null as Id | null,
+  selectedDetail: null as NoteHistoryDetail | null,
 })
 
 const createItemModal = reactive({
@@ -279,7 +288,6 @@ const noteNodes = computed(() => {
 
 const graphNodeCount = computed(() => knowledgeGraph.value?.nodes.length ?? 0)
 const graphEdgeCount = computed(() => knowledgeGraph.value?.edges.length ?? 0)
-const graphLayout = computed(() => buildGraphLayout(knowledgeGraph.value))
 
 const noteCount = computed(() => {
   return noteNodes.value.length
@@ -341,6 +349,7 @@ function showNotice(text: string, type: NoticeType = 'success') {
 const { autoSaveError, autoSavingNote, clearCurrentNote, noteSaved, saveNote } = useNoteAutosave({
   request,
   showNotice,
+  createHistorySnapshot: (noteId: Id) => createNoteHistorySnapshot(noteId),
   refreshKnowledgeBasesSnapshot: () => refreshKnowledgeBasesSnapshot(),
   currentNote,
   selectedNoteId,
@@ -449,6 +458,7 @@ function resetWorkspace() {
   selectedKnowledgeBaseId.value = null
   selectedFolderId.value = null
   clearCurrentNote()
+  closeNoteHistoryModal()
 }
 
 function logout(showMessage = true) {
@@ -554,6 +564,16 @@ async function selectKnowledgeBase(knowledgeBaseId: Id) {
   }
 }
 
+function applyCurrentNoteDetail(detail: NoteDetail) {
+  currentNote.value = detail
+  selectedNoteId.value = detail.id
+  selectedFolderId.value = detail.folderId
+  selectedNoteTagIds.value = extractTagIds(detail.tags)
+  noteTitle.value = detail.title
+  noteContent.value = detail.markdownContent || ''
+  viewMode.value = 'home'
+}
+
 async function openNote(noteId: Id) {
   loading.note = true
 
@@ -564,13 +584,7 @@ async function openNote(noteId: Id) {
       await loadKnowledgeBaseContext(detail.knowledgeBaseId)
     }
 
-    currentNote.value = detail
-    selectedNoteId.value = detail.id
-    selectedFolderId.value = detail.folderId
-    selectedNoteTagIds.value = extractTagIds(detail.tags)
-    noteTitle.value = detail.title
-    noteContent.value = detail.markdownContent || ''
-    viewMode.value = 'home'
+    applyCurrentNoteDetail(detail)
   } finally {
     loading.note = false
   }
@@ -596,6 +610,122 @@ async function fetchNoteLinkPreview(title: string) {
   )
 }
 
+function resetNoteHistoryModal() {
+  noteHistoryModal.loadingList = false
+  noteHistoryModal.loadingDetail = false
+  noteHistoryModal.restoring = false
+  noteHistoryModal.versions = []
+  noteHistoryModal.selectedVersionId = null
+  noteHistoryModal.selectedDetail = null
+}
+
+function closeNoteHistoryModal() {
+  noteHistoryModal.open = false
+  resetNoteHistoryModal()
+}
+
+async function createNoteHistorySnapshot(noteId: Id) {
+  await request<NoteHistoryVersion>(`/notes/${noteId}/histories/snapshot`, {
+    method: 'POST',
+  })
+}
+
+async function selectNoteHistoryVersion(versionId: Id) {
+  if (!currentNote.value?.id) {
+    return
+  }
+
+  noteHistoryModal.loadingDetail = true
+  noteHistoryModal.selectedVersionId = versionId
+
+  try {
+    noteHistoryModal.selectedDetail = await request<NoteHistoryDetail>(
+      `/notes/${currentNote.value.id}/histories/${versionId}`,
+    )
+  } catch (error) {
+    noteHistoryModal.selectedDetail = null
+    showNotice((error as Error).message, 'error')
+  } finally {
+    noteHistoryModal.loadingDetail = false
+  }
+}
+
+async function loadNoteHistoryVersions(noteId: Id, preferredVersionId: Id | null = null) {
+  noteHistoryModal.loadingList = true
+
+  try {
+    const versions = await request<NoteHistoryVersion[]>(`/notes/${noteId}/histories`)
+    noteHistoryModal.versions = versions
+
+    if (!versions.length) {
+      noteHistoryModal.selectedVersionId = null
+      noteHistoryModal.selectedDetail = null
+      return
+    }
+
+    const targetVersionId = versions.some((version) => version.id === preferredVersionId)
+      ? preferredVersionId
+      : versions[0].id
+
+    if (!targetVersionId) {
+      noteHistoryModal.selectedVersionId = null
+      noteHistoryModal.selectedDetail = null
+      return
+    }
+
+    await selectNoteHistoryVersion(targetVersionId)
+  } finally {
+    noteHistoryModal.loadingList = false
+  }
+}
+
+async function openNoteHistoryModal() {
+  if (!currentNote.value?.id) {
+    return
+  }
+
+  noteHistoryModal.open = true
+  resetNoteHistoryModal()
+  try {
+    await loadNoteHistoryVersions(currentNote.value.id)
+  } catch (error) {
+    closeNoteHistoryModal()
+    showNotice((error as Error).message, 'error')
+  }
+}
+
+async function restoreNoteHistoryVersion() {
+  if (!currentNote.value?.id || !noteHistoryModal.selectedDetail?.id) {
+    return
+  }
+
+  noteHistoryModal.restoring = true
+
+  try {
+    const restoredDetail = normalizeNote(
+      await request<NoteDetail>(
+        `/notes/${currentNote.value.id}/histories/${noteHistoryModal.selectedDetail.id}/restore`,
+        {
+          method: 'POST',
+        },
+      ),
+    )
+
+    if (selectedKnowledgeBaseId.value) {
+      await loadKnowledgeBaseTree(selectedKnowledgeBaseId.value)
+      await refreshKnowledgeBasesSnapshot()
+    }
+
+    applyCurrentNoteDetail(restoredDetail)
+    await loadNoteHistoryVersions(restoredDetail.id)
+    showNotice('历史版本已恢复。')
+  } catch (error) {
+    showNotice((error as Error).message, 'error')
+  } finally {
+    noteHistoryModal.restoring = false
+  }
+}
+
 provide('noteLinkCandidatesFetcher', fetchNoteLinkCandidates)
 provide('noteLinkPreviewFetcher', fetchNoteLinkPreview)
 provide('noteLinkOpenHandler', (noteId: Id) => openNote(noteId) as ReturnType<NoteLinkOpenHandler>)
@@ -619,12 +749,8 @@ function handleTreeNodeSelect(node: TreeNode) {
   })
 }
 
-function openGraphView() {
-  viewMode.value = 'graph'
-}
-
-function openGraphTestView() {
-  viewMode.value = 'graph-test'
+function openGraphD3View() {
+  viewMode.value = 'graph-d3'
 }
 
 function openKnowledgeBaseModal(mode: KnowledgeBaseModalMode, item?: KnowledgeBase) {
@@ -1055,15 +1181,6 @@ async function confirmDelete() {
   }
 }
 
-function graphNodeStyle(node: { x: number; y: number; radius: number }) {
-  return {
-    left: `${(node.x / GRAPH_VIEW_WIDTH) * 100}%`,
-    top: `${(node.y / GRAPH_VIEW_HEIGHT) * 100}%`,
-    minWidth: `${92 + node.radius * 2}px`,
-    maxWidth: `${148 + node.radius * 2}px`,
-  }
-}
-
 function openGraphNote(noteId: Id) {
   viewMode.value = 'home'
   void openNote(noteId).catch((error: Error) => {
@@ -1074,7 +1191,7 @@ function openGraphNote(noteId: Id) {
 watch(
   () => [viewMode.value, selectedKnowledgeBaseId.value] as const,
   ([mode, knowledgeBaseId]) => {
-    if (mode !== 'graph' && mode !== 'graph-test') {
+    if (mode !== 'graph-d3') {
       return
     }
 
@@ -1088,6 +1205,15 @@ watch(
     })
   },
   { immediate: true },
+)
+
+watch(
+  () => currentNote.value?.id ?? null,
+  (noteId) => {
+    if (!noteId && noteHistoryModal.open) {
+      closeNoteHistoryModal()
+    }
+  },
 )
 
 onMounted(() => {
@@ -1114,8 +1240,7 @@ onMounted(() => {
       @open-home="openHomeDashboard"
       @open-templates="viewMode = 'templates'"
       @open-settings="viewMode = 'settings'"
-      @open-graph="openGraphView"
-      @open-graph-test="openGraphTestView"
+      @open-graph-d3="openGraphD3View"
       @logout="logout()"
     />
 
@@ -1194,6 +1319,7 @@ onMounted(() => {
         @create-folder="openCreateItemModal('folder', $event)"
         @create-note="openCreateItemModal('note', $event)"
         @edit-folder="openEditFolderModal"
+        @open-note-history="openNoteHistoryModal"
         @toggle-library-panel="toggleLibraryPanel(false)"
         @save-note="saveNote"
         @editor-fullscreen-change="workspaceFullscreen = $event"
@@ -1235,8 +1361,8 @@ onMounted(() => {
         @edit-template="openTemplateModal('edit', $event)"
         @delete-template="openDeleteModal('template', $event.id, $event.name)"
       />
-      <div v-else-if="viewMode === 'graph-test'" class="main-panel large-card graph-page-panel">
-        <KnowledgeGraphCytoscape
+      <div v-else-if="viewMode === 'graph-d3'" class="main-panel large-card graph-page-panel">
+        <KnowledgeGraphD3View
           :graph="knowledgeGraph"
           :loading="loading.graph"
           :selected-knowledge-base-id="selectedKnowledgeBaseId"
@@ -1244,19 +1370,6 @@ onMounted(() => {
           @open-note="openGraphNote"
         />
       </div>
-
-      <KnowledgeGraphSvgView
-        v-else
-        :loading="loading.graph"
-        :selected-knowledge-base-id="selectedKnowledgeBaseId"
-        :knowledge-base-name="selectedKnowledgeBase?.name || ''"
-        :graph-node-count="graphNodeCount"
-        :graph-edge-count="graphEdgeCount"
-        :graph-view-box="`0 0 ${GRAPH_VIEW_WIDTH} ${GRAPH_VIEW_HEIGHT}`"
-        :graph-layout="graphLayout"
-        :graph-node-style="graphNodeStyle"
-        @open-note="openGraphNote"
-      />
 
       <footer class="workspace-statusbar">
         <div class="workspace-status-left">
@@ -1308,6 +1421,14 @@ onMounted(() => {
     :modal="editFolderModal"
     @close="closeEditFolderModal"
     @submit="submitEditFolder"
+  />
+
+  <NoteHistoryModal
+    v-if="noteHistoryModal.open"
+    :modal="noteHistoryModal"
+    @close="closeNoteHistoryModal"
+    @select-version="selectNoteHistoryVersion"
+    @restore="restoreNoteHistoryVersion"
   />
 
   <CreateItemModal

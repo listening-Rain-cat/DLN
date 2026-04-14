@@ -1,5 +1,5 @@
 export type Id = string
-export type ViewMode = 'home' | 'templates' | 'settings' | 'graph' | 'graph-test'
+export type ViewMode = 'home' | 'templates' | 'settings' | 'graph-d3'
 export type NoticeType = 'success' | 'error'
 export type AuthMode = 'login' | 'register'
 export type KnowledgeBaseModalMode = 'create' | 'edit'
@@ -152,6 +152,19 @@ export interface NoteDetail {
   attachments?: AttachmentItem[]
   outgoingLinks?: LinkItem[]
   incomingLinks?: LinkItem[]
+}
+
+export interface NoteHistoryVersion {
+  id: Id
+  noteId: Id
+  versionNo: number
+  title: string
+  createdBy?: Id
+  createdTime?: string
+}
+
+export interface NoteHistoryDetail extends NoteHistoryVersion {
+  markdownContent: string
 }
 
 export const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080')

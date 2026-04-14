@@ -1228,6 +1228,16 @@ code {
   display: grid;
 }
 
+.workspace-body.editor-fullscreen-active .editor-frame {
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+}
+
+.workspace-body.editor-fullscreen-active .editor-frame-header {
+  display: none;
+}
+
 .workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen {
   position: relative;
   top: auto;
@@ -1235,15 +1245,22 @@ code {
   z-index: 8;
   width: 100% !important;
   height: 100% !important;
+  display: flex;
+  flex-direction: column;
   border-radius: 0.95rem;
+}
+
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-toolbar {
+  flex: 0 0 auto;
 }
 
 .workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-content,
 .workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-ir,
 .workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-wysiwyg,
 .workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-sv {
+  flex: 1 1 auto;
   min-height: 0;
-  height: 100%;
+  height: auto;
 }
 
 .workspace-body.editor-fullscreen-active .editor-frame-bookmark {
@@ -2013,13 +2030,16 @@ code {
 .workspace-body.editor-fullscreen-active .editor-frame .vditor-sv .vditor-reset {
   min-height: 100%;
   box-sizing: border-box;
-  padding-left: clamp(4.8rem, 16vw, 16rem) !important;
-  padding-right: clamp(4.8rem, 16vw, 16rem) !important;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .workspace-body.editor-fullscreen-active .editor-frame .vditor-sv {
-  padding-left: clamp(4.8rem, 16vw, 16rem) !important;
-  padding-right: clamp(4.8rem, 16vw, 16rem) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .outline-panel {
@@ -2267,7 +2287,7 @@ code {
     linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(251, 246, 239, 0.86));
 }
 
-.graph-stage-cytoscape {
+.graph-stage-d3 {
   min-height: clamp(700px, calc(100dvh - 200px), 1020px);
 }
 
@@ -2278,12 +2298,74 @@ code {
   height: 100%;
 }
 
-.graph-cytoscape-canvas {
+.graph-d3-shell {
   position: absolute;
   inset: 0;
+  z-index: 1;
+}
+
+.graph-d3-canvas {
   width: 100%;
   height: 100%;
-  z-index: 1;
+  display: block;
+}
+
+.graph-d3-link {
+  stroke: rgba(36, 84, 82, 0.36);
+  stroke-width: 2.15px;
+  stroke-linecap: round;
+}
+
+.graph-d3-link.broken {
+  stroke: rgba(143, 61, 51, 0.36);
+  stroke-dasharray: 9 8;
+}
+
+.graph-d3-link.muted {
+  opacity: 0.14;
+}
+
+.graph-d3-node {
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+
+.graph-d3-node-connector {
+  stroke: rgba(36, 84, 82, 0.48);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.graph-d3-node-core {
+  fill: rgba(37, 87, 84, 0.94);
+  stroke: rgba(255, 248, 238, 0.92);
+  stroke-width: 2.4;
+}
+
+.graph-d3-node-title {
+  fill: #173637;
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(255, 251, 245, 0.96);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.graph-d3-node-meta {
+  fill: rgba(24, 54, 56, 0.72);
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: rgba(255, 251, 245, 0.94);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.graph-d3-node.muted {
+  opacity: 0.16;
 }
 
 .graph-edge {
@@ -2314,7 +2396,7 @@ code {
   backdrop-filter: blur(8px);
 }
 
-.graph-center-cytoscape {
+.graph-center-d3 {
   z-index: 2;
   text-align: left;
   width: min(360px, calc(100% - 2rem));
@@ -2333,7 +2415,7 @@ code {
   box-shadow: 0 20px 44px rgba(25, 51, 52, 0.1);
 }
 
-.graph-stage-cytoscape .graph-empty-state {
+.graph-stage-d3 .graph-empty-state {
   z-index: 2;
 }
 
@@ -2699,7 +2781,7 @@ code {
   }
 
   .graph-stage,
-  .graph-stage-cytoscape {
+  .graph-stage-d3 {
     min-height: clamp(520px, 72dvh, 820px);
   }
 

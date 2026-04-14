@@ -141,6 +141,7 @@ const emit = defineEmits<{
   (e: 'edit-note-template', item: NoteTemplate): void
   (e: 'delete-note-template', payload: { id: Id; name: string }): void
   (e: 'toggle-library-panel'): void
+  (e: 'open-note-history'): void
   (e: 'save-note'): void
   (e: 'editor-fullscreen-change', value: boolean): void
   (e: 'editor-theme-change', value: EditorThemeSettings): void
@@ -583,6 +584,7 @@ onBeforeUnmount(() => {
                 <span>设置标签</span>
                 <span class="note-tag-launcher-count">{{ selectedNoteTagIds.length }}</span>
               </button>
+              <button type="button" class="soft-button note-save-button" @click="$emit('open-note-history')">历史版本</button>
               <button type="button" class="soft-button accent note-save-button" :disabled="savingNote" @click="$emit('save-note')">
                 {{ savingNote ? '保存中...' : noteSaved ? '已保存' : '保存笔记' }}
               </button>
