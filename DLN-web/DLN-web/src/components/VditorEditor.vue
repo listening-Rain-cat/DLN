@@ -77,6 +77,10 @@ const DEFAULT_CODE_THEME = 'github'
 const COMPACT_EDITOR_MAX_WIDTH = 2400
 const WIKI_LINK_QUERY_PATTERN = /\[\[([^\[\]\r\n]*)$/
 const WIKI_LINK_PATTERN = /\[\[([^\[\]\r\n]+)]]/g
+const STANDALONE_URL_PATTERN = /^<?(https?:\/\/[^\s<>]+)>?$/i
+const STANDALONE_MARKDOWN_LINK_PATTERN = /^\[[^\]]+]\((https?:\/\/[^\s)]+)\)$/i
+const DIRECT_VIDEO_URL_PATTERN = /^https?:\/\/\S+\.(?:mp4|m4v|ogg|ogv|webm)(?:[?#]\S*)?$/i
+const DIRECT_AUDIO_URL_PATTERN = /^https?:\/\/\S+\.(?:mp3|wav|flac)(?:[?#]\S*)?$/i
 const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080')
   .trim()
   .replace(/\/+$/, '')
@@ -115,6 +119,7 @@ const editorMount = ref<HTMLDivElement | null>(null)
 const linkPreviewBody = ref<HTMLDivElement | null>(null)
 let editor: Vditor | null = null
 let syncingFromProps = false
+let applyingMediaTransform = false
 let outlineTimer: number | null = null
 let pendingThemeSyncTimer: number | null = null
 let fullscreenObserver: MutationObserver | null = null
@@ -171,6 +176,7 @@ const editorToolbar = [
   'insert-before',
   'insert-after',
   '|',
+  'export',
   'upload',
   'table',
   'undo',
@@ -262,6 +268,121 @@ function stripFileExtension(fileName: string) {
     return fileName
   }
   return fileName.slice(0, lastDotIndex)
+}
+
+function escapeHtmlAttribute(value: string) {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+}
+
+function extractStandaloneMediaUrl(line: string) {
+  const trimmed = line.trim()
+  if (!trimmed || trimmed !== line) {
+    return null
+  }
+
+  if (trimmed.startsWith('<video') || trimmed.startsWith('<audio') || trimmed.startsWith('<iframe')) {
+    return null
+  }
+
+  const markdownLinkMatch = trimmed.match(STANDALONE_MARKDOWN_LINK_PATTERN)
+  if (markdownLinkMatch?.[1]) {
+    return markdownLinkMatch[1]
+  }
+
+  const plainUrlMatch = trimmed.match(STANDALONE_URL_PATTERN)
+  if (plainUrlMatch?.[1]) {
+    return plainUrlMatch[1]
+  }
+
+  return null
+}
+
+function buildEmbeddedMediaHtml(url: string) {
+  const normalizedUrl = url.trim()
+  if (!normalizedUrl) {
+    return null
+  }
+
+  if (DIRECT_VIDEO_URL_PATTERN.test(normalizedUrl)) {
+    return `<video controls="controls" src="${escapeHtmlAttribute(normalizedUrl)}"></video>`
+  }
+
+  if (DIRECT_AUDIO_URL_PATTERN.test(normalizedUrl)) {
+    return `<audio controls="controls" src="${escapeHtmlAttribute(normalizedUrl)}"></audio>`
+  }
+
+  const qqMatch = normalizedUrl.match(/\/\/v\.qq\.com\/x\/cover\/.*\/([^/?#]+)\.html(?:\?.*)?$/i)
+  if (qqMatch?.[1]) {
+    return `<iframe class="iframe__video" src="https://v.qq.com/txp/iframe/player.html?vid=${escapeHtmlAttribute(qqMatch[1])}" allowfullscreen="true"></iframe>`
+  }
+
+  if (/player\.bilibili\.com\/player\.html/i.test(normalizedUrl)) {
+    return `<iframe class="iframe__video" src="${escapeHtmlAttribute(normalizedUrl)}" allowfullscreen="true"></iframe>`
+  }
+
+  if (/bilibili\.com/i.test(normalizedUrl)) {
+    try {
+      const parsedUrl = new URL(normalizedUrl)
+      const pathBvidMatch = parsedUrl.pathname.match(/\/video\/([^/?#]+)/i)
+      const bvid = parsedUrl.searchParams.get('bvid') || pathBvidMatch?.[1]
+
+      if (bvid) {
+        const params = new URLSearchParams({
+          bvid,
+          page: parsedUrl.searchParams.get('page') || '1',
+          high_quality: '1',
+          as_wide: '1',
+          allowfullscreen: 'true',
+          autoplay: '0',
+        })
+
+        return `<iframe class="iframe__video" src="${escapeHtmlAttribute(`https://player.bilibili.com/player.html?${params.toString()}`)}" allowfullscreen="true"></iframe>`
+      }
+    } catch {
+      return null
+    }
+  }
+
+  return null
+}
+
+function transformStandaloneMediaLinks(markdown: string) {
+  if (!markdown.trim()) {
+    return markdown
+  }
+
+  const lineBreak = markdown.includes('\r\n') ? '\r\n' : '\n'
+  const lines = markdown.split(/\r?\n/)
+  let insideCodeFence = false
+  let changed = false
+
+  const transformedLines = lines.map((line) => {
+    const trimmed = line.trim()
+
+    if (/^```/.test(trimmed)) {
+      insideCodeFence = !insideCodeFence
+      return line
+    }
+
+    if (insideCodeFence) {
+      return line
+    }
+
+    const mediaUrl = extractStandaloneMediaUrl(line)
+    if (!mediaUrl) {
+      return line
+    }
+
+    const embeddedHtml = buildEmbeddedMediaHtml(mediaUrl)
+    if (!embeddedHtml) {
+      return line
+    }
+
+    changed = true
+    return embeddedHtml
+  })
+
+  return changed ? transformedLines.join(lineBreak) : markdown
 }
 
 function buildImageMarkdown(fileName: string, url: string) {
@@ -1308,7 +1429,11 @@ onMounted(() => {
         return
       }
 
-      editor.setValue(props.modelValue || '')
+      const initialValue = transformStandaloneMediaLinks(props.modelValue || '')
+      editor.setValue(initialValue)
+      if (initialValue !== (props.modelValue || '')) {
+        emit('update:modelValue', initialValue)
+      }
       syncToolbarTitles()
       syncFullscreenState()
       syncThemeSettings()
@@ -1317,11 +1442,26 @@ onMounted(() => {
       scheduleWikiLinkHighlightRefresh()
     },
     input(value: string) {
-      if (syncingFromProps) {
+      if (syncingFromProps || applyingMediaTransform) {
         return
       }
 
-      emit('update:modelValue', value)
+      const transformedValue = transformStandaloneMediaLinks(value)
+
+      if (transformedValue !== value) {
+        applyingMediaTransform = true
+        editor?.setValue(transformedValue)
+        emit('update:modelValue', transformedValue)
+        nextTick(() => {
+          scheduleOutlineSync()
+          scheduleWikiLinkHighlightRefresh()
+          void updateLinkHintFromSelection()
+          applyingMediaTransform = false
+        })
+        return
+      }
+
+      emit('update:modelValue', transformedValue)
       nextTick(() => {
         scheduleOutlineSync()
         scheduleWikiLinkHighlightRefresh()
@@ -1356,14 +1496,22 @@ watch(
       return
     }
 
-    if (value === editor.getValue()) {
+    const normalizedValue = transformStandaloneMediaLinks(value || '')
+
+    if (normalizedValue === editor.getValue()) {
+      if (normalizedValue !== (value || '')) {
+        emit('update:modelValue', normalizedValue)
+      }
       return
     }
 
     syncingFromProps = true
-    editor.setValue(value || '')
+    editor.setValue(normalizedValue)
     scheduleOutlineSync()
     scheduleWikiLinkHighlightRefresh()
+    if (normalizedValue !== (value || '')) {
+      emit('update:modelValue', normalizedValue)
+    }
     window.setTimeout(() => {
       syncingFromProps = false
     }, 120)
@@ -1591,6 +1739,34 @@ onBeforeUnmount(() => {
 
 .editor-host :deep(.vditor-toolbar__br) {
   flex-basis: 100%;
+}
+
+.editor-host :deep(.vditor-reset video),
+.editor-host :deep(.vditor-reset audio),
+.editor-host :deep(.vditor-reset iframe),
+.editor-host :deep(.vditor-wysiwyg__preview video),
+.editor-host :deep(.vditor-wysiwyg__preview audio),
+.editor-host :deep(.vditor-wysiwyg__preview iframe) {
+  display: block;
+  width: min(100%, 720px);
+  max-width: 720px;
+  margin: 0.75rem auto;
+  border: 0;
+  border-radius: 1rem;
+  background: #0f172a;
+}
+
+.editor-host :deep(.iframe__video) {
+  aspect-ratio: 16 / 9;
+  min-height: auto;
+}
+
+.editor-host :deep(.vditor-reset video),
+.editor-host :deep(.vditor-reset iframe),
+.editor-host :deep(.vditor-wysiwyg__preview video),
+.editor-host :deep(.vditor-wysiwyg__preview iframe) {
+  aspect-ratio: 16 / 9;
+  height: auto;
 }
 
 .note-link-hint,
