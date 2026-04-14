@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import html2canvas from 'html2canvas'
 import { inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { jsPDF } from 'jspdf'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 
@@ -81,6 +83,15 @@ const STANDALONE_URL_PATTERN = /^<?(https?:\/\/[^\s<>]+)>?$/i
 const STANDALONE_MARKDOWN_LINK_PATTERN = /^\[[^\]]+]\((https?:\/\/[^\s)]+)\)$/i
 const DIRECT_VIDEO_URL_PATTERN = /^https?:\/\/\S+\.(?:mp4|m4v|ogg|ogv|webm)(?:[?#]\S*)?$/i
 const DIRECT_AUDIO_URL_PATTERN = /^https?:\/\/\S+\.(?:mp3|wav|flac)(?:[?#]\S*)?$/i
+const EXPORT_TOOLBAR_ICON = '<svg><use xlink:href="#vditor-icon-export"></use></svg>'
+const PDF_EXPORT_PAGE_WIDTH = 794
+const PDF_EXPORT_MARGIN_MM = 10
+const PDF_EXPORT_MAX_CANVAS_PIXELS = 7_500_000
+const PDF_EXPORT_MIN_SCALE = 0.95
+const PDF_EXPORT_MAX_SCALE = 1.2
+const PDF_EXPORT_QUIET_WINDOW_MS = 180
+const PDF_EXPORT_TIMEOUT_MS = 5000
+const PDF_EXPORT_WARMUP_MARKDOWN = '$$\na^2 + b^2 = c^2\n$$\n\n```ts\nconst exportReady = true\n```'
 const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080')
   .trim()
   .replace(/\/+$/, '')
@@ -128,8 +139,15 @@ let linkHintRequestId = 0
 let linkPreviewRequestId = 0
 let linkPreviewHideTimer: number | null = null
 let wikiLinkHighlightTimer: number | null = null
+let pdfExportWarmupTimer: number | null = null
 let hoverLinkRange: Range | null = null
 let selectionLinkRange: Range | null = null
+let pdfExportStage: HTMLDivElement | null = null
+let pdfExportPage: HTMLDivElement | null = null
+let pdfExportPreviewElement: HTMLDivElement | null = null
+let pdfExportWarmupPromise: Promise<void> | null = null
+let pdfExportRunning = false
+let pdfExportObjectUrls: string[] = []
 const wikiLinkBoxes = ref<HighlightBox[]>([])
 const activeWikiLinkBoxes = ref<HighlightBox[]>([])
 
@@ -155,7 +173,7 @@ const linkPreviewState = reactive({
   data: null as NoteLinkPreview | null,
 })
 
-const editorToolbar = [
+const editorToolbar: Array<string | IMenuItem> = [
   'emoji',
   'headings',
   'bold',
@@ -176,13 +194,45 @@ const editorToolbar = [
   'insert-before',
   'insert-after',
   '|',
-  'export',
+  {
+    name: 'custom-export',
+    icon: EXPORT_TOOLBAR_ICON,
+    tip: '导出',
+    tipPosition: 'ne',
+    click() {},
+    toolbar: [
+      {
+        name: 'custom-export-markdown',
+        icon: 'Markdown',
+        tip: 'Markdown',
+        click() {
+          exportMarkdownDocument()
+        },
+      },
+      {
+        name: 'custom-export-pdf',
+        icon: 'PDF',
+        tip: 'PDF',
+        click() {
+          void exportPdfDocument()
+        },
+      },
+      {
+        name: 'custom-export-html',
+        icon: 'HTML',
+        tip: 'HTML',
+        click() {
+          exportHtmlDocument()
+        },
+      },
+    ],
+  },
   'upload',
   'table',
   'undo',
   'redo',
   '|',
-  'fullscreen',
+  // 'fullscreen',
   'edit-mode',
 ]
 
@@ -256,6 +306,578 @@ function syncUploadOptions() {
   }
 
   uploadOptions.url = buildNoteImageUploadUrl(resolveEditorNoteId())
+}
+
+function buildExportFileName(extension: string) {
+  const markdown = editor?.getValue() || props.modelValue || ''
+  const baseName =
+    markdown
+      .split(/\r?\n/)
+      .map((line) => line.replace(/^#+\s*/, '').trim())
+      .find(Boolean)
+      ?.replace(/[<>:"/\\|?*\u0000-\u001f]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 40) || 'note-export'
+
+  return `${baseName}.${extension}`
+}
+
+function downloadBlob(content: BlobPart, filename: string, mimeType: string) {
+  const link = document.createElement('a')
+  const objectUrl = URL.createObjectURL(new Blob([content], { type: mimeType }))
+
+  link.href = objectUrl
+  link.download = filename
+  link.style.display = 'none'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(objectUrl)
+  }, 1000)
+}
+
+function buildHtmlExportDocument() {
+  if (!editor) {
+    return ''
+  }
+
+  const html = editor.getHTML()
+  const options = editor.vditor.options
+  const previewOptions = options.preview
+  const previewTheme = previewOptions?.theme
+  const previewHljs = previewOptions?.hljs ?? {}
+  const previewMath = previewOptions?.math ?? {}
+  const mediaRenderEnabled = Boolean(previewOptions?.render?.media?.enable)
+  const previewThemePath = previewTheme?.path ?? `${options.cdn}/dist/css/content-theme`
+  const previewThemeCurrent = previewTheme?.current ?? DEFAULT_CONTENT_THEME
+
+  return `<html><head><meta charset="utf-8"><link rel="stylesheet" type="text/css" href="${options.cdn}/dist/index.css"/>
+<script src="${options.cdn}/dist/js/i18n/${options.lang}.js"><\/script>
+<script src="${options.cdn}/dist/method.min.js"><\/script></head>
+<body><div class="vditor-reset" id="preview">${html}</div>
+<script>
+const previewElement = document.getElementById('preview')
+Vditor.setContentTheme('${previewThemeCurrent}', '${previewThemePath}');
+Vditor.codeRender(previewElement);
+Vditor.highlightRender(${JSON.stringify(previewHljs)}, previewElement, '${options.cdn}');
+Vditor.mathRender(previewElement, {
+  cdn: '${options.cdn}',
+  math: ${JSON.stringify(previewMath)},
+});
+Vditor.mermaidRender(previewElement, '${options.cdn}', '${options.theme}');
+Vditor.SMILESRender(previewElement, '${options.cdn}', '${options.theme}');
+Vditor.markmapRender(previewElement, '${options.cdn}');
+Vditor.flowchartRender(previewElement, '${options.cdn}');
+Vditor.graphvizRender(previewElement, '${options.cdn}');
+Vditor.chartRender(previewElement, '${options.cdn}', '${options.theme}');
+Vditor.mindmapRender(previewElement, '${options.cdn}', '${options.theme}');
+Vditor.abcRender(previewElement, '${options.cdn}');
+${mediaRenderEnabled ? 'Vditor.mediaRender(previewElement);' : ''}
+Vditor.speechRender(previewElement);
+<\/script>
+<script src="${options.cdn}/dist/js/icons/${options.icon}.js"><\/script></body></html>`
+}
+
+function exportMarkdownDocument() {
+  if (!editor) {
+    return
+  }
+
+  downloadBlob(editor.getValue(), buildExportFileName('md'), 'text/markdown;charset=utf-8')
+}
+
+function exportHtmlDocument() {
+  const htmlDocument = buildHtmlExportDocument()
+  if (!htmlDocument) {
+    return
+  }
+
+  downloadBlob(htmlDocument, buildExportFileName('html'), 'text/html;charset=utf-8')
+}
+
+function ensurePdfExportStage() {
+  if (pdfExportStage && pdfExportPage && pdfExportPreviewElement && pdfExportStage.isConnected) {
+    return {
+      stage: pdfExportStage,
+      page: pdfExportPage,
+      previewElement: pdfExportPreviewElement,
+    }
+  }
+
+  const stage = document.createElement('div')
+  stage.setAttribute('data-role', 'vditor-pdf-export-stage')
+  Object.assign(stage.style, {
+    position: 'fixed',
+    left: '-20000px',
+    top: '0',
+    zIndex: '0',
+    width: `${PDF_EXPORT_PAGE_WIDTH}px`,
+    pointerEvents: 'none',
+    overflow: 'visible',
+  })
+
+  const page = document.createElement('div')
+  page.setAttribute('data-role', 'vditor-pdf-export-page')
+  Object.assign(page.style, {
+    width: `${PDF_EXPORT_PAGE_WIDTH}px`,
+    boxSizing: 'border-box',
+    padding: '32px 40px',
+    background: '#ffffff',
+    color: '#0f172a',
+    fontSize: '16px',
+    lineHeight: '1.7',
+  })
+
+  const extraStyle = document.createElement('style')
+  extraStyle.textContent = `
+    [data-role="vditor-pdf-export-page"] .vditor-reset {
+      padding: 0 !important;
+      color: #0f172a;
+      word-break: break-word;
+    }
+    [data-role="vditor-pdf-export-page"] .vditor-copy {
+      display: none !important;
+    }
+    [data-role="vditor-pdf-export-page"] .vditor-reset pre {
+      overflow: visible;
+      white-space: pre-wrap;
+    }
+    [data-role="vditor-pdf-export-page"] .vditor-reset table {
+      width: 100%;
+      table-layout: auto;
+    }
+    [data-role="vditor-pdf-export-page"] .vditor-reset img,
+    [data-role="vditor-pdf-export-page"] .vditor-reset svg,
+    [data-role="vditor-pdf-export-page"] .vditor-reset canvas,
+    [data-role="vditor-pdf-export-page"] .vditor-reset iframe,
+    [data-role="vditor-pdf-export-page"] .vditor-reset video,
+    [data-role="vditor-pdf-export-page"] .vditor-reset audio {
+      max-width: 100%;
+    }
+  `
+
+  const previewElement = document.createElement('div')
+  previewElement.className = 'vditor-reset'
+
+  page.appendChild(extraStyle)
+  page.appendChild(previewElement)
+  stage.appendChild(page)
+  document.body.appendChild(stage)
+
+  pdfExportStage = stage
+  pdfExportPage = page
+  pdfExportPreviewElement = previewElement
+
+  return {
+    stage,
+    page,
+    previewElement,
+  }
+}
+
+function destroyPdfExportStage() {
+  revokePdfExportObjectUrls()
+  pdfExportStage?.remove()
+  pdfExportStage = null
+  pdfExportPage = null
+  pdfExportPreviewElement = null
+}
+
+function getPdfExportPreviewOptions() {
+  if (!editor) {
+    return null
+  }
+
+  const options = editor.vditor.options
+  const previewOptions = options.preview
+  const previewTheme = previewOptions?.theme
+  const previewMode: 'light' | 'dark' = options.theme === 'dark' ? 'dark' : 'light'
+
+  return {
+    cdn: options.cdn,
+    icon: options.icon,
+    lang: options.lang,
+    mode: previewMode,
+    theme: {
+      current: previewTheme?.current ?? DEFAULT_CONTENT_THEME,
+      path: previewTheme?.path ?? `${options.cdn}/dist/css/content-theme`,
+    },
+    hljs: {
+      ...(previewOptions?.hljs ?? {}),
+    },
+    markdown: {
+      ...(previewOptions?.markdown ?? {}),
+    },
+    math: {
+      ...(previewOptions?.math ?? {}),
+    },
+    render: {
+      media: {
+        enable: Boolean(previewOptions?.render?.media?.enable),
+      },
+    },
+  }
+}
+
+function waitForNextFrame() {
+  return new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => resolve())
+    })
+  })
+}
+
+function revokePdfExportObjectUrls() {
+  pdfExportObjectUrls.forEach((url) => {
+    URL.revokeObjectURL(url)
+  })
+  pdfExportObjectUrls = []
+}
+
+function waitForPreviewStability(
+  element: HTMLElement,
+  quietWindowMs = PDF_EXPORT_QUIET_WINDOW_MS,
+  timeoutMs = PDF_EXPORT_TIMEOUT_MS,
+) {
+  return new Promise<void>((resolve) => {
+    let finished = false
+    let quietTimer: number | null = null
+    let timeoutTimer: number | null = null
+
+    const cleanup = () => {
+      observer.disconnect()
+      if (quietTimer) {
+        window.clearTimeout(quietTimer)
+      }
+      if (timeoutTimer) {
+        window.clearTimeout(timeoutTimer)
+      }
+    }
+
+    const finish = () => {
+      if (finished) {
+        return
+      }
+
+      finished = true
+      cleanup()
+      resolve()
+    }
+
+    const scheduleFinish = () => {
+      if (quietTimer) {
+        window.clearTimeout(quietTimer)
+      }
+
+      quietTimer = window.setTimeout(() => {
+        finish()
+      }, quietWindowMs)
+    }
+
+    const observer = new MutationObserver(() => {
+      scheduleFinish()
+    })
+
+    observer.observe(element, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+    })
+
+    timeoutTimer = window.setTimeout(() => {
+      finish()
+    }, timeoutMs)
+
+    scheduleFinish()
+  })
+}
+
+async function waitForExportImages(container: HTMLElement) {
+  const images = Array.from(container.querySelectorAll('img'))
+  const fontSet = 'fonts' in document ? document.fonts : null
+
+  if (fontSet) {
+    try {
+      await fontSet.ready
+    } catch {
+      // Ignore font readiness failures for export.
+    }
+  }
+
+  if (images.length) {
+    await Promise.all(
+      images.map(
+        (image) =>
+          new Promise<void>((resolve) => {
+            if (image.complete) {
+              resolve()
+              return
+            }
+
+            const done = () => {
+              image.removeEventListener('load', done)
+              image.removeEventListener('error', done)
+              resolve()
+            }
+
+            image.addEventListener('load', done, { once: true })
+            image.addEventListener('error', done, { once: true })
+          }),
+      ),
+    )
+  }
+
+  await waitForNextFrame()
+}
+
+async function hydratePdfExportImages(container: HTMLElement) {
+  const images = Array.from(container.querySelectorAll('img'))
+  const authHeaders = buildUploadHeaders()
+
+  if (!images.length) {
+    return
+  }
+
+  await Promise.all(
+    images.map(async (image) => {
+      const rawSrc = image.getAttribute('src')?.trim()
+      if (!rawSrc || rawSrc.startsWith('data:') || rawSrc.startsWith('blob:')) {
+        return
+      }
+
+      const resolvedUrl = new URL(rawSrc, window.location.href).toString()
+
+      try {
+        const response = await fetch(resolvedUrl, {
+          headers: authHeaders,
+          credentials: 'include',
+          mode: 'cors',
+        })
+
+        if (!response.ok) {
+          throw new Error(`Image fetch failed with status ${response.status}`)
+        }
+
+        const blob = await response.blob()
+        if (!blob.type.startsWith('image/')) {
+          return
+        }
+
+        const objectUrl = URL.createObjectURL(blob)
+        pdfExportObjectUrls.push(objectUrl)
+        image.removeAttribute('srcset')
+        image.setAttribute('src', objectUrl)
+      } catch (error) {
+        console.warn('Failed to hydrate export image', resolvedUrl, error)
+      }
+    }),
+  )
+}
+
+function normalizePdfExportContent(container: HTMLElement) {
+  container.querySelectorAll('.vditor-copy').forEach((element) => {
+    element.remove()
+  })
+
+  container.querySelectorAll('iframe, video, audio').forEach((node) => {
+    const element = node as HTMLIFrameElement | HTMLMediaElement
+    const placeholder = document.createElement('div')
+    const source =
+      (element instanceof HTMLIFrameElement
+        ? element.src
+        : element.currentSrc || element.getAttribute('src')) || ''
+
+    placeholder.textContent = source ? `媒体内容：${source}` : '媒体内容请在编辑器中查看'
+    Object.assign(placeholder.style, {
+      padding: '14px 16px',
+      borderRadius: '10px',
+      border: '1px dashed rgba(148, 163, 184, 0.9)',
+      background: 'rgba(248, 250, 252, 0.92)',
+      color: '#475569',
+      fontSize: '14px',
+      lineHeight: '1.6',
+    })
+
+    element.replaceWith(placeholder)
+  })
+}
+
+function hasExportableContent(container: HTMLElement) {
+  if (container.textContent?.trim()) {
+    return true
+  }
+
+  return Boolean(
+    container.querySelector('img, svg, canvas, table, pre, blockquote, ul, ol, hr, .katex, .MathJax'),
+  )
+}
+
+function getPdfRenderScale(element: HTMLElement) {
+  const pixelArea = Math.max(1, element.scrollWidth * element.scrollHeight)
+  const recommendedScale = Math.sqrt(PDF_EXPORT_MAX_CANVAS_PIXELS / pixelArea)
+  const boundedScale = Math.min(PDF_EXPORT_MAX_SCALE, Math.max(PDF_EXPORT_MIN_SCALE, recommendedScale))
+
+  return Number(boundedScale.toFixed(2))
+}
+
+function renderCanvasPage(sourceCanvas: HTMLCanvasElement, offsetY: number, sliceHeight: number) {
+  const pageCanvas = document.createElement('canvas')
+  pageCanvas.width = sourceCanvas.width
+  pageCanvas.height = sliceHeight
+
+  const context = pageCanvas.getContext('2d')
+  if (!context) {
+    throw new Error('Unable to create PDF page canvas context')
+  }
+
+  context.fillStyle = '#ffffff'
+  context.fillRect(0, 0, pageCanvas.width, pageCanvas.height)
+  context.drawImage(
+    sourceCanvas,
+    0,
+    offsetY,
+    sourceCanvas.width,
+    sliceHeight,
+    0,
+    0,
+    pageCanvas.width,
+    sliceHeight,
+  )
+
+  return pageCanvas
+}
+
+async function renderPdfExportPreview(markdown: string) {
+  const previewOptions = getPdfExportPreviewOptions()
+  if (!previewOptions) {
+    throw new Error('Editor preview options are unavailable')
+  }
+
+  const { page, previewElement } = ensurePdfExportStage()
+  revokePdfExportObjectUrls()
+  previewElement.innerHTML = ''
+
+  await Vditor.preview(previewElement, markdown, previewOptions)
+  await waitForPreviewStability(previewElement)
+  normalizePdfExportContent(previewElement)
+  await hydratePdfExportImages(previewElement)
+  await waitForExportImages(previewElement)
+
+  return { page, previewElement }
+}
+
+async function warmupPdfExport() {
+  try {
+    await renderPdfExportPreview(PDF_EXPORT_WARMUP_MARKDOWN)
+  } catch (error) {
+    console.warn('PDF export warmup failed', error)
+  }
+}
+
+function schedulePdfExportWarmup() {
+  if (pdfExportWarmupTimer || pdfExportWarmupPromise) {
+    return
+  }
+
+  pdfExportWarmupTimer = window.setTimeout(() => {
+    pdfExportWarmupTimer = null
+    pdfExportWarmupPromise = warmupPdfExport().finally(() => {
+      pdfExportWarmupPromise = null
+    })
+  }, 600)
+}
+
+async function exportPdfDocument() {
+  if (!editor || pdfExportRunning) {
+    return
+  }
+
+  const markdown = editor.getValue()
+  if (!markdown.trim()) {
+    editor.tip('当前没有可导出的内容')
+    return
+  }
+
+  pdfExportRunning = true
+  editor.tip('正在生成 PDF...', 0)
+
+  try {
+    if (pdfExportWarmupPromise) {
+      await pdfExportWarmupPromise
+    }
+
+    const { page, previewElement } = await renderPdfExportPreview(markdown)
+    if (!hasExportableContent(previewElement)) {
+      editor.tip('当前没有可导出的内容')
+      return
+    }
+
+    const canvas = await html2canvas(page, {
+      scale: getPdfRenderScale(page),
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    })
+
+    if (!canvas.width || !canvas.height) {
+      throw new Error('PDF export canvas is empty')
+    }
+
+    const pdf = new jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait',
+    })
+    const pageWidthMm = pdf.internal.pageSize.getWidth()
+    const pageHeightMm = pdf.internal.pageSize.getHeight()
+    const contentWidthMm = pageWidthMm - PDF_EXPORT_MARGIN_MM * 2
+    const contentHeightMm = pageHeightMm - PDF_EXPORT_MARGIN_MM * 2
+    const pixelsPerMm = canvas.width / contentWidthMm
+    const pageSliceHeightPx = Math.max(1, Math.floor(contentHeightMm * pixelsPerMm))
+
+    let offsetY = 0
+    let pageIndex = 0
+
+    while (offsetY < canvas.height) {
+      const sliceHeight = Math.min(pageSliceHeightPx, canvas.height - offsetY)
+      const pageCanvas = renderCanvasPage(canvas, offsetY, sliceHeight)
+      const pageHeightForPdf = sliceHeight / pixelsPerMm
+
+      if (pageIndex > 0) {
+        pdf.addPage()
+      }
+
+      pdf.addImage(
+        pageCanvas,
+        'JPEG',
+        PDF_EXPORT_MARGIN_MM,
+        PDF_EXPORT_MARGIN_MM,
+        contentWidthMm,
+        pageHeightForPdf,
+        undefined,
+        'FAST',
+      )
+
+      offsetY += sliceHeight
+      pageIndex += 1
+    }
+
+    pdf.save(buildExportFileName('pdf'))
+    editor.tip('PDF 导出完成', 2000)
+  } catch (error) {
+    console.error('Failed to export PDF', error)
+    editor.tip('PDF 导出失败，请稍后重试')
+  } finally {
+    revokePdfExportObjectUrls()
+    if (pdfExportPreviewElement) {
+      pdfExportPreviewElement.innerHTML = ''
+    }
+    pdfExportRunning = false
+  }
 }
 
 function escapeMarkdownText(value: string) {
@@ -1440,6 +2062,7 @@ onMounted(() => {
       syncUploadOptions()
       scheduleOutlineSync()
       scheduleWikiLinkHighlightRefresh()
+      schedulePdfExportWarmup()
     },
     input(value: string) {
       if (syncingFromProps || applyingMediaTransform) {
@@ -1582,6 +2205,10 @@ onBeforeUnmount(() => {
     window.clearTimeout(wikiLinkHighlightTimer)
   }
 
+  if (pdfExportWarmupTimer) {
+    window.clearTimeout(pdfExportWarmupTimer)
+  }
+
   clearLinkPreviewHideTimer()
   wikiLinkBoxes.value = []
   activeWikiLinkBoxes.value = []
@@ -1595,6 +2222,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', handleWikiLinkViewportChange)
   fullscreenObserver?.disconnect()
   fullscreenObserver = null
+  destroyPdfExportStage()
   emit('fullscreen-change', false)
   editor?.destroy()
   editor = null
