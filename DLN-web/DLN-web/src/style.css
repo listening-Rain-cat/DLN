@@ -1163,7 +1163,7 @@ code {
 }
 
 .workspace-body.outline-collapsed {
-  grid-template-columns: minmax(0, 1fr) 72px;
+  grid-template-columns: minmax(0, 1fr) 104px;
 }
 
 .workspace-body.outline-hidden {
@@ -1222,6 +1222,28 @@ code {
 .workspace-body.editor-fullscreen-active .editor-stack,
 .workspace-body.editor-fullscreen-active .editor-frame-body {
   display: grid;
+}
+
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: 8;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0.95rem;
+}
+
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-content,
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-ir,
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-wysiwyg,
+.workspace-body.editor-fullscreen-active .editor-frame .vditor--fullscreen .vditor-sv {
+  min-height: 0;
+  height: 100%;
+}
+
+.workspace-body.editor-fullscreen-active .editor-frame-bookmark {
+  z-index: 14;
 }
 
 .editor-frame-bookmark-shell {
@@ -2065,7 +2087,7 @@ code {
   }
 
   .workspace-body.outline-collapsed .outline-panel {
-    width: 72px;
+    width: 104px;
   }
 }
 
