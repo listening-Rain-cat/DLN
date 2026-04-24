@@ -7,6 +7,7 @@ import org.example.dln.entity.User;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.UserMapper;
 import org.example.dln.util.JwtUtil;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.vo.LoginVO;
 import org.example.dln.vo.UserInfoVO;
 import org.springframework.beans.BeanUtils;
@@ -15,14 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,6 +55,7 @@ public class UserService {
 
     /**
     * 处理用户注册。
+     * @param registerDTO 注册请求参数
     */
     @Transactional(rollbackFor = Exception.class)
     public UserInfoVO register(RegisterDTO registerDTO) {
@@ -78,18 +78,19 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setEmail(email);
         user.setNickname(nickname);
+        //TODO 要不要管理员？
         user.setStatus(1);
 
         if (userMapper.insert(user) <= 0) {
             throw new BusinessException("注册失败，请稍后重试");
         }
-
         userSettingsService.ensureUserSettings(user.getId());
         return toUserInfoVO(user);
     }
 
     /**
     * 处理用户登录。
+     * @param loginDTO 登录请求参数
     */
     public LoginVO login(LoginDTO loginDTO) {
         String username = loginDTO.getUsername().trim();
@@ -102,13 +103,40 @@ public class UserService {
         }
 
         LoginVO loginVO = new LoginVO();
+        //所有实体类拷贝到VO视图对象中，long因前端数字精度问题，所有数字全部单独处理
         BeanUtils.copyProperties(user, loginVO);
+        loginVO.setId(LongStringUtils.toStringValue(user.getId()));
         loginVO.setToken(JwtUtil.generateToken(user.getId(), user.getUsername()));
         return loginVO;
     }
+    /**
+     * 获取用户信息。
+     * @param userId 用户ID
+     */
+    public UserInfoVO getUserInfo(Long userId) {
+        User user = userMapper.selectByUserId(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return toUserInfoVO(user);
+    }
+
+    /**
+     * 将用户实体转换为用户信息视图对象。
+     * @param user 用户实体
+     */
+    private UserInfoVO toUserInfoVO(User user) {
+        UserInfoVO userInfoVO = new UserInfoVO();
+        BeanUtils.copyProperties(user, userInfoVO);
+        userInfoVO.setId(LongStringUtils.toStringValue(user.getId()));
+        return userInfoVO;
+    }
+
 
     /**
     * 上传用户头像。
+     * @param userId 用户ID
+     * @param file 头像文件
     */
     @Transactional(rollbackFor = Exception.class)
     public UserInfoVO uploadAvatar(Long userId, MultipartFile file) {
@@ -126,40 +154,52 @@ public class UserService {
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
-
-        String originalFileName = sanitizeFileName(file.getOriginalFilename());
-        String extension = getFileExtension(originalFileName);
-        String relativePath = buildRelativePath(extension);
-        Path absolutePath = buildAbsolutePath(relativePath);
-        Path oldAvatarPath = resolveManagedAvatarPath(user.getAvatarUrl());
+        String extension = switch (file.getContentType()) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/gif" -> ".gif";
+            case "image/webp" -> ".webp";
+            default -> throw new BusinessException("仅支持 jpg、png、gif、webp 格式的头像图片");
+        };
+        String fileName = UUID.randomUUID() + extension;
+        Path absolutePath = Paths.get(avatarUploadDir)
+                .toAbsolutePath()
+                .normalize()
+                .resolve(fileName)
+                .normalize();
 
         try {
             Files.createDirectories(absolutePath.getParent());
+            //保存文件到磁盘
             file.transferTo(absolutePath);
         } catch (IOException e) {
             throw new BusinessException("保存头像文件失败");
         }
 
-        user.setAvatarUrl("/avatars/" + relativePath.replace("\\", "/"));
+        user.setAvatarUrl("/avatars/" + fileName);
 
         try {
             if (userMapper.updateById(user) <= 0) {
-                deletePhysicalFile(absolutePath);
+                try {
+                    Files.deleteIfExists(absolutePath);
+                } catch (IOException ignored) {
+                }
                 throw new BusinessException("更新头像失败，请稍后重试");
             }
         } catch (RuntimeException e) {
-            deletePhysicalFile(absolutePath);
+            try {
+                Files.deleteIfExists(absolutePath);
+            } catch (IOException ignored) {
+            }
             throw e;
-        }
-
-        if (oldAvatarPath != null && !oldAvatarPath.equals(absolutePath)) {
-            deletePhysicalFile(oldAvatarPath);
         }
         return toUserInfoVO(user);
     }
 
     /**
     * 更新用户信息。
+     * @param userId 用户ID
+     * @param updateUserDTO 用户信息更新参数
     */
     @Transactional(rollbackFor = Exception.class)
     public void updateUser(Long userId, UpdateUserDTO updateUserDTO) {
@@ -170,6 +210,7 @@ public class UserService {
 
         boolean hasOldPassword = hasText(updateUserDTO.getOldPassword());
         boolean hasNewPassword = hasText(updateUserDTO.getNewPassword());
+        //TODO 做邮箱认证后再改密码
         if (hasOldPassword != hasNewPassword) {
             throw new BusinessException("修改密码时必须同时填写旧密码和新密码");
         }
@@ -200,92 +241,12 @@ public class UserService {
         }
     }
 
-    /**
-    * 获取用户信息。
-    */
-    public UserInfoVO getUserInfo(Long userId) {
-        User user = userMapper.selectByUserId(userId);
-        if (user == null) {
-            throw new BusinessException("用户不存在");
-        }
-        return toUserInfoVO(user);
-    }
-
-    /**
-    * 将用户实体转换为用户信息视图对象。
-    */
-    private UserInfoVO toUserInfoVO(User user) {
-        UserInfoVO userInfoVO = new UserInfoVO();
-        BeanUtils.copyProperties(user, userInfoVO);
-        return userInfoVO;
-    }
 
     /**
     * 判断字符串是否包含有效文本。
+     * @param value 待处理的值
     */
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
-    }
-
-    /**
-    * 清理文件名。
-    */
-    private String sanitizeFileName(String originalFileName) {
-        String fileName = StringUtils.cleanPath(originalFileName == null ? "" : originalFileName);
-        if (!StringUtils.hasText(fileName)) {
-            return "avatar";
-        }
-        return Path.of(fileName).getFileName().toString();
-    }
-
-    /**
-    * 提取文件扩展名。
-    */
-    private String getFileExtension(String fileName) {
-        int index = fileName.lastIndexOf('.');
-        if (index < 0 || index == fileName.length() - 1) {
-            return "";
-        }
-        return fileName.substring(index).toLowerCase();
-    }
-
-    /**
-    * 构建相对路径。
-    */
-    private String buildRelativePath(String extension) {
-        LocalDate today = LocalDate.now();
-        return Paths.get(String.valueOf(today.getYear()),
-                        String.format("%02d", today.getMonthValue()),
-                        String.format("%02d", today.getDayOfMonth()),
-                        UUID.randomUUID() + extension)
-                .toString();
-    }
-
-    /**
-    * 构建绝对路径。
-    */
-    private Path buildAbsolutePath(String relativePath) {
-        return Paths.get(avatarUploadDir).toAbsolutePath().normalize().resolve(relativePath).normalize();
-    }
-
-    /**
-    * 解析受管头像文件路径。
-    */
-    private Path resolveManagedAvatarPath(String avatarUrl) {
-        if (!hasText(avatarUrl) || !avatarUrl.startsWith("/avatars/")) {
-            return null;
-        }
-        String relativePath = avatarUrl.substring("/avatars/".length());
-        return buildAbsolutePath(relativePath);
-    }
-
-    /**
-    * 删除物理文件。
-    */
-    private void deletePhysicalFile(Path path) {
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException ignored) {
-        }
     }
 }

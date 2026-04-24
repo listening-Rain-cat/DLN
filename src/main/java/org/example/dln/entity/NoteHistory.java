@@ -16,24 +16,24 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_note_history")
+@TableName(value = "t_note_history")
 public class NoteHistory {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("note_id")
+    @TableField(value = "note_id")
     private Long noteId;
 
-    @TableField("version_no")
+    @TableField(value = "version_no")
     private Integer versionNo;
 
-    @TableField("title")
+    @TableField(value = "title")
     private String title;
 
-    @TableField("markdown_content")
+    @TableField(value = "markdown_content")
     private String markdownContent;
 
-    @TableField("created_by")
+    @TableField(value = "created_by")
     private Long createdBy;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

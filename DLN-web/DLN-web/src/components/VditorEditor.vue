@@ -1143,12 +1143,27 @@ function handlePotentialThemeChange() {
   scheduleThemeSettingsSync()
 }
 
+function getSafeCurrentMode() {
+  if (!editor) {
+    return null
+  }
+
+  try {
+    return editor.getCurrentMode()
+  } catch {
+    return null
+  }
+}
+
 function getCurrentEditorElement() {
   if (!host.value || !editor) {
     return null
   }
 
-  const currentMode = editor.getCurrentMode()
+  const currentMode = getSafeCurrentMode()
+  if (!currentMode) {
+    return null
+  }
 
   if (currentMode === 'wysiwyg') {
     return host.value.querySelector('.vditor-wysiwyg') as HTMLElement | null
@@ -1166,7 +1181,10 @@ function getPrimaryContentElement() {
     return null
   }
 
-  const currentMode = editor.getCurrentMode()
+  const currentMode = getSafeCurrentMode()
+  if (!currentMode) {
+    return null
+  }
 
   if (currentMode === 'wysiwyg') {
     return host.value.querySelector('.vditor-wysiwyg .vditor-reset') as HTMLElement | null

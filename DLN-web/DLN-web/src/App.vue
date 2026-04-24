@@ -14,7 +14,6 @@ import {
   normalizeNote,
   normalizeOptionalText,
   normalizeTagIds,
-  previewTemplateContent,
   resolveAssetUrl,
   setAuthCookie,
   TOKEN_KEY,
@@ -33,6 +32,7 @@ import type {
   NoteLinkCandidate,
   NoteLinkOpenHandler,
   NoteLinkPreview,
+  NoteSearchResult,
   NoteTemplate,
   NoticeType,
   TagItem,
@@ -45,8 +45,8 @@ import { useKnowledgeBaseData } from './app/useKnowledgeBaseData'
 import { useNoteAutosave } from './app/useNoteAutosave'
 import { useWorkspaceChrome } from './app/useWorkspaceChrome'
 import { useSessionManager } from './app/useSessionManager'
+import type { KnowledgeBaseSearchFilters } from './app/shared'
 import AppRail from './components/AppRail.vue'
-import AvatarCropModal from './components/AvatarCropModal.vue'
 import AuthPanel from './components/auth/AuthPanel.vue'
 import KnowledgeGraphD3View from './components/graph/KnowledgeGraphD3View.vue'
 import LibraryPanel from './components/layout/LibraryPanel.vue'
@@ -140,12 +140,6 @@ const profileForm = reactive({
   confirmPassword: '',
 })
 
-const avatarCropModal = reactive({
-  open: false,
-  imageUrl: '',
-  fileName: '',
-})
-
 const knowledgeBaseModal = reactive({
   open: false,
   mode: 'create' as KnowledgeBaseModalMode,
@@ -168,6 +162,7 @@ const noteHistoryModal = reactive({
   loadingList: false,
   loadingDetail: false,
   restoring: false,
+  deleting: false,
   versions: [] as NoteHistoryVersion[],
   selectedVersionId: null as Id | null,
   selectedDetail: null as NoteHistoryDetail | null,
@@ -247,6 +242,10 @@ const deleteTitle = computed(() => {
     return '删除标签'
   }
 
+  if (deleteModal.kind === 'history') {
+    return '删除历史版本'
+  }
+
   return '删除笔记'
 })
 
@@ -257,6 +256,10 @@ const deleteCopy = computed(() => {
 
   if (deleteModal.kind === 'tag') {
     return `将删除标签“${deleteModal.targetName || '当前标签'}”，关联到笔记的该标签也会一并移除。`
+  }
+
+  if (deleteModal.kind === 'history') {
+    return `将删除历史版本“${deleteModal.targetName || '当前版本'}”，此操作无法撤销。`
   }
 
   return `将删除“${deleteModal.targetName || '当前内容'}”，此操作无法撤销。`
@@ -346,7 +349,7 @@ function showNotice(text: string, type: NoticeType = 'success') {
   }, 3600)
 }
 
-const { autoSaveError, autoSavingNote, clearCurrentNote, noteSaved, saveNote } = useNoteAutosave({
+const { autoSaveError, autoSavingNote, clearCurrentNote, createHistoryVersion, noteSaved } = useNoteAutosave({
   request,
   showNotice,
   createHistorySnapshot: (noteId: Id) => createNoteHistorySnapshot(noteId),
@@ -498,15 +501,6 @@ async function initializeApp() {
   }
 }
 
-function closeAvatarCropModal() {
-  if (avatarCropModal.imageUrl) {
-    URL.revokeObjectURL(avatarCropModal.imageUrl)
-  }
-  avatarCropModal.open = false
-  avatarCropModal.imageUrl = ''
-  avatarCropModal.fileName = ''
-}
-
 async function handleAvatarChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -522,20 +516,6 @@ async function handleAvatarChange(event: Event) {
     if (file.size > 5 * 1024 * 1024) {
       throw new Error('头像大小不能超过 5MB。')
     }
-
-    closeAvatarCropModal()
-    avatarCropModal.imageUrl = URL.createObjectURL(file)
-    avatarCropModal.fileName = file.name
-    avatarCropModal.open = true
-  } catch (error) {
-    showNotice((error as Error).message, 'error')
-  } finally {
-    input.value = ''
-  }
-}
-
-async function uploadCroppedAvatar(file: File) {
-  try {
     loading.avatarUpload = true
     const formData = new FormData()
     formData.append('file', file)
@@ -546,12 +526,12 @@ async function uploadCroppedAvatar(file: File) {
     })
 
     persistUser(user)
-    closeAvatarCropModal()
     showNotice('头像上传成功。')
   } catch (error) {
     showNotice((error as Error).message, 'error')
   } finally {
     loading.avatarUpload = false
+    input.value = ''
   }
 }
 
@@ -610,10 +590,39 @@ async function fetchNoteLinkPreview(title: string) {
   )
 }
 
+async function searchKnowledgeBaseNotes(filters: KnowledgeBaseSearchFilters) {
+  const knowledgeBaseId = selectedKnowledgeBaseId.value
+  if (!knowledgeBaseId) {
+    return []
+  }
+
+  const params = new URLSearchParams()
+  params.set('scope', filters.scope || 'all')
+
+  const keyword = filters.keyword?.trim()
+  if (keyword) {
+    params.set('keyword', keyword)
+  }
+
+  if (filters.folderId) {
+    params.set('folderId', String(filters.folderId))
+  }
+
+  for (const tagId of filters.tagIds ?? []) {
+    params.append('tagIds', String(tagId))
+  }
+
+  const query = params.toString()
+  return await request<NoteSearchResult[]>(
+    `/knowledgeBases/${knowledgeBaseId}/search${query ? `?${query}` : ''}`,
+  )
+}
+
 function resetNoteHistoryModal() {
   noteHistoryModal.loadingList = false
   noteHistoryModal.loadingDetail = false
   noteHistoryModal.restoring = false
+  noteHistoryModal.deleting = false
   noteHistoryModal.versions = []
   noteHistoryModal.selectedVersionId = null
   noteHistoryModal.selectedDetail = null
@@ -724,6 +733,18 @@ async function restoreNoteHistoryVersion() {
   } finally {
     noteHistoryModal.restoring = false
   }
+}
+
+async function deleteNoteHistoryVersion() {
+  if (!currentNote.value?.id || !noteHistoryModal.selectedDetail?.id) {
+    return
+  }
+
+  openDeleteModal(
+    'history',
+    noteHistoryModal.selectedDetail.id,
+    `v${noteHistoryModal.selectedDetail.versionNo} · ${noteHistoryModal.selectedDetail.title}`,
+  )
 }
 
 provide('noteLinkCandidatesFetcher', fetchNoteLinkCandidates)
@@ -1160,6 +1181,30 @@ async function confirmDelete() {
       return
     }
 
+    if (deleteModal.kind === 'history') {
+      if (!currentNote.value?.id) {
+        throw new Error('当前未打开笔记，无法删除历史版本。')
+      }
+
+      noteHistoryModal.deleting = true
+
+      const currentIndex = noteHistoryModal.versions.findIndex((version) => version.id === deleteModal.targetId)
+      const nextVersion =
+        noteHistoryModal.versions[currentIndex + 1] ??
+        noteHistoryModal.versions[currentIndex - 1] ??
+        null
+
+      await request<void>(`/notes/${currentNote.value.id}/histories/${deleteModal.targetId}`, {
+        method: 'DELETE',
+      })
+
+      await loadNoteHistoryVersions(currentNote.value.id, nextVersion?.id ?? null)
+      noteHistoryModal.deleting = false
+      showNotice('历史版本已删除。')
+      closeDeleteModal()
+      return
+    }
+
     await request(`/notes/${deleteModal.targetId}`, {
       method: 'DELETE',
     })
@@ -1177,8 +1222,12 @@ async function confirmDelete() {
     closeDeleteModal()
   } catch (error) {
     deleteModal.busy = false
+    noteHistoryModal.deleting = false
     showNotice((error as Error).message, 'error')
+    return
   }
+
+  noteHistoryModal.deleting = false
 }
 
 function openGraphNote(noteId: Id) {
@@ -1286,8 +1335,7 @@ onMounted(() => {
         :loading-knowledge-bases="loading.knowledgeBases"
         :loading-tags="loading.tags"
         :submitting-tag="loading.tagSubmit"
-        :saving-note="loading.save"
-        :note-saved="noteSaved"
+        :creating-history-version="loading.save"
         :knowledge-base-tag-create-tick="knowledgeBaseTagCreateTick"
         :note-tag-create-tick="noteTagCreateTick"
         :loading-templates="loading.templates"
@@ -1314,14 +1362,16 @@ onMounted(() => {
         :on-create-note-tag="createNoteTag"
         :on-toggle-note-tag="toggleNoteTag"
         :on-delete-tag="handleDeleteTag"
+        :on-search-knowledge-base-notes="searchKnowledgeBaseNotes"
         @select-knowledge-base="selectKnowledgeBase"
         @select-tree-node="handleTreeNodeSelect"
         @create-folder="openCreateItemModal('folder', $event)"
         @create-note="openCreateItemModal('note', $event)"
         @edit-folder="openEditFolderModal"
         @open-note-history="openNoteHistoryModal"
+        @open-note-link="openGraphNote"
         @toggle-library-panel="toggleLibraryPanel(false)"
-        @save-note="saveNote"
+        @create-note-history-version="createHistoryVersion"
         @editor-fullscreen-change="workspaceFullscreen = $event"
         @editor-theme-change="handleEditorThemeChange"
         @create-knowledge-base="openKnowledgeBaseModal('create')"
@@ -1355,7 +1405,6 @@ onMounted(() => {
         v-else-if="viewMode === 'templates'"
         :loading-templates="loading.templates"
         :note-templates="noteTemplates"
-        :preview-template-content="previewTemplateContent"
         :format-date-time="formatDateTime"
         @create-template="openTemplateModal('create')"
         @edit-template="openTemplateModal('edit', $event)"
@@ -1371,13 +1420,16 @@ onMounted(() => {
         />
       </div>
 
-      <footer class="workspace-statusbar">
+      <footer class="workspace-statusbar" aria-label="工作区状态栏">
         <div class="workspace-status-left">
-          <span v-for="item in statusbarLeftItems" :key="item" class="statusbar-item">{{ item }}</span>
+          <span v-for="item in statusbarLeftItems" :key="item" class="statusbar-item">
+            {{ item }}
+          </span>
         </div>
-
         <div class="workspace-status-right">
-          <span v-for="item in statusbarRightItems" :key="item" class="statusbar-item">{{ item }}</span>
+          <span v-for="item in statusbarRightItems" :key="item" class="statusbar-item">
+            {{ item }}
+          </span>
         </div>
       </footer>
     </main>
@@ -1392,14 +1444,6 @@ onMounted(() => {
     :notice-text="notice.text"
     :notice-type="notice.type"
     @submit="submitAuth"
-  />
-  <AvatarCropModal
-    v-if="avatarCropModal.open"
-    :image-url="avatarCropModal.imageUrl"
-    :file-name="avatarCropModal.fileName"
-    :submitting="loading.avatarUpload"
-    @close="closeAvatarCropModal"
-    @confirm="uploadCroppedAvatar"
   />
   <KnowledgeBaseModalView
     v-if="knowledgeBaseModal.open"
@@ -1428,6 +1472,7 @@ onMounted(() => {
     :modal="noteHistoryModal"
     @close="closeNoteHistoryModal"
     @select-version="selectNoteHistoryVersion"
+    @delete="deleteNoteHistoryVersion"
     @restore="restoreNoteHistoryVersion"
   />
 

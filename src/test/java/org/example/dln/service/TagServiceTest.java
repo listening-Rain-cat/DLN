@@ -75,8 +75,8 @@ class TagServiceTest {
 
         TagVO result = tagService.createTag(USER_ID, KNOWLEDGE_BASE_ID, dto);
 
-        assertEquals(200L, result.getId());
-        assertEquals(KNOWLEDGE_BASE_ID, result.getKnowledgeBaseId());
+        assertEquals("200", result.getId());
+        assertEquals(String.valueOf(KNOWLEDGE_BASE_ID), result.getKnowledgeBaseId());
         assertEquals("Beta", result.getName());
         verify(knowledgeBaseService).touchKnowledgeBase(KNOWLEDGE_BASE_ID);
     }
@@ -190,6 +190,7 @@ class TagServiceTest {
         note.setUserId(userId);
         note.setKnowledgeBaseId(knowledgeBaseId);
         note.setStatus(1);
+        note.setDeleteToken(0L);
         return note;
     }
 

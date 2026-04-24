@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 public class KnowledgeGraphVO {
-    private Long knowledgeBaseId;
+    private String knowledgeBaseId;
     private List<KnowledgeGraphNodeVO> nodes = new ArrayList<>();
     private List<KnowledgeGraphEdgeVO> edges = new ArrayList<>();
 }

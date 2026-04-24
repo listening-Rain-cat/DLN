@@ -16,30 +16,30 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_note")
+@TableName(value = "t_note")
 public class Note {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("user_id")
+    @TableField(value = "user_id")
     private Long userId;
 
-    @TableField("knowledge_base_id")
+    @TableField(value = "knowledge_base_id")
     private Long knowledgeBaseId;
 
-    @TableField("folder_id")
+    @TableField(value = "folder_id")
     private Long folderId;
 
-    @TableField("title")
+    @TableField(value = "title")
     private String title;
 
-    @TableField("status")
+    @TableField(value = "status")
     private Integer status;
 
-    @TableField("delete_token")
+    @TableField(value = "delete_token")
     private Long deleteToken;
 
-    @TableField("deleted_time")
+    @TableField(value = "deleted_time")
     private LocalDateTime deletedTime;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

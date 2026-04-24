@@ -5,7 +5,8 @@ export type AuthMode = 'login' | 'register'
 export type KnowledgeBaseModalMode = 'create' | 'edit'
 export type TemplateModalMode = 'create' | 'edit'
 export type CreateItemType = 'folder' | 'note'
-export type DeleteKind = 'knowledge-base' | 'folder' | 'note' | 'template' | 'tag'
+export type DeleteKind = 'knowledge-base' | 'folder' | 'note' | 'template' | 'tag' | 'history'
+export type SearchScope = 'all' | 'title' | 'content' | 'tag'
 
 export interface ApiResult<T> {
   code: number
@@ -165,6 +166,31 @@ export interface NoteHistoryVersion {
 
 export interface NoteHistoryDetail extends NoteHistoryVersion {
   markdownContent: string
+}
+
+export interface KnowledgeBaseSearchFilters {
+  keyword?: string
+  scope?: SearchScope
+  folderId?: Id | null
+  tagIds?: Id[]
+}
+
+export interface NoteSearchResult {
+  noteId: Id
+  knowledgeBaseId: Id
+  folderId?: Id | null
+  title: string
+  folderPath: string
+  snippet: string
+  matchedByTitle: boolean
+  matchedByContent: boolean
+  matchedByTag: boolean
+  incomingCount: number
+  outgoingCount: number
+  brokenLinkCount: number
+  createdTime?: string
+  updatedTime?: string
+  tags: TagItem[]
 }
 
 export const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080')

@@ -279,6 +279,7 @@ public final class VditorThemeCatalog {
 
     /**
     * 判断内容主题是否允许使用。
+     * @param theme 内容主题名称
     */
     public static boolean isAllowedContentTheme(String theme) {
         return CONTENT_THEMES.contains(theme);
@@ -286,6 +287,7 @@ public final class VditorThemeCatalog {
 
     /**
     * 判断代码主题是否允许使用。
+     * @param theme 代码主题名称
     */
     public static boolean isAllowedCodeTheme(String theme) {
         return CODE_THEMES.contains(theme);
@@ -307,6 +309,7 @@ public final class VditorThemeCatalog {
 
     /**
     * 解析主题配置文本。
+     * @param rawThemes 原始主题文本
     */
     private static Set<String> parseThemes(String rawThemes) {
         LinkedHashSet<String> themes = new LinkedHashSet<>();

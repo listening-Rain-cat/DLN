@@ -8,6 +8,7 @@ import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.NoteMapper;
 import org.example.dln.mapper.NoteTagMapper;
 import org.example.dln.mapper.TagMapper;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.vo.TagVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class TagService {
 
     /**
     * 创建标签。
+     * @param userId 用户ID
+     * @param knowledgeBaseId 知识库ID
+     * @param dto 创建标签请求参数
     */
     public TagVO createTag(Long userId, Long knowledgeBaseId, CreateTagDTO dto) {
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
@@ -61,6 +65,8 @@ public class TagService {
 
     /**
     * 查询知识库标签列表。
+     * @param userId 用户ID
+     * @param knowledgeBaseId 知识库ID
     */
     public List<TagVO> listKnowledgeBaseTags(Long userId, Long knowledgeBaseId) {
         knowledgeBaseService.getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
@@ -70,6 +76,8 @@ public class TagService {
 
     /**
     * 删除标签。
+     * @param userId 用户ID
+     * @param tagId 标签ID
     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTag(Long userId, Long tagId) {
@@ -85,6 +93,9 @@ public class TagService {
 
     /**
     * 设置笔记标签。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param tagIds 标签ID列表
     */
     @Transactional(rollbackFor = Exception.class)
     public List<TagVO> setNoteTags(Long userId, Long noteId, List<Long> tagIds) {
@@ -122,6 +133,8 @@ public class TagService {
 
     /**
     * 查询笔记标签列表。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     public List<TagVO> listNoteTags(Long userId, Long noteId) {
         Note note = getNoteOrThrow(userId, noteId);
@@ -144,6 +157,8 @@ public class TagService {
 
     /**
     * 获取笔记，不存在时抛出异常。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     private Note getNoteOrThrow(Long userId, Long noteId) {
         Note note = noteMapper.selectByNoteId(noteId);
@@ -160,6 +175,7 @@ public class TagService {
 
     /**
     * 获取标签，不存在时抛出异常。
+     * @param tagId 标签ID
     */
     private Tag getTagByIdOrThrow(Long tagId) {
         Tag tag = tagMapper.selectByTagId(tagId);
@@ -171,6 +187,9 @@ public class TagService {
 
     /**
     * 检查标签名称是否已存在。
+     * @param knowledgeBaseId 知识库ID
+     * @param name 名称
+     * @param excludeId 排除的标签ID（更新时使用，新增时传null）
     */
     private void checkTagNameExists(Long knowledgeBaseId, String name, Long excludeId) {
         List<Tag> tags = tagMapper.selectByKnowledgeBaseIdAndName(knowledgeBaseId, name);
@@ -182,6 +201,7 @@ public class TagService {
 
     /**
     * 规范化标签 ID 集合。
+     * @param tagIds 标签ID列表
     */
     private Set<Long> normalizeTagIds(List<Long> tagIds) {
         Set<Long> result = new LinkedHashSet<>();
@@ -198,6 +218,7 @@ public class TagService {
 
     /**
     * 构建标签视图对象列表。
+     * @param tags 标签列表
     */
     private List<TagVO> buildTagVOList(List<Tag> tags) {
         List<TagVO> result = new ArrayList<>();
@@ -210,10 +231,13 @@ public class TagService {
 
     /**
     * 将标签实体转换为标签视图对象。
+     * @param tag 标签实体
     */
     private TagVO toTagVO(Tag tag) {
         TagVO vo = new TagVO();
         BeanUtils.copyProperties(tag, vo);
+        vo.setId(LongStringUtils.toStringValue(tag.getId()));
+        vo.setKnowledgeBaseId(LongStringUtils.toStringValue(tag.getKnowledgeBaseId()));
         return vo;
     }
 }

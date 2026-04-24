@@ -20,6 +20,7 @@ import java.util.List;
 public interface NoteTagMapper extends BaseMapper<NoteTag> {
     /**
     * 按标签 ID 删除关联数据。
+     * @param tagId 标签ID
     */
     @Delete("""
             DELETE FROM t_note_tag
@@ -29,6 +30,7 @@ public interface NoteTagMapper extends BaseMapper<NoteTag> {
 
     /**
     * 按笔记 ID 删除数据。
+     * @param noteId 笔记ID
     */
     @Delete("""
             DELETE FROM t_note_tag
@@ -38,6 +40,7 @@ public interface NoteTagMapper extends BaseMapper<NoteTag> {
 
     /**
     * 根据笔记 ID 查询数据。
+     * @param noteId 笔记ID
     */
     @Select("""
             SELECT *
@@ -48,6 +51,7 @@ public interface NoteTagMapper extends BaseMapper<NoteTag> {
 
     /**
     * 根据笔记 ID 集合查询关联数据。
+     * @param noteIds 笔记ID列表
     */
     @Select("""
             <script>

@@ -435,7 +435,7 @@ export function useNoteAutosave(options: UseNoteAutosaveOptions) {
     }
   }
 
-  async function saveNote() {
+  async function createHistoryVersion() {
     if (!options.currentNote.value) {
       return
     }
@@ -486,7 +486,7 @@ export function useNoteAutosave(options: UseNoteAutosaveOptions) {
 
       const saveResults = await Promise.all(saveSteps)
       if (saveResults.some((result) => !result)) {
-        throw new Error(autoSaveError.value || '保存笔记失败。')
+        throw new Error(autoSaveError.value || '创建历史版本失败。')
       }
 
       await options.createHistorySnapshot(noteId)
@@ -498,7 +498,7 @@ export function useNoteAutosave(options: UseNoteAutosaveOptions) {
       autoSaveError.value = ''
       noteContentAutoSaveErrorShown = false
 
-      options.showNotice('笔记已保存。')
+      options.showNotice('历史版本已创建。')
     } catch (error) {
       options.showNotice((error as Error).message, 'error')
     } finally {
@@ -618,7 +618,7 @@ export function useNoteAutosave(options: UseNoteAutosaveOptions) {
     autoSaveError,
     autoSavingNote,
     clearCurrentNote,
+    createHistoryVersion,
     noteSaved,
-    saveNote,
   }
 }

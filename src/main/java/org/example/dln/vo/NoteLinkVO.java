@@ -10,9 +10,9 @@ import lombok.Data;
  */
 @Data
 public class NoteLinkVO {
-    private Long id;
-    private Long sourceNoteId;
-    private Long targetNoteId;
+    private String id;
+    private String sourceNoteId;
+    private String targetNoteId;
     private String targetNoteName;
     private String anchorText;
     private String contextSnippet;

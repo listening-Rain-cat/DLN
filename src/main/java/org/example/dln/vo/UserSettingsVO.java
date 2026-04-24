@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
  */
 @Data
 public class UserSettingsVO {
-    private Long id;
-    private Long userId;
+    private String id;
+    private String userId;
     private String codeTheme;
     private String contentTheme;
     private LocalDateTime createdTime;

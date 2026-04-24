@@ -16,18 +16,18 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_user_settings")
+@TableName(value = "t_user_settings")
 public class UserSettings {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("user_id")
+    @TableField(value = "user_id")
     private Long userId;
 
-    @TableField("code_theme")
+    @TableField(value = "code_theme")
     private String codeTheme;
 
-    @TableField("content_theme")
+    @TableField(value = "content_theme")
     private String contentTheme;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

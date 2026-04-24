@@ -11,6 +11,8 @@ public class BusinessException extends RuntimeException {
 
     /**
     * 创建业务异常对象。
+     * @param code 状态码
+     * @param message 响应消息
     */
     public BusinessException(Integer code, String message) {
         super(message);
@@ -19,6 +21,7 @@ public class BusinessException extends RuntimeException {
 
     /**
     * 创建业务异常对象。
+     * @param message 响应消息
     */
     public BusinessException(String message) {
         super(message);

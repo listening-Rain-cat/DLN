@@ -16,6 +16,7 @@ import org.example.dln.entity.User;
 public interface UserMapper extends BaseMapper<User> {
     /**
     * 根据用户 ID 查询数据。
+     * @param userId 用户ID
     */
     @Select("""
             SELECT *
@@ -26,6 +27,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
     * 根据用户名查询用户。
+     * @param username 用户名
     */
     @Select("""
             SELECT *
@@ -36,6 +38,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
     * 根据邮箱查询用户。
+     * @param email 邮箱
     */
     @Select("""
             SELECT *

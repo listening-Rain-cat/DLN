@@ -16,27 +16,27 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_note_attachment")
+@TableName(value = "t_note_attachment")
 public class NoteAttachment {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("note_id")
+    @TableField(value = "note_id")
     private Long noteId;
 
-    @TableField("file_name")
+    @TableField(value = "file_name")
     private String fileName;
 
-    @TableField("file_type")
+    @TableField(value = "file_type")
     private String fileType;
 
-    @TableField("file_url")
+    @TableField(value = "file_url")
     private String fileUrl;
 
-    @TableField("file_size")
+    @TableField(value = "file_size")
     private Long fileSize;
 
-    @TableField("mime_type")
+    @TableField(value = "mime_type")
     private String mimeType;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

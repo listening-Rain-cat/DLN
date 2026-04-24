@@ -16,6 +16,7 @@ import org.example.dln.mapper.NoteHistoryMapper;
 import org.example.dln.mapper.NoteLinkMapper;
 import org.example.dln.mapper.NoteMapper;
 import org.example.dln.mapper.NoteTagMapper;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.vo.NoteDetailVO;
 import org.example.dln.vo.NoteLinkCandidateVO;
 import org.example.dln.vo.NoteLinkVO;
@@ -75,6 +76,8 @@ public class NoteService {
 
     /**
     * 创建笔记。
+     * @param userId 用户ID
+     * @param dto 创建笔记请求参数
     */
     @Transactional(rollbackFor = Exception.class)
     public NoteDetailVO createNote(Long userId, CreateNoteDTO dto) {
@@ -103,7 +106,6 @@ public class NoteService {
             throw new BusinessException("保存笔记内容失败");
         }
 
-        saveHistory(note, markdownContent, userId);
         refreshLinks(note, markdownContent);
         knowledgeBaseService.touchKnowledgeBase(note.getKnowledgeBaseId());
         return getNoteDetail(userId, note.getId());
@@ -111,6 +113,8 @@ public class NoteService {
 
     /**
     * 获取笔记详情。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     public NoteDetailVO getNoteDetail(Long userId, Long noteId) {
         Note note = getNoteOrThrow(userId, noteId);
@@ -118,6 +122,9 @@ public class NoteService {
 
         NoteDetailVO vo = new NoteDetailVO();
         BeanUtils.copyProperties(note, vo);
+        vo.setId(LongStringUtils.toStringValue(note.getId()));
+        vo.setKnowledgeBaseId(LongStringUtils.toStringValue(note.getKnowledgeBaseId()));
+        vo.setFolderId(LongStringUtils.toStringValue(note.getFolderId()));
         vo.setMarkdownContent(noteContent == null ? null : noteContent.getMarkdownContent());
         vo.setTags(tagService.listNoteTags(userId, noteId));
         vo.setAttachments(attachmentService.listNoteAttachments(userId, noteId));
@@ -128,6 +135,9 @@ public class NoteService {
 
     /**
     * 查询链接候选项列表。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param keyword 检索关键词
     */
     public List<NoteLinkCandidateVO> listLinkCandidates(Long userId, Long noteId, String keyword) {
         Note note = getNoteOrThrow(userId, noteId);
@@ -149,8 +159,8 @@ public class NoteService {
             }
 
             NoteLinkCandidateVO candidate = new NoteLinkCandidateVO();
-            candidate.setNoteId(item.getId());
-            candidate.setFolderId(item.getFolderId());
+            candidate.setNoteId(LongStringUtils.toStringValue(item.getId()));
+            candidate.setFolderId(LongStringUtils.toStringValue(item.getFolderId()));
             candidate.setTitle(title);
             result.add(candidate);
 
@@ -164,6 +174,9 @@ public class NoteService {
 
     /**
     * 获取双链预览内容。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param title 标题
     */
     public NoteLinkPreviewVO getLinkPreview(Long userId, Long noteId, String title) {
         Note sourceNote = getNoteOrThrow(userId, noteId);
@@ -187,7 +200,7 @@ public class NoteService {
         }
 
         NoteContent noteContent = noteContentMapper.selectByNoteId(targetNote.getId());
-        preview.setNoteId(targetNote.getId());
+        preview.setNoteId(LongStringUtils.toStringValue(targetNote.getId()));
         preview.setTitle(targetNote.getTitle());
         preview.setIsBroken(0);
         preview.setMarkdownContent(buildPreviewContent(noteContent == null ? null : noteContent.getMarkdownContent()));
@@ -196,6 +209,9 @@ public class NoteService {
 
     /**
     * 更新笔记。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param dto 更新笔记请求参数
     */
     @Transactional(rollbackFor = Exception.class)
     public NoteDetailVO updateNote(Long userId, Long noteId, UpdateNoteDTO dto) {
@@ -226,7 +242,6 @@ public class NoteService {
             }
         }
 
-        saveHistory(note, dto.getMarkdownContent(), userId);
         refreshLinks(note, dto.getMarkdownContent());
         knowledgeBaseService.touchKnowledgeBase(note.getKnowledgeBaseId());
         return getNoteDetail(userId, noteId);
@@ -234,6 +249,9 @@ public class NoteService {
 
     /**
     * 自动保存笔记正文。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param dto 自动保存笔记正文参数
     */
     @Transactional(rollbackFor = Exception.class)
     public void autoSaveNoteContent(Long userId, Long noteId, AutoSaveNoteContentDTO dto) {
@@ -269,6 +287,9 @@ public class NoteService {
 
     /**
     * 自动保存笔记标题。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param dto 自动保存笔记标题参数
     */
     @Transactional(rollbackFor = Exception.class)
     public void autoSaveNoteTitle(Long userId, Long noteId, AutoSaveNoteTitleDTO dto) {
@@ -296,6 +317,8 @@ public class NoteService {
 
     /**
     * 删除笔记。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteNote(Long userId, Long noteId) {
@@ -315,6 +338,8 @@ public class NoteService {
 
     /**
     * 获取笔记，不存在时抛出异常。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     private Note getNoteOrThrow(Long userId, Long noteId) {
         Note note = noteMapper.selectByNoteId(noteId);
@@ -331,6 +356,8 @@ public class NoteService {
 
     /**
     * 校验文件夹是否合法。
+     * @param knowledgeBaseId 知识库ID
+     * @param folderId 文件夹ID
     */
     private void validateFolder(Long knowledgeBaseId, Long folderId) {
         if (folderId == null) {
@@ -345,6 +372,9 @@ public class NoteService {
 
     /**
     * 检查笔记标题是否已存在。
+     * @param knowledgeBaseId 知识库ID
+     * @param title 标题
+     * @param excludeId 排除的笔记ID（更新时使用，新增时传null）
     */
     private void checkNoteTitleExists(Long knowledgeBaseId, String title, Long excludeId) {
         List<Note> notes = noteMapper.selectActiveByKnowledgeBaseIdAndTitle(knowledgeBaseId, title);
@@ -356,6 +386,9 @@ public class NoteService {
 
     /**
     * 保存笔记历史版本。
+     * @param note 笔记实体
+     * @param markdownContent Markdown内容
+     * @param userId 用户ID
     */
     private void saveHistory(Note note, String markdownContent, Long userId) {
         NoteHistory latest = noteHistoryMapper.selectLatestByNoteId(note.getId());
@@ -380,6 +413,8 @@ public class NoteService {
 
     /**
     * 刷新笔记双链关系。
+     * @param note 笔记实体
+     * @param markdownContent Markdown内容
     */
     private void refreshLinks(Note note, String markdownContent) {
         noteLinkMapper.deleteBySourceNoteId(note.getId());
@@ -417,6 +452,8 @@ public class NoteService {
 
     /**
     * 刷新失效双链状态。
+     * @param knowledgeBaseId 知识库ID
+     * @param excludeSourceNoteId 排除的源笔记ID
     */
     private void refreshBrokenLinks(Long knowledgeBaseId, Long excludeSourceNoteId) {
         List<Note> relatedNotes = noteMapper.selectActiveByKnowledgeBaseId(knowledgeBaseId);
@@ -440,6 +477,9 @@ public class NoteService {
 
     /**
     * 构建内容摘要片段。
+     * @param content 内容文本
+     * @param start 起始位置
+     * @param end 结束位置
     */
     private String buildSnippet(String content, int start, int end) {
         int left = Math.max(0, start - 20);
@@ -449,6 +489,7 @@ public class NoteService {
 
     /**
     * 构建预览内容。
+     * @param markdownContent Markdown内容
     */
     private String buildPreviewContent(String markdownContent) {
         if (markdownContent == null) {
@@ -465,6 +506,8 @@ public class NoteService {
 
     /**
     * 解析初始 Markdown 内容。
+     * @param userId 用户ID
+     * @param dto 创建笔记请求参数
     */
     private String resolveInitialMarkdownContent(Long userId, CreateNoteDTO dto) {
         if (dto.getTemplateId() == null) {
@@ -477,12 +520,16 @@ public class NoteService {
 
     /**
     * 构建链接视图对象列表。
+     * @param links 双链列表
     */
     private List<NoteLinkVO> buildLinkVOList(List<NoteLink> links) {
         List<NoteLinkVO> result = new ArrayList<>();
         for (NoteLink link : links) {
             NoteLinkVO vo = new NoteLinkVO();
             BeanUtils.copyProperties(link, vo);
+            vo.setId(LongStringUtils.toStringValue(link.getId()));
+            vo.setSourceNoteId(LongStringUtils.toStringValue(link.getSourceNoteId()));
+            vo.setTargetNoteId(LongStringUtils.toStringValue(link.getTargetNoteId()));
             result.add(vo);
         }
         return result;

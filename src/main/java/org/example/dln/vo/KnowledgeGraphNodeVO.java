@@ -10,8 +10,8 @@ import lombok.Data;
  */
 @Data
 public class KnowledgeGraphNodeVO {
-    private Long noteId;
-    private Long folderId;
+    private String noteId;
+    private String folderId;
     private String title;
     private Integer incomingCount;
     private Integer outgoingCount;

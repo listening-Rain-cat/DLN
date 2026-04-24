@@ -33,6 +33,7 @@ public class NoteTemplateController {
 
     /**
     * 查询模板列表。
+     * @param userId 用户ID
     */
     @GetMapping
     public Result<List<NoteTemplateVO>> listTemplates(@RequestAttribute("userId") Long userId) {
@@ -41,6 +42,8 @@ public class NoteTemplateController {
 
     /**
     * 创建模板。
+     * @param dto 创建模板请求参数
+     * @param userId 用户ID
     */
     @PostMapping
     public Result<NoteTemplateVO> createTemplate(@Valid @RequestBody CreateNoteTemplateDTO dto,
@@ -50,6 +53,9 @@ public class NoteTemplateController {
 
     /**
     * 更新模板。
+     * @param templateId 模板ID
+     * @param dto 更新模板请求参数
+     * @param userId 用户ID
     */
     @PutMapping("/{templateId}")
     public Result<NoteTemplateVO> updateTemplate(@PathVariable Long templateId,
@@ -60,6 +66,8 @@ public class NoteTemplateController {
 
     /**
     * 删除模板。
+     * @param templateId 模板ID
+     * @param userId 用户ID
     */
     @DeleteMapping("/{templateId}")
     public Result<Void> deleteTemplate(@PathVariable Long templateId,

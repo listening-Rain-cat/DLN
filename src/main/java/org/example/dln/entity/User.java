@@ -18,30 +18,26 @@ import java.time.LocalDateTime;
  */
 @Data
 @ToString
-@TableName("t_user")
+@TableName(value = "t_user")
 public class User {
-    // 数据库没有自增 ID，所以使用 ASSIGN_ID 策略，MyBatis-Plus 会自动生成唯一 ID
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
-    @TableField("username")
+    @TableField(value = "username")
     private String username;
-    @TableField("email")
+    @TableField(value = "email")
     private String email;
-    @TableField("password")
+    @TableField(value = "password")
     private String password;
-    @TableField("nickname")
+    @TableField(value = "nickname")
     private String nickname;
-    @TableField("avatar_url")
+    @TableField(value = "avatar_url")
     private String avatarUrl;
 
     /**
      * 状态：1 正常，0 禁用
      */
-    @TableField("status")
+    @TableField(value = "status")
     private Integer status;
-    /**
-     * 创建时间，与更新时间自动填充
-     */
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)
     private LocalDateTime createdTime;

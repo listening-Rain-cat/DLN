@@ -1,0 +1,12 @@
+{
+  "name": "test-doc-screenshots",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "capture": "node capture-test-case-screenshots.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.54.2"
+  }
+}

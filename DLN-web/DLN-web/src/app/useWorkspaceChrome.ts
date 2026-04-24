@@ -157,27 +157,7 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
   })
 
   const statusbarLeftItems = computed(() => {
-    if (options.viewMode.value === 'templates') {
-      return ['模板中心：通用模板管理', '适用范围：跨知识库复用', '下一步：新建、编辑或删除模板']
-    }
-
-    if (isHomeKnowledgeBaseHub.value) {
-      return ['首页：知识库管理', '当前内容：知识库列表', '下一步：打开或新建知识库']
-    }
-
-    if (isKnowledgeBaseWorkspace.value) {
-      return [
-        '工作台：知识库概览与目录',
-        `当前知识库：${options.selectedKnowledgeBase.value?.name || '未命名知识库'}`,
-      ]
-    }
-
-    return [
-      `资源树：${resourceTreeStatus.value}`,
-      `主任务区：${workspaceTitle.value}`,
-      `局部导航：${options.viewMode.value === 'home' ? '文档大纲' : '辅助面板'}`,
-      `路径：${breadcrumbItems.value.join(' / ')}`,
-    ]
+    return []
   })
 
   const statusbarRightItems = computed(() => {
@@ -189,6 +169,10 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
       ]
     }
 
+    if (options.viewMode.value === 'settings') {
+      return [`已登录：${options.displayName.value}`, '账户设置']
+    }
+
     if (isHomeKnowledgeBaseHub.value) {
       return [
         `已登录：${options.displayName.value}`,
@@ -198,19 +182,33 @@ export function useWorkspaceChrome(options: UseWorkspaceChromeOptions) {
     }
 
     if (isKnowledgeBaseWorkspace.value) {
-      return [`笔记：${options.noteCount.value}`, `模板：${options.noteTemplates.value.length}`]
+      return [
+        `文件夹：${options.folderCount.value}`,
+        `笔记：${options.noteCount.value}`,
+        `模板：${options.noteTemplates.value.length}`,
+      ]
+    }
+
+    if (options.viewMode.value === 'graph-d3') {
+      return [
+        `知识库：${options.selectedKnowledgeBase.value?.name || '未选择'}`,
+        options.loading.graph ? '图谱加载中...' : '图谱视图',
+      ]
     }
 
     if (options.currentNote.value) {
-      return []
+      return [workspaceStatus.value]
     }
 
-    return [
-      `知识库 ${options.knowledgeBases.value.length}`,
-      `文件夹 ${options.folderCount.value}`,
-      `笔记 ${options.noteCount.value}`,
-      workspaceStatus.value,
-    ]
+    if (options.selectedKnowledgeBase.value) {
+      return [
+        `知识库：${options.selectedKnowledgeBase.value.name}`,
+        `文件夹：${options.folderCount.value}`,
+        `笔记：${options.noteCount.value}`,
+      ]
+    }
+
+    return [workspaceStatus.value]
   })
 
   return {

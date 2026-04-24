@@ -38,6 +38,7 @@ public class UserController {
 
     /**
     * 处理用户注册。
+     * @param registerDTO 注册请求参数
     */
     @PostMapping("/register")
     public Result<UserInfoVO> register(@Validated @RequestBody RegisterDTO registerDTO) {
@@ -47,6 +48,7 @@ public class UserController {
 
     /**
     * 处理用户登录。
+     * @param loginDTO 登录请求参数
     */
     @PostMapping("/login")
     public Result<LoginVO> login(@Validated @RequestBody LoginDTO loginDTO) {
@@ -56,6 +58,7 @@ public class UserController {
 
     /**
     * 获取用户信息。
+     * @param userId 用户ID
     */
     @GetMapping("/userInfo")
     public Result<UserInfoVO> getUserInfo(@RequestAttribute("userId") Long userId) {
@@ -65,6 +68,7 @@ public class UserController {
 
     /**
     * 获取用户设置。
+     * @param userId 用户ID
     */
     @GetMapping("/user/settings")
     public Result<UserSettingsVO> getUserSettings(@RequestAttribute("userId") Long userId) {
@@ -83,6 +87,8 @@ public class UserController {
 
     /**
     * 更新用户信息。
+     * @param updateUserDTO 用户信息更新参数
+     * @param userId 用户ID
     */
     @PutMapping("/user")
     public Result<Void> updateUser(@Validated @RequestBody UpdateUserDTO updateUserDTO,
@@ -93,6 +99,8 @@ public class UserController {
 
     /**
     * 更新用户设置。
+     * @param updateUserSettingsDTO 用户设置更新参数
+     * @param userId 用户ID
     */
     @PutMapping("/user/settings")
     public Result<UserSettingsVO> updateUserSettings(@Validated @RequestBody UpdateUserSettingsDTO updateUserSettingsDTO,
@@ -103,9 +111,11 @@ public class UserController {
 
     /**
     * 上传用户头像。
+     * @param file 头像文件
+     * @param userId 用户ID
     */
     @PostMapping("/user/avatar")
-    public Result<UserInfoVO> uploadAvatar(@RequestParam("file") MultipartFile file,
+    public Result<UserInfoVO> uploadAvatar(@RequestParam(value = "file") MultipartFile file,
                                            @RequestAttribute("userId") Long userId) {
         UserInfoVO userInfoVO = userService.uploadAvatar(userId, file);
         return Result.success("头像上传成功", userInfoVO);

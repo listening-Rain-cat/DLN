@@ -42,6 +42,10 @@ public class AttachmentController {
 
     /**
     * 上传附件并保存记录。
+     * @param noteId 笔记ID
+     * @param file 上传文件
+     * @param fileType 文件类型
+     * @param userId 用户ID
     */
     @PostMapping(value = "/notes/{noteId}/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<NoteAttachmentVO> uploadAttachment(@PathVariable Long noteId,
@@ -53,6 +57,10 @@ public class AttachmentController {
 
     /**
     * 上传 Vditor 图片资源。
+     * @param noteId 笔记ID
+     * @param files 上传文件列表
+     * @param singleFile 单个上传文件
+     * @param userId 用户ID
     */
     @PostMapping(value = "/notes/{noteId}/attachments/vditor", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VditorUploadResponseVO uploadVditorImages(@PathVariable Long noteId,
@@ -113,6 +121,8 @@ public class AttachmentController {
 
     /**
     * 查询笔记附件列表。
+     * @param noteId 笔记ID
+     * @param userId 用户ID
     */
     @GetMapping("/notes/{noteId}/attachments")
     public Result<List<NoteAttachmentVO>> listNoteAttachments(@PathVariable Long noteId,
@@ -122,6 +132,8 @@ public class AttachmentController {
 
     /**
     * 删除附件。
+     * @param attachmentId 附件ID
+     * @param userId 用户ID
     */
     @DeleteMapping("/attachments/{attachmentId}")
     public Result<Void> deleteAttachment(@PathVariable Long attachmentId,
@@ -132,6 +144,8 @@ public class AttachmentController {
 
     /**
     * 下载附件。
+     * @param attachmentId 附件ID
+     * @param userId 用户ID
     */
     @GetMapping("/attachments/{attachmentId}/download")
     public ResponseEntity<Resource> downloadAttachment(@PathVariable Long attachmentId,
@@ -155,6 +169,7 @@ public class AttachmentController {
 
     /**
     * 解析上传文件名。
+     * @param file 上传文件
     */
     private String resolveFileName(MultipartFile file) {
         String originalFileName = file == null ? null : file.getOriginalFilename();
@@ -166,6 +181,7 @@ public class AttachmentController {
 
     /**
     * 构建附件公开访问地址。
+     * @param fileUrl 附件访问路径
     */
     private String buildPublicAttachmentUrl(String fileUrl) {
         return ServletUriComponentsBuilder.fromCurrentContextPath()

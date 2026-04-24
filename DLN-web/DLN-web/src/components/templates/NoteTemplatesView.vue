@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import MarkdownPreview from '../MarkdownPreview.vue'
+
 interface NoteTemplate {
   id: string
   name: string
@@ -11,7 +13,6 @@ interface NoteTemplate {
 defineProps<{
   loadingTemplates: boolean
   noteTemplates: NoteTemplate[]
-  previewTemplateContent: (content: string) => string
   formatDateTime: (value?: string | null) => string
 }>()
 
@@ -28,7 +29,7 @@ defineEmits<{
       <div>
         <p class="eyebrow">通用模板</p>
         <h3>跨知识库笔记模板</h3>
-        <p class="panel-copy">这里统一管理当前用户的通用模板，新建笔记时可直接选择套用。</p>
+        <p class="panel-copy">统一管理用户的通用模板，新建笔记时可直接选择套用。</p>
       </div>
       <button type="button" class="soft-button accent" @click="$emit('create-template')">新建模板</button>
     </div>
@@ -45,7 +46,9 @@ defineEmits<{
           <p class="template-card-description">
             {{ template.description || '新建笔记时可直接套用这份模板结构。' }}
           </p>
-          <p class="template-card-preview">{{ previewTemplateContent(template.templateContent) }}</p>
+          <div class="template-card-preview">
+            <MarkdownPreview :markdown="template.templateContent" empty-text="模板正文为空。" />
+          </div>
           <div class="template-card-meta">
             <span>创建于 {{ formatDateTime(template.createdTime) }}</span>
             <span>更新于 {{ formatDateTime(template.updatedTime || template.createdTime) }}</span>
@@ -72,3 +75,40 @@ defineEmits<{
     </div>
   </article>
 </template>
+
+<style scoped>
+.template-card-preview {
+  max-height: 120px;
+  overflow: auto;
+}
+
+.template-card-preview :deep(.vditor-reset) {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: rgba(24, 54, 56, 0.78);
+}
+
+.template-card-preview :deep(h1),
+.template-card-preview :deep(h2),
+.template-card-preview :deep(h3),
+.template-card-preview :deep(h4),
+.template-card-preview :deep(h5),
+.template-card-preview :deep(h6) {
+  margin-bottom: 0.45rem;
+  color: #173637;
+}
+
+.template-card-preview :deep(p),
+.template-card-preview :deep(ul),
+.template-card-preview :deep(ol),
+.template-card-preview :deep(blockquote) {
+  margin: 0.35rem 0;
+}
+
+.template-card-preview :deep(pre) {
+  margin: 0.45rem 0;
+  padding: 0.65rem 0.72rem;
+  border-radius: 0.72rem;
+  background: rgba(30, 41, 59, 0.92);
+}
+</style>

@@ -6,6 +6,7 @@ import org.example.dln.entity.UserSettings;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.UserMapper;
 import org.example.dln.mapper.UserSettingsMapper;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.util.VditorThemeCatalog;
 import org.example.dln.vo.VditorThemeOptionsVO;
 import org.example.dln.vo.UserSettingsVO;
@@ -36,6 +37,7 @@ public class UserSettingsService {
 
     /**
     * 获取用户设置。
+     * @param userId 用户ID
     */
     public UserSettingsVO getUserSettings(Long userId) {
         return toUserSettingsVO(ensureUserSettings(userId));
@@ -55,13 +57,14 @@ public class UserSettingsService {
 
     /**
     * 更新用户设置。
+     * @param userId 用户ID
+     * @param updateUserSettingsDTO 用户设置更新参数
     */
     @Transactional(rollbackFor = Exception.class)
     public UserSettingsVO updateUserSettings(Long userId, UpdateUserSettingsDTO updateUserSettingsDTO) {
         UserSettings userSettings = ensureUserSettings(userId);
         userSettings.setCodeTheme(validateCodeTheme(updateUserSettingsDTO.getCodeTheme()));
         userSettings.setContentTheme(validateContentTheme(updateUserSettingsDTO.getContentTheme()));
-
         if (userSettingsMapper.updateById(userSettings) <= 0) {
             throw new BusinessException("更新用户设置失败，请稍后重试");
         }
@@ -71,14 +74,15 @@ public class UserSettingsService {
 
     /**
     * 确保用户设置存在。
+     * @param userId 用户ID
     */
     @Transactional(rollbackFor = Exception.class)
     public UserSettings ensureUserSettings(Long userId) {
         UserSettings userSettings = userSettingsMapper.selectByUserId(userId);
         if (userSettings != null) {
+            //Vditor主题选项可能会更新，先预处理避免非法值
             String normalizedCodeTheme = normalizePersistedCodeTheme(userSettings.getCodeTheme());
             String normalizedContentTheme = normalizePersistedContentTheme(userSettings.getContentTheme());
-
             if (!normalizedCodeTheme.equals(userSettings.getCodeTheme())
                     || !normalizedContentTheme.equals(userSettings.getContentTheme())) {
                 userSettings.setCodeTheme(normalizedCodeTheme);
@@ -87,12 +91,11 @@ public class UserSettingsService {
             }
             return userSettings;
         }
-
         User user = userMapper.selectByUserId(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
-
+        //初始化默认值
         UserSettings created = new UserSettings();
         created.setUserId(userId);
         created.setCodeTheme(DEFAULT_CODE_THEME);
@@ -107,6 +110,7 @@ public class UserSettingsService {
 
     /**
     * 校验代码主题。
+     * @param value 待处理的值
     */
     private String validateCodeTheme(String value) {
         String theme = normalizeThemeName(value, DEFAULT_CODE_THEME);
@@ -118,6 +122,7 @@ public class UserSettingsService {
 
     /**
     * 校验内容主题。
+     * @param value 待处理的值
     */
     private String validateContentTheme(String value) {
         String theme = normalizeThemeName(value, DEFAULT_CONTENT_THEME);
@@ -129,6 +134,7 @@ public class UserSettingsService {
 
     /**
     * 规范化持久化的代码主题值。
+     * @param value 待处理的值
     */
     private String normalizePersistedCodeTheme(String value) {
         String theme = normalizeThemeName(value, DEFAULT_CODE_THEME);
@@ -137,6 +143,7 @@ public class UserSettingsService {
 
     /**
     * 规范化持久化的内容主题值。
+     * @param value 待处理的值
     */
     private String normalizePersistedContentTheme(String value) {
         String theme = normalizeThemeName(value, DEFAULT_CONTENT_THEME);
@@ -145,6 +152,8 @@ public class UserSettingsService {
 
     /**
     * 规范化主题名称。
+     * @param value 待处理的值
+     * @param fallback 默认主题值
     */
     private String normalizeThemeName(String value, String fallback) {
         return StringUtils.hasText(value) ? value.trim() : fallback;
@@ -152,10 +161,13 @@ public class UserSettingsService {
 
     /**
     * 将用户设置实体转换为用户设置视图对象。
+     * @param userSettings 用户设置实体
     */
     private UserSettingsVO toUserSettingsVO(UserSettings userSettings) {
         UserSettingsVO userSettingsVO = new UserSettingsVO();
         BeanUtils.copyProperties(userSettings, userSettingsVO);
+        userSettingsVO.setId(LongStringUtils.toStringValue(userSettings.getId()));
+        userSettingsVO.setUserId(LongStringUtils.toStringValue(userSettings.getUserId()));
         userSettingsVO.setCodeTheme(normalizePersistedCodeTheme(userSettings.getCodeTheme()));
         userSettingsVO.setContentTheme(normalizePersistedContentTheme(userSettings.getContentTheme()));
         return userSettingsVO;

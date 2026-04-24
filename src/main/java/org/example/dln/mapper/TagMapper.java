@@ -20,6 +20,7 @@ import java.util.List;
 public interface TagMapper extends BaseMapper<Tag> {
     /**
     * 根据标签 ID 查询标签。
+     * @param tagId 标签ID
     */
     @Select("""
             SELECT *
@@ -30,6 +31,7 @@ public interface TagMapper extends BaseMapper<Tag> {
 
     /**
     * 按名称升序查询知识库标签列表。
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *
@@ -41,6 +43,8 @@ public interface TagMapper extends BaseMapper<Tag> {
 
     /**
     * 根据知识库和名称查询标签。
+     * @param knowledgeBaseId 知识库ID
+     * @param name 名称
     */
     @Select("""
             SELECT *
@@ -55,6 +59,7 @@ public interface TagMapper extends BaseMapper<Tag> {
 
     /**
     * 根据标签 ID 集合查询标签列表。
+     * @param tagIds 标签ID列表
     */
     @Select("""
             <script>
@@ -70,6 +75,7 @@ public interface TagMapper extends BaseMapper<Tag> {
 
     /**
     * 按知识库 ID 删除数据。
+     * @param knowledgeBaseId 知识库ID
     */
     @Delete("""
             DELETE FROM t_tag

@@ -15,12 +15,12 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_note_content")
+@TableName(value = "t_note_content")
 public class NoteContent {
-    @TableId("note_id")
+    @TableId(value = "note_id")
     private Long noteId;
 
-    @TableField("markdown_content")
+    @TableField(value = "markdown_content")
     private String markdownContent;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

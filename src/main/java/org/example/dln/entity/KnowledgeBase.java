@@ -16,27 +16,27 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_knowledge_base")
+@TableName(value = "t_knowledge_base")
 public class KnowledgeBase {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("user_id")
+    @TableField(value = "user_id")
     private Long userId;
 
-    @TableField("name")
+    @TableField(value = "name")
     private String name;
 
-    @TableField("description")
+    @TableField(value = "description")
     private String description;
 
-    @TableField("status")
+    @TableField(value = "status")
     private Integer status;
 
-    @TableField("delete_token")
+    @TableField(value = "delete_token")
     private Long deleteToken;
 
-    @TableField("deleted_time")
+    @TableField(value = "deleted_time")
     private LocalDateTime deletedTime;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

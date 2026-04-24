@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 public class NoteLinkPreviewVO {
-    private Long noteId;
+    private String noteId;
     private String title;
     private String markdownContent;
     private Integer isBroken;

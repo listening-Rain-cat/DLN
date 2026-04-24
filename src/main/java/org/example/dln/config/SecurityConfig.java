@@ -14,15 +14,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-/**
- * 包名：org.example.dln.config
- * 类名：SecurityConfig
- * 类描述：配置应用安全相关组件。
- * 创建人：@author Rain_润
- */
 @Configuration
-@EnableWebSecurity//閸氼垳鏁pring Security
+@EnableWebSecurity
 public class SecurityConfig {
+
     /**
     * 创建密码编码器。
     */
@@ -30,23 +25,10 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    /**
-    * 构建安全过滤器链。
-    */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
 
-        return http.build();
-    }
+    //CORS配置，使用JWT禁用cookie进行认证，跨域
     /**
-    * 构建跨域配置源。
+    * 创建跨域配置源。
     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -56,9 +38,26 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(false);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+    //安全过滤链配置，启用CORS，设置无状态会话管理，允许所有请求（实际权限控制由拦截器处理）
+    /**
+    * 配置 Spring Security 过滤链。
+     * @param http Spring Security HTTP配置对象
+     * @throws Exception 配置过程中发生异常时抛出
+    */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 设置为无状态
+                .authorizeHttpRequests(auth -> auth // 配置规则
+                        .anyRequest().permitAll() // 权限控制由JwtInterceptor拦截器处理
+                );
+        return http.build();
+    }
+
 }

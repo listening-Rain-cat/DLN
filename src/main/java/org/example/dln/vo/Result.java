@@ -19,6 +19,7 @@ public class Result<T> {
 
     /**
     * 构建成功响应结果。
+     * @param data 响应数据
     */
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
@@ -30,6 +31,8 @@ public class Result<T> {
 
     /**
     * 构建成功响应结果。
+     * @param message 响应消息
+     * @param data 响应数据
     */
     public static <T> Result<T> success(String message, T data) {
         Result<T> result = new Result<>();
@@ -41,6 +44,7 @@ public class Result<T> {
     // 默认错误码 500
     /**
      * 构建失败响应结果。
+     * @param message 响应消息
      */
     public static <T> Result<T> error(String message) {
         Result<T> result = new Result<>();
@@ -52,6 +56,8 @@ public class Result<T> {
     // TODO - 编写状态码文档并补充自定义错误码
     /**
      * 构建失败响应结果。
+     * @param code 状态码
+     * @param message 响应消息
      */
     public static <T> Result<T> error(Integer code, String message) {
         Result<T> result = new Result<>();

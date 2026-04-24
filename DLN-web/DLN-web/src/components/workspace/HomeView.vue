@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import type { KnowledgeBaseSearchFilters, NoteSearchResult } from '../../app/shared'
 import KnowledgeTreeNode from '../KnowledgeTreeNode.vue'
 import VditorEditor from '../VditorEditor.vue'
+import KnowledgeSearchPanel from './KnowledgeSearchPanel.vue'
 import OutlineTreeNode from './OutlineTreeNode.vue'
+import NoteLinkPanel from './NoteLinkPanel.vue'
 
 type Id = string
 
@@ -18,16 +21,8 @@ interface TagItem {
 
 interface AttachmentItem {
   id: string
-}
-
-interface NoteDetail {
-  id: string
-  title: string
-  markdownContent: string
-  outgoingLinks?: LinkItem[]
-  incomingLinks?: LinkItem[]
-  tags?: TagItem[]
-  attachments?: AttachmentItem[]
+  fileName: string
+  fileUrl: string
 }
 
 interface OutlineItem {
@@ -42,6 +37,18 @@ interface OutlineTreeItem extends OutlineItem {
 
 interface EditorExpose {
   scrollToHeading: (id: string) => void
+}
+
+interface NoteDetail {
+  id: string
+  knowledgeBaseId: Id
+  folderId: Id | null
+  title: string
+  markdownContent: string
+  outgoingLinks?: LinkItem[]
+  incomingLinks?: LinkItem[]
+  tags?: TagItem[]
+  attachments?: AttachmentItem[]
 }
 
 interface KnowledgeBase {
@@ -88,8 +95,7 @@ const props = defineProps<{
   loadingKnowledgeBases: boolean
   loadingTags: boolean
   submittingTag: boolean
-  savingNote: boolean
-  noteSaved: boolean
+  creatingHistoryVersion: boolean
   knowledgeBaseTagCreateTick: number
   noteTagCreateTick: number
   loadingTemplates: boolean
@@ -118,6 +124,7 @@ const props = defineProps<{
   onCreateNoteTag?: (name: string) => void | Promise<void>
   onToggleNoteTag?: (id: Id) => void
   onDeleteTag?: (payload: TagActionPayload) => void
+  onSearchKnowledgeBaseNotes?: (filters: KnowledgeBaseSearchFilters) => Promise<NoteSearchResult[]>
 }>()
 
 const emit = defineEmits<{
@@ -142,7 +149,8 @@ const emit = defineEmits<{
   (e: 'delete-note-template', payload: { id: Id; name: string }): void
   (e: 'toggle-library-panel'): void
   (e: 'open-note-history'): void
-  (e: 'save-note'): void
+  (e: 'open-note-link', noteId: Id): void
+  (e: 'create-note-history-version'): void
   (e: 'editor-fullscreen-change', value: boolean): void
   (e: 'editor-theme-change', value: EditorThemeSettings): void
 }>()
@@ -152,11 +160,13 @@ const knowledgeBaseTagInputRef = ref<HTMLInputElement | null>(null)
 const noteTagInputRef = ref<HTMLInputElement | null>(null)
 const outlineItems = ref<OutlineItem[]>([])
 const outlineCollapsed = ref(false)
+const outlinePanelMode = ref<'outline' | 'links'>('outline')
 const activeOutlineId = ref<string | null>(null)
 const outlineWidth = ref(310)
 const isResizingOutline = ref(false)
 const editorFullscreen = ref(false)
 const tagDrawerOpen = ref(false)
+const workbenchPanelMode = ref<'directory' | 'search'>('directory')
 const knowledgeBaseTagName = ref('')
 const noteTagName = ref('')
 const knowledgeBaseTagError = ref('')
@@ -419,6 +429,8 @@ watch(
     tagDrawerOpen.value = false
     knowledgeBaseTagName.value = ''
     knowledgeBaseTagError.value = ''
+    outlinePanelMode.value = 'outline'
+    workbenchPanelMode.value = 'directory'
   },
 )
 
@@ -434,6 +446,7 @@ watch(
     tagDrawerOpen.value = false
     noteTagName.value = ''
     noteTagError.value = ''
+    outlinePanelMode.value = 'outline'
   },
 )
 
@@ -494,7 +507,7 @@ onBeforeUnmount(() => {
               {{
                 loadingKnowledgeBases
                   ? '正在加载知识库列表...'
-                  : `当前共有 ${knowledgeBaseCount} 个知识库，打开后即可查看资源树并开始记录内容。`
+                  : `当前共有 ${knowledgeBaseCount} 个知识库`
               }}
             </p>
           </div>
@@ -585,8 +598,13 @@ onBeforeUnmount(() => {
                 <span class="note-tag-launcher-count">{{ selectedNoteTagIds.length }}</span>
               </button>
               <button type="button" class="soft-button note-save-button" @click="$emit('open-note-history')">历史版本</button>
-              <button type="button" class="soft-button accent note-save-button" :disabled="savingNote" @click="$emit('save-note')">
-                {{ savingNote ? '保存中...' : noteSaved ? '已保存' : '保存笔记' }}
+              <button
+                type="button"
+                class="soft-button accent note-save-button"
+                :disabled="creatingHistoryVersion"
+                @click="$emit('create-note-history-version')"
+              >
+                {{ creatingHistoryVersion ? '创建中...' : '创建版本' }}
               </button>
             </div>
 
@@ -704,10 +722,42 @@ onBeforeUnmount(() => {
           </div>
         </section>
 
-        <section class="resource-directory-section">
+        <div v-show="workbenchPanelMode === 'search'">
+          <KnowledgeSearchPanel
+            :selected-knowledge-base-id="selectedKnowledgeBaseId"
+            :selected-knowledge-base-name="selectedKnowledgeBaseName"
+            :tree-nodes="treeNodes"
+            :knowledge-base-tags="knowledgeBaseTags"
+            :workbench-panel-mode="workbenchPanelMode"
+            :on-search-knowledge-base-notes="onSearchKnowledgeBaseNotes"
+            @open-note="$emit('open-note-link', $event)"
+            @switch-panel="workbenchPanelMode = $event"
+          />
+        </div>
+
+        <section v-show="workbenchPanelMode === 'directory'" class="resource-directory-section">
           <div class="panel-heading compact">
             <div>
-              <p class="eyebrow">资源目录</p>
+              <div class="workbench-panel-switcher panel-inline-switcher" role="tablist" aria-label="工作台卡片切换">
+                <button
+                  type="button"
+                  class="workbench-panel-switcher-button"
+                  :class="{ active: workbenchPanelMode === 'directory' }"
+                  :aria-selected="workbenchPanelMode === 'directory'"
+                  @click="workbenchPanelMode = 'directory'"
+                >
+                  资源目录
+                </button>
+                <button
+                  type="button"
+                  class="workbench-panel-switcher-button"
+                  :class="{ active: workbenchPanelMode === 'search' }"
+                  :aria-selected="workbenchPanelMode === 'search'"
+                  @click="workbenchPanelMode = 'search'"
+                >
+                  检索与导航
+                </button>
+              </div>
               <h3>当前知识库内容</h3>
             </div>
             <div class="inline-actions">
@@ -984,6 +1034,16 @@ onBeforeUnmount(() => {
     </section>
 
     <aside v-if="showOutlinePanel" class="outline-panel" :class="{ collapsed: outlineCollapsed, resizing: isResizingOutline }">
+      <button
+        v-if="outlineCollapsed"
+        type="button"
+        class="outline-expand-button"
+        aria-label="展开右侧侧边栏"
+        @click="outlineCollapsed = false"
+      >
+        展开侧边栏
+      </button>
+
       <div
         v-if="!outlineCollapsed"
         class="outline-resize-handle"
@@ -996,28 +1056,121 @@ onBeforeUnmount(() => {
       <div class="panel-heading compact">
         <div>
           <p class="eyebrow">目录</p>
-          <h3>{{ outlineCollapsed ? '已收起' : '标题导航' }}</h3>
+          <h3>
+            {{
+              outlineCollapsed
+                ? '已收起'
+                : outlinePanelMode === 'outline'
+                  ? '标题导航'
+                  : '链接页面'
+            }}
+          </h3>
         </div>
-        <button type="button" class="mini-button" @click="outlineCollapsed = !outlineCollapsed">
-          {{ outlineCollapsed ? '展开' : '收起' }}
-        </button>
+        <div class="outline-panel-actions">
+          <div v-if="!outlineCollapsed" class="outline-panel-switcher" role="tablist" aria-label="目录面板切换">
+            <button
+              type="button"
+              class="outline-panel-switcher-button"
+              :class="{ active: outlinePanelMode === 'outline' }"
+              :aria-selected="outlinePanelMode === 'outline'"
+              @click="outlinePanelMode = 'outline'"
+            >
+              标题
+            </button>
+            <button
+              type="button"
+              class="outline-panel-switcher-button"
+              :class="{ active: outlinePanelMode === 'links' }"
+              :aria-selected="outlinePanelMode === 'links'"
+              @click="outlinePanelMode = 'links'"
+            >
+              链接
+            </button>
+          </div>
+          <button type="button" class="mini-button" @click="outlineCollapsed = !outlineCollapsed">
+            {{ outlineCollapsed ? '展开' : '收起' }}
+          </button>
+        </div>
       </div>
 
       <div v-if="!outlineCollapsed" class="outline-panel-body">
-        <div v-if="!outlineItems.length" class="empty-card compact-card outline-empty">
-          {{ outlineEmptyMessage }}
-        </div>
+        <section v-if="outlinePanelMode === 'outline'" class="outline-panel-section">
+          <div class="outline-panel-section-head">
+            <p class="eyebrow">目录</p>
+            <h4>笔记目录</h4>
+          </div>
+          <div v-if="!outlineItems.length" class="empty-card compact-card outline-empty">
+            {{ outlineEmptyMessage }}
+          </div>
 
-        <div v-else class="outline-tree-list">
-          <OutlineTreeNode
-            v-for="item in outlineTree"
-            :key="item.id"
-            :item="item"
-            :active-id="activeOutlineId"
-            @select="jumpToOutline"
+          <div v-else class="outline-tree-list">
+            <OutlineTreeNode
+              v-for="item in outlineTree"
+              :key="item.id"
+              :item="item"
+              :active-id="activeOutlineId"
+              @select="jumpToOutline"
+            />
+          </div>
+        </section>
+
+        <section v-else class="outline-panel-section">
+          <div class="outline-panel-section-head">
+            <p class="eyebrow">链接</p>
+            <h4>当前笔记链接</h4>
+          </div>
+          <NoteLinkPanel
+            :current-note="currentNote"
+            :note-content="noteContent"
+            :tree-nodes="treeNodes"
+            @open-note="$emit('open-note-link', $event)"
           />
-        </div>
+        </section>
       </div>
     </aside>
   </div>
 </template>
+
+<style scoped>
+.workbench-panel-switcher {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.24rem;
+  border-radius: 999px;
+  background: rgba(37, 87, 84, 0.08);
+  border: 1px solid rgba(37, 87, 84, 0.12);
+}
+
+.workbench-panel-switcher-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.42rem 0.82rem;
+  background: transparent;
+  color: rgba(24, 54, 56, 0.72);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.workbench-panel-switcher-button.active {
+  background: linear-gradient(135deg, #255754, #3d7f73);
+  color: #fff8f1;
+  box-shadow: 0 10px 24px rgba(37, 87, 84, 0.16);
+}
+
+.panel-inline-switcher {
+  margin-bottom: 0.38rem;
+}
+
+@media (max-width: 780px) {
+  .workbench-panel-switcher {
+    width: 100%;
+  }
+}
+</style>

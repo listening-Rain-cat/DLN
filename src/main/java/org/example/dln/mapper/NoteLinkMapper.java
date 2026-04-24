@@ -19,6 +19,7 @@ import java.util.List;
 public interface NoteLinkMapper extends BaseMapper<NoteLink> {
     /**
     * 查询笔记发出的双链列表。
+     * @param noteId 笔记ID
     */
     @Select("""
             SELECT *
@@ -30,6 +31,7 @@ public interface NoteLinkMapper extends BaseMapper<NoteLink> {
 
     /**
     * 查询指向指定笔记的双链列表。
+     * @param noteId 笔记ID
     */
     @Select("""
             SELECT *
@@ -41,6 +43,7 @@ public interface NoteLinkMapper extends BaseMapper<NoteLink> {
 
     /**
     * 按源笔记 ID 删除双链数据。
+     * @param sourceNoteId sourceNoteID
     */
     @Delete("""
             DELETE FROM t_note_link
@@ -50,6 +53,7 @@ public interface NoteLinkMapper extends BaseMapper<NoteLink> {
 
     /**
     * 根据知识库 ID 查询知识库。
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *

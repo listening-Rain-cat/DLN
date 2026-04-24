@@ -2,7 +2,7 @@ package org.example.dln.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.springframework.context.annotation.Configuration;
-
+import org.apache.ibatis.reflection.MetaObject;
 import java.time.LocalDateTime;
 
 /**
@@ -14,22 +14,23 @@ import java.time.LocalDateTime;
 @Configuration
 public class MybitsPlusConfig implements MetaObjectHandler {
     /**
-    * 在新增时填充公共字段。
+    * 自动填充新增记录的公共字段。
+     * @param metaObject MyBatis元对象
     */
     @Override
-    public void insertFill(org.apache.ibatis.reflection.MetaObject metaObject) {
-        // TODO - 实现自动填充功能，设置 createdTime 和 updatedTime 为当前时间
+    public void insertFill(MetaObject metaObject) {
         LocalDateTime now = LocalDateTime.now();
+        //这个fieldName要和实体类中的字段名一致并非数据库中的字段名
         this.setFieldValByName("createdTime", now, metaObject);
         this.setFieldValByName("updatedTime", now, metaObject);
     }
 
     /**
-    * 在更新时填充公共字段。
+    * 自动填充更新记录的公共字段。
+     * @param metaObject MyBatis元对象
     */
     @Override
-    public void updateFill(org.apache.ibatis.reflection.MetaObject metaObject) {
-        // TODO - 实现自动填充功能，更新 updatedTime 为当前时间
+    public void updateFill(MetaObject metaObject) {
         LocalDateTime now = LocalDateTime.now();
         this.setFieldValByName("updatedTime", now, metaObject);
     }

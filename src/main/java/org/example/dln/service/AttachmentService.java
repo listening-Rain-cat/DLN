@@ -5,6 +5,7 @@ import org.example.dln.entity.NoteAttachment;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.NoteAttachmentMapper;
 import org.example.dln.mapper.NoteMapper;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.vo.NoteAttachmentVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,10 @@ public class AttachmentService {
 
     /**
     * 上传附件并保存记录。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @param file 上传文件
+     * @param fileType 文件类型
     */
     @Transactional(rollbackFor = Exception.class)
     public NoteAttachmentVO uploadAttachment(Long userId, Long noteId, MultipartFile file, String fileType) {
@@ -91,6 +96,8 @@ public class AttachmentService {
 
     /**
     * 查询笔记附件列表。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     public List<NoteAttachmentVO> listNoteAttachments(Long userId, Long noteId) {
         getNoteOrThrow(userId, noteId);
@@ -100,6 +107,8 @@ public class AttachmentService {
 
     /**
     * 删除附件。
+     * @param userId 用户ID
+     * @param attachmentId 附件ID
     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteAttachment(Long userId, Long attachmentId) {
@@ -113,6 +122,8 @@ public class AttachmentService {
 
     /**
     * 获取用于下载的附件实体。
+     * @param userId 用户ID
+     * @param attachmentId 附件ID
     */
     public NoteAttachment getAttachmentForDownload(Long userId, Long attachmentId) {
         return getAttachmentOrThrow(userId, attachmentId);
@@ -120,6 +131,7 @@ public class AttachmentService {
 
     /**
     * 将附件加载为资源对象。
+     * @param attachment 附件实体
     */
     public Resource loadAsResource(NoteAttachment attachment) {
         Path absolutePath = buildAbsolutePath(attachment.getFileUrl());
@@ -132,6 +144,8 @@ public class AttachmentService {
 
     /**
     * 获取附件，不存在时抛出异常。
+     * @param userId 用户ID
+     * @param attachmentId 附件ID
     */
     private NoteAttachment getAttachmentOrThrow(Long userId, Long attachmentId) {
         NoteAttachment attachment = noteAttachmentMapper.selectByAttachmentId(attachmentId);
@@ -144,6 +158,8 @@ public class AttachmentService {
 
     /**
     * 获取笔记，不存在时抛出异常。
+     * @param userId 用户ID
+     * @param noteId 笔记ID
     */
     private Note getNoteOrThrow(Long userId, Long noteId) {
         Note note = noteMapper.selectByNoteId(noteId);
@@ -160,6 +176,7 @@ public class AttachmentService {
 
     /**
     * 清理文件名。
+     * @param originalFileName 原始文件名
     */
     private String sanitizeFileName(String originalFileName) {
         String fileName = StringUtils.cleanPath(originalFileName == null ? "" : originalFileName);
@@ -171,6 +188,7 @@ public class AttachmentService {
 
     /**
     * 提取文件扩展名。
+     * @param fileName 文件名
     */
     private String getFileExtension(String fileName) {
         int index = fileName.lastIndexOf('.');
@@ -182,6 +200,7 @@ public class AttachmentService {
 
     /**
     * 构建相对路径。
+     * @param extension 文件扩展名
     */
     private String buildRelativePath(String extension) {
         LocalDate today = LocalDate.now();
@@ -194,6 +213,7 @@ public class AttachmentService {
 
     /**
     * 构建绝对路径。
+     * @param relativePath 相对路径
     */
     private Path buildAbsolutePath(String relativePath) {
         return Paths.get(uploadDir).toAbsolutePath().normalize().resolve(relativePath).normalize();
@@ -201,6 +221,9 @@ public class AttachmentService {
 
     /**
     * 解析文件类型。
+     * @param fileType 文件类型
+     * @param mimeType 文件MIME类型
+     * @param fileName 文件名
     */
     private String resolveFileType(String fileType, String mimeType, String fileName) {
         if (StringUtils.hasText(fileType)) {
@@ -226,6 +249,7 @@ public class AttachmentService {
 
     /**
     * 删除物理文件。
+     * @param path 文件路径
     */
     private void deletePhysicalFile(Path path) {
         try {
@@ -236,6 +260,7 @@ public class AttachmentService {
 
     /**
     * 构建附件视图对象列表。
+     * @param attachments 附件列表
     */
     private List<NoteAttachmentVO> buildAttachmentVOList(List<NoteAttachment> attachments) {
         List<NoteAttachmentVO> result = new ArrayList<>();
@@ -247,10 +272,14 @@ public class AttachmentService {
 
     /**
     * 将附件实体转换为附件视图对象。
+     * @param attachment 附件实体
     */
     private NoteAttachmentVO toAttachmentVO(NoteAttachment attachment) {
         NoteAttachmentVO vo = new NoteAttachmentVO();
         BeanUtils.copyProperties(attachment, vo);
+        vo.setId(LongStringUtils.toStringValue(attachment.getId()));
+        vo.setNoteId(LongStringUtils.toStringValue(attachment.getNoteId()));
+        vo.setFileSize(LongStringUtils.toStringValue(attachment.getFileSize()));
         vo.setFileUrl("/attachments/" + attachment.getId() + "/download");
         return vo;
     }

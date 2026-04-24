@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class NoteTemplateVO {
-    private Long id;
+    private String id;
     private String name;
     private String description;
     private String templateContent;

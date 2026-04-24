@@ -19,6 +19,7 @@ import java.util.List;
 public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBase> {
     /**
     * 根据知识库 ID 查询知识库。
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *
@@ -29,6 +30,7 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBase> {
 
     /**
     * 按更新时间倒序查询用户的有效知识库列表。
+     * @param userId 用户ID
     */
     @Select("""
             SELECT *
@@ -42,6 +44,8 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBase> {
 
     /**
     * 按用户和名称查询有效知识库。
+     * @param userId 用户ID
+     * @param name 名称
     */
     @Select("""
             SELECT *
@@ -55,6 +59,7 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBase> {
 
     /**
     * 更新记录更新时间。
+     * @param knowledgeBaseId 知识库ID
     */
     @Update("""
             UPDATE t_knowledge_base

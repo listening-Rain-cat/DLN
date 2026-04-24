@@ -18,6 +18,7 @@ import java.util.List;
 public interface NoteAttachmentMapper extends BaseMapper<NoteAttachment> {
     /**
     * 根据附件 ID 查询附件。
+     * @param attachmentId 附件ID
     */
     @Select("""
             SELECT *
@@ -28,6 +29,7 @@ public interface NoteAttachmentMapper extends BaseMapper<NoteAttachment> {
 
     /**
     * 按创建时间倒序查询笔记附件列表。
+     * @param noteId 笔记ID
     */
     @Select("""
             SELECT *

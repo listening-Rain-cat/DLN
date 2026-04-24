@@ -38,6 +38,8 @@ public class NoteController {
 
     /**
     * 创建笔记。
+     * @param dto 创建笔记请求参数
+     * @param userId 用户ID
     */
     @PostMapping
     public Result<NoteDetailVO> createNote(@Valid @RequestBody CreateNoteDTO dto,
@@ -47,6 +49,8 @@ public class NoteController {
 
     /**
     * 获取笔记详情。
+     * @param noteId 笔记ID
+     * @param userId 用户ID
     */
     @GetMapping("/{noteId}")
     public Result<NoteDetailVO> getNoteDetail(@PathVariable Long noteId,
@@ -56,6 +60,9 @@ public class NoteController {
 
     /**
     * 查询链接候选项列表。
+     * @param noteId 笔记ID
+     * @param keyword 检索关键词
+     * @param userId 用户ID
     */
     @GetMapping("/{noteId}/links/candidates")
     public Result<List<NoteLinkCandidateVO>> listLinkCandidates(@PathVariable Long noteId,
@@ -66,6 +73,9 @@ public class NoteController {
 
     /**
     * 获取双链预览内容。
+     * @param noteId 笔记ID
+     * @param title 标题
+     * @param userId 用户ID
     */
     @GetMapping("/{noteId}/links/preview")
     public Result<NoteLinkPreviewVO> getLinkPreview(@PathVariable Long noteId,
@@ -76,6 +86,9 @@ public class NoteController {
 
     /**
     * 更新笔记。
+     * @param noteId 笔记ID
+     * @param dto 更新笔记请求参数
+     * @param userId 用户ID
     */
     @PutMapping("/{noteId}")
     public Result<NoteDetailVO> updateNote(@PathVariable Long noteId,
@@ -86,6 +99,9 @@ public class NoteController {
 
     /**
     * 自动保存笔记正文。
+     * @param noteId 笔记ID
+     * @param dto 自动保存笔记正文参数
+     * @param userId 用户ID
     */
     @PutMapping("/{noteId}/content/autosave")
     public Result<Void> autoSaveNoteContent(@PathVariable Long noteId,
@@ -97,6 +113,9 @@ public class NoteController {
 
     /**
     * 自动保存笔记标题。
+     * @param noteId 笔记ID
+     * @param dto 自动保存笔记标题参数
+     * @param userId 用户ID
     */
     @PutMapping("/{noteId}/title/autosave")
     public Result<Void> autoSaveNoteTitle(@PathVariable Long noteId,
@@ -108,6 +127,8 @@ public class NoteController {
 
     /**
     * 删除笔记。
+     * @param noteId 笔记ID
+     * @param userId 用户ID
     */
     @DeleteMapping("/{noteId}")
     public Result<Void> deleteNote(@PathVariable Long noteId,

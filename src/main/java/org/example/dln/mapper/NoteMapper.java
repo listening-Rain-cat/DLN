@@ -19,6 +19,7 @@ import java.util.List;
 public interface NoteMapper extends BaseMapper<Note> {
     /**
     * 根据笔记 ID 查询数据。
+     * @param noteId 笔记ID
     */
     @Select("""
             SELECT *
@@ -29,6 +30,8 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 按标题升序查询用户在知识库下的有效笔记。
+     * @param userId 用户ID
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *
@@ -46,6 +49,8 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 按知识库和标题查询有效笔记。
+     * @param knowledgeBaseId 知识库ID
+     * @param title 标题
     */
     @Select("""
             SELECT *
@@ -62,6 +67,7 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 查询知识库下的有效笔记列表。
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *
@@ -74,6 +80,8 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 按知识库和标题查询首条有效笔记。
+     * @param knowledgeBaseId 知识库ID
+     * @param title 标题
     */
     @Select("""
             SELECT *
@@ -91,6 +99,7 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 统计文件夹下的有效笔记数量。
+     * @param folderId 文件夹ID
     */
     @Select("""
             SELECT COUNT(*)
@@ -103,6 +112,7 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     /**
     * 更新记录更新时间。
+     * @param noteId 笔记ID
     */
     @Update("""
             UPDATE t_note

@@ -1,0 +1,87 @@
+[2m19:09:11[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > collectWikiLinkRanges src/components/VditorEditor.vue:1196:24
+ > refreshWikiLinkHighlights src/components/VditorEditor.vue:1273:44
+ > src/components/VditorEditor.vue:1286:4
+
+[2m19:09:11[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > HTMLDivElement.handleHostMouseLeave src/components/VditorEditor.vue:2022:31
+
+[2m19:09:11[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > collectWikiLinkRanges src/components/VditorEditor.vue:1196:24
+ > refreshWikiLinkHighlights src/components/VditorEditor.vue:1273:44
+ > src/components/VditorEditor.vue:1286:4
+
+[2m19:10:21[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > collectWikiLinkRanges src/components/VditorEditor.vue:1196:24
+ > refreshWikiLinkHighlights src/components/VditorEditor.vue:1273:44
+ > src/components/VditorEditor.vue:1286:4
+
+[2m19:10:21[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > HTMLDivElement.handleHostMouseLeave src/components/VditorEditor.vue:2022:31
+
+[2m19:10:21[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > collectWikiLinkRanges src/components/VditorEditor.vue:1196:24
+ > refreshWikiLinkHighlights src/components/VditorEditor.vue:1273:44
+ > src/components/VditorEditor.vue:1286:4
+
+[2m19:13:54[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > collectWikiLinkRanges src/components/VditorEditor.vue:1196:24
+ > refreshWikiLinkHighlights src/components/VditorEditor.vue:1273:44
+ > src/components/VditorEditor.vue:1286:4
+

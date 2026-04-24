@@ -5,6 +5,7 @@ import org.example.dln.dto.UpdateNoteTemplateDTO;
 import org.example.dln.entity.NoteTemplate;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.mapper.NoteTemplateMapper;
+import org.example.dln.util.LongStringUtils;
 import org.example.dln.vo.NoteTemplateVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class NoteTemplateService {
 
     /**
     * 查询模板列表。
+     * @param userId 用户ID
     */
     public List<NoteTemplateVO> listTemplates(Long userId) {
         return noteTemplateMapper.selectByUserIdOrderByUpdatedTimeDesc(userId)
@@ -37,6 +39,8 @@ public class NoteTemplateService {
 
     /**
     * 创建模板。
+     * @param userId 用户ID
+     * @param dto 创建模板请求参数
     */
     @Transactional(rollbackFor = Exception.class)
     public NoteTemplateVO createTemplate(Long userId, CreateNoteTemplateDTO dto) {
@@ -56,6 +60,9 @@ public class NoteTemplateService {
 
     /**
     * 更新模板。
+     * @param userId 用户ID
+     * @param templateId 模板ID
+     * @param dto 更新模板请求参数
     */
     @Transactional(rollbackFor = Exception.class)
     public NoteTemplateVO updateTemplate(Long userId, Long templateId, UpdateNoteTemplateDTO dto) {
@@ -74,6 +81,8 @@ public class NoteTemplateService {
 
     /**
     * 删除模板。
+     * @param userId 用户ID
+     * @param templateId 模板ID
     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTemplate(Long userId, Long templateId) {
@@ -85,6 +94,8 @@ public class NoteTemplateService {
 
     /**
     * 获取模板，不存在时抛出异常。
+     * @param userId 用户ID
+     * @param templateId 模板ID
     */
     public NoteTemplate getTemplateOrThrow(Long userId, Long templateId) {
         NoteTemplate template = noteTemplateMapper.selectByTemplateIdAndUserId(templateId, userId);
@@ -96,6 +107,9 @@ public class NoteTemplateService {
 
     /**
     * 检查模板名称是否已存在。
+     * @param userId 用户ID
+     * @param name 名称
+     * @param excludeId 排除的模板ID（更新时使用，新增时传null）
     */
     private void checkTemplateNameExists(Long userId, String name, Long excludeId) {
         List<NoteTemplate> templates = noteTemplateMapper.selectByUserIdAndName(userId, name);
@@ -107,15 +121,18 @@ public class NoteTemplateService {
 
     /**
     * 将模板实体转换为模板视图对象。
+     * @param template template参数
     */
     private NoteTemplateVO toNoteTemplateVO(NoteTemplate template) {
         NoteTemplateVO vo = new NoteTemplateVO();
         BeanUtils.copyProperties(template, vo);
+        vo.setId(LongStringUtils.toStringValue(template.getId()));
         return vo;
     }
 
     /**
     * 去除字符串首尾空白并在为空时返回 null。
+     * @param value 待处理的值
     */
     private String trimToNull(String value) {
         if (value == null) {

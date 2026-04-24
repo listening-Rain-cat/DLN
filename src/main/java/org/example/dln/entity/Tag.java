@@ -16,15 +16,15 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_tag")
+@TableName(value = "t_tag")
 public class Tag {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("knowledge_base_id")
+    @TableField(value = "knowledge_base_id")
     private Long knowledgeBaseId;
 
-    @TableField("name")
+    @TableField(value = "name")
     private String name;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

@@ -10,9 +10,9 @@ import lombok.Data;
  */
 @Data
 public class KnowledgeGraphEdgeVO {
-    private Long id;
-    private Long sourceNoteId;
-    private Long targetNoteId;
+    private String id;
+    private String sourceNoteId;
+    private String targetNoteId;
     private String targetNoteName;
     private Integer isBroken;
 }

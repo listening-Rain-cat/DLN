@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
  */
 @Data
 public class TagVO {
-    private Long id;
-    private Long knowledgeBaseId;
+    private String id;
+    private String knowledgeBaseId;
     private String name;
     private LocalDateTime createdTime;
 }

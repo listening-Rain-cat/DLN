@@ -18,6 +18,8 @@ import java.util.List;
 public interface NoteTemplateMapper extends BaseMapper<NoteTemplate> {
     /**
     * 根据模板 ID 和用户 ID 查询模板。
+     * @param templateId 模板ID
+     * @param userId 用户ID
     */
     @Select("""
             SELECT *
@@ -32,6 +34,7 @@ public interface NoteTemplateMapper extends BaseMapper<NoteTemplate> {
 
     /**
     * 按更新时间倒序查询用户模板列表。
+     * @param userId 用户ID
     */
     @Select("""
             SELECT *
@@ -43,6 +46,8 @@ public interface NoteTemplateMapper extends BaseMapper<NoteTemplate> {
 
     /**
     * 根据用户 ID 和名称查询模板。
+     * @param userId 用户ID
+     * @param name 名称
     */
     @Select("""
             SELECT *

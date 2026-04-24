@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
  */
 @Data
 public class NoteAttachmentVO {
-    private Long id;
-    private Long noteId;
+    private String id;
+    private String noteId;
     private String fileName;
     private String fileType;
     private String fileUrl;
-    private Long fileSize;
+    private String fileSize;
     private String mimeType;
     private LocalDateTime createdTime;
 }

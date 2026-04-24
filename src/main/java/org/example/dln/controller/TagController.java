@@ -33,6 +33,9 @@ public class TagController {
 
     /**
     * 创建标签。
+     * @param knowledgeBaseId 知识库ID
+     * @param dto 创建标签请求参数
+     * @param userId 用户ID
     */
     @PostMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<TagVO> createTag(@PathVariable Long knowledgeBaseId,
@@ -43,6 +46,8 @@ public class TagController {
 
     /**
     * 查询知识库标签列表。
+     * @param knowledgeBaseId 知识库ID
+     * @param userId 用户ID
     */
     @GetMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<List<TagVO>> listKnowledgeBaseTags(@PathVariable Long knowledgeBaseId,
@@ -52,6 +57,8 @@ public class TagController {
 
     /**
     * 删除标签。
+     * @param tagId 标签ID
+     * @param userId 用户ID
     */
     @DeleteMapping("/tags/{tagId}")
     public Result<Void> deleteTag(@PathVariable Long tagId,
@@ -62,6 +69,8 @@ public class TagController {
 
     /**
     * 查询笔记标签列表。
+     * @param noteId 笔记ID
+     * @param userId 用户ID
     */
     @GetMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> listNoteTags(@PathVariable Long noteId,
@@ -71,6 +80,9 @@ public class TagController {
 
     /**
     * 设置笔记标签。
+     * @param noteId 笔记ID
+     * @param dto 笔记标签设置参数
+     * @param userId 用户ID
     */
     @PutMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> setNoteTags(@PathVariable Long noteId,

@@ -8,6 +8,7 @@ import org.example.dln.dto.UpdateKnowledgeBaseDTO;
 import org.example.dln.service.KnowledgeBaseService;
 import org.example.dln.vo.KnowledgeBaseVO;
 import org.example.dln.vo.KnowledgeGraphVO;
+import org.example.dln.vo.NoteSearchResultVO;
 import org.example.dln.vo.Result;
 import org.example.dln.vo.TreeNodeVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -37,6 +39,8 @@ public class KnowledgeBaseController {
 
     /**
      * 创建知识库。
+     * @param dto 创建知识库请求参数
+     * @param userId 用户ID
      */
     @PostMapping
     public Result<KnowledgeBaseVO> createKnowledgeBase(@Valid @RequestBody CreateKnowledgeBaseDTO dto,
@@ -46,6 +50,7 @@ public class KnowledgeBaseController {
 
     /**
      * 查询知识库列表。
+     * @param userId 用户ID
      */
     @GetMapping
     public Result<List<KnowledgeBaseVO>> listKnowledgeBases(@RequestAttribute("userId") Long userId) {
@@ -54,6 +59,9 @@ public class KnowledgeBaseController {
 
     /**
      * 更新知识库。
+     * @param knowledgeBaseId 知识库ID
+     * @param dto 更新知识库请求参数
+     * @param userId 用户ID
      */
     @PutMapping("/{knowledgeBaseId}")
     public Result<KnowledgeBaseVO> updateKnowledgeBase(@PathVariable Long knowledgeBaseId,
@@ -65,6 +73,8 @@ public class KnowledgeBaseController {
 
     /**
      * 删除知识库。
+     * @param knowledgeBaseId 知识库ID
+     * @param userId 用户ID
      */
     @DeleteMapping("/{knowledgeBaseId}")
     public Result<Void> deleteKnowledgeBase(@PathVariable Long knowledgeBaseId,
@@ -75,6 +85,8 @@ public class KnowledgeBaseController {
 
     /**
      * 获取知识库目录树。
+     * @param knowledgeBaseId 知识库ID
+     * @param userId 用户ID
      */
     @GetMapping("/{knowledgeBaseId}/tree")
     public Result<List<TreeNodeVO>> getKnowledgeBaseTree(@PathVariable Long knowledgeBaseId,
@@ -84,6 +96,8 @@ public class KnowledgeBaseController {
 
     /**
      * 获取知识图谱。
+     * @param knowledgeBaseId 知识库ID
+     * @param userId 用户ID
      */
     @GetMapping("/{knowledgeBaseId}/graph")
     public Result<KnowledgeGraphVO> getKnowledgeGraph(@PathVariable Long knowledgeBaseId,
@@ -92,7 +106,30 @@ public class KnowledgeBaseController {
     }
 
     /**
+     * 检索知识库内笔记。
+     * @param knowledgeBaseId 知识库ID
+     * @param keyword 检索关键词
+     * @param scope 检索范围
+     * @param folderId 文件夹ID
+     * @param tagIds 标签ID列表
+     * @param userId 用户ID
+     */
+    @GetMapping("/{knowledgeBaseId}/search")
+    public Result<List<NoteSearchResultVO>> searchNotes(@PathVariable Long knowledgeBaseId,
+                                                        @RequestParam(required = false) String keyword,
+                                                        @RequestParam(required = false, defaultValue = "all") String scope,
+                                                        @RequestParam(required = false) Long folderId,
+                                                        @RequestParam(required = false) List<Long> tagIds,
+                                                        @RequestAttribute("userId") Long userId) {
+        return Result.success(
+                knowledgeBaseService.searchNotes(userId, knowledgeBaseId, keyword, scope, folderId, tagIds)
+        );
+    }
+
+    /**
      * 创建文件夹。
+     * @param dto 创建文件夹请求参数
+     * @param userId 用户ID
      */
     @PostMapping("/folders")
     public Result<TreeNodeVO> createFolder(@Valid @RequestBody CreateFolderDTO dto,
@@ -102,6 +139,9 @@ public class KnowledgeBaseController {
 
     /**
      * 更新文件夹。
+     * @param folderId 文件夹ID
+     * @param dto 更新文件夹请求参数
+     * @param userId 用户ID
      */
     @PutMapping("/folders/{folderId}")
     public Result<TreeNodeVO> updateFolder(@PathVariable Long folderId,
@@ -112,6 +152,8 @@ public class KnowledgeBaseController {
 
     /**
      * 删除文件夹。
+     * @param folderId 文件夹ID
+     * @param userId 用户ID
      */
     @DeleteMapping("/folders/{folderId}")
     public Result<Void> deleteFolder(@PathVariable Long folderId,

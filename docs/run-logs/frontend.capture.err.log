@@ -1,0 +1,75 @@
+[2m19:02:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1988:37
+
+[2m19:02:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > updateLinkHintFromSelection src/components/VditorEditor.vue:1595:37
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1981:7
+
+[2m19:03:50[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1988:37
+
+[2m19:03:50[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > updateLinkHintFromSelection src/components/VditorEditor.vue:1595:37
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1981:7
+
+[2m19:05:03[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled error] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1988:37
+
+[2m19:05:03[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mTypeError[22m: Cannot read properties of undefined (reading 'currentMode')
+[39m > Vditor.getCurrentMode node_modules/vditor/dist/index.js:15598:27
+ > getCurrentEditorElement src/components/VditorEditor.vue:1151:29
+    1149 |    }
+    1150 |  
+    1151 |    const currentMode = editor.getCurrentMode()
+         |                               ^
+    1152 |  
+    1153 |    if (currentMode === 'wysiwyg') {
+ > isNodeInsideEditor src/components/VditorEditor.vue:1386:24
+ > updateLinkHintFromSelection src/components/VditorEditor.vue:1595:37
+ > HTMLDocument.handleSelectionChange src/components/VditorEditor.vue:1981:7
+

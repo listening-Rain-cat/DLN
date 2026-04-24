@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class NoteHistoryVO {
-    private Long id;
-    private Long noteId;
+    private String id;
+    private String noteId;
     private Integer versionNo;
     private String title;
-    private Long createdBy;
+    private String createdBy;
     private LocalDateTime createdTime;
 }

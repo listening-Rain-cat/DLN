@@ -361,7 +361,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="graph-center graph-center-d3">
-      <p class="eyebrow">D3.js 图谱</p>
+      <p class="eyebrow">知识图谱</p>
       <h3>{{ knowledgeBaseName || '请选择知识库' }}</h3>
       <p>
         {{

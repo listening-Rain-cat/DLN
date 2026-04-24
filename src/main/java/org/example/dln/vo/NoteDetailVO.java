@@ -13,9 +13,9 @@ import java.util.List;
  */
 @Data
 public class NoteDetailVO {
-    private Long id;
-    private Long knowledgeBaseId;
-    private Long folderId;
+    private String id;
+    private String knowledgeBaseId;
+    private String folderId;
     private String title;
     private Integer status;
     private String markdownContent;

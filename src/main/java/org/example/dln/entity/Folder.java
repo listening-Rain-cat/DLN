@@ -16,27 +16,27 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_folder")
+@TableName(value = "t_folder")
 public class Folder {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("knowledge_base_id")
+    @TableField(value = "knowledge_base_id")
     private Long knowledgeBaseId;
-
-    @TableField("parent_id")
+    //当为null时表示根目录
+    @TableField(value = "parent_id")
     private Long parentId;
 
-    @TableField("name")
+    @TableField(value = "name")
     private String name;
 
-    @TableField("status")
+    @TableField(value = "status")
     private Integer status;
 
-    @TableField("delete_token")
+    @TableField(value = "delete_token")
     private Long deleteToken;
 
-    @TableField("deleted_time")
+    @TableField(value = "deleted_time")
     private LocalDateTime deletedTime;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

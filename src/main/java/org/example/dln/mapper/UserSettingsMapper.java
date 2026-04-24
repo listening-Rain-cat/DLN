@@ -16,6 +16,7 @@ import org.example.dln.entity.UserSettings;
 public interface UserSettingsMapper extends BaseMapper<UserSettings> {
     /**
     * 根据设置 ID 查询用户设置。
+     * @param id ID
     */
     @Select("""
             SELECT *
@@ -26,6 +27,7 @@ public interface UserSettingsMapper extends BaseMapper<UserSettings> {
 
     /**
     * 根据用户 ID 查询数据。
+     * @param userId 用户ID
     */
     @Select("""
             SELECT *

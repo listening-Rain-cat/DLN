@@ -14,11 +14,11 @@ import java.util.List;
  */
 @Data
 public class TreeNodeVO {
-    private Long id;
-    private Long parentId;
+    private String id;
+    private String parentId;
     private String name;
     private String type;
-    private Long knowledgeBaseId;
+    private String knowledgeBaseId;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
     private List<TagVO> tags = new ArrayList<>();

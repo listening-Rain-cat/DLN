@@ -16,21 +16,21 @@ import java.time.LocalDateTime;
  * 创建人：@author Rain_润
  */
 @Data
-@TableName("t_note_template")
+@TableName(value = "t_note_template")
 public class NoteTemplate {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    @TableField("user_id")
+    @TableField(value = "user_id")
     private Long userId;
 
-    @TableField("name")
+    @TableField(value = "name")
     private String name;
 
-    @TableField("description")
+    @TableField(value = "description")
     private String description;
 
-    @TableField("template_content")
+    @TableField(value = "template_content")
     private String templateContent;
 
     @TableField(value = "created_time", fill = FieldFill.INSERT)

@@ -18,6 +18,7 @@ import java.util.List;
 public interface FolderMapper extends BaseMapper<Folder> {
     /**
     * 根据文件夹 ID 查询文件夹。
+     * @param folderId 文件夹ID
     */
     @Select("""
             SELECT *
@@ -28,6 +29,7 @@ public interface FolderMapper extends BaseMapper<Folder> {
 
     /**
     * 按名称升序查询知识库下的有效文件夹。
+     * @param knowledgeBaseId 知识库ID
     */
     @Select("""
             SELECT *
@@ -41,6 +43,7 @@ public interface FolderMapper extends BaseMapper<Folder> {
 
     /**
     * 统计父级目录下的有效文件夹数量。
+     * @param parentId parentID
     */
     @Select("""
             SELECT COUNT(*)
@@ -53,6 +56,9 @@ public interface FolderMapper extends BaseMapper<Folder> {
 
     /**
     * 按知识库、父级目录和名称查询有效文件夹。
+     * @param knowledgeBaseId 知识库ID
+     * @param parentId parentID
+     * @param name 名称
     */
     @Select("""
             <script>
