@@ -1,0 +1,1503 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< org.example:DLN >---------------------------
+[INFO] Building DLN 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.11:run (default-cli) > test-compile @ DLN >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ DLN ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ DLN ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ DLN ---
+[INFO] skip non existing resourceDirectory F:\OneDrive\Desktop\DLN\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ DLN ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.11:run (default-cli) < test-compile @ DLN <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.11:run (default-cli) @ DLN ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-05-01T15:31:53.440+08:00  INFO 15592 --- [DLN] [           main] org.example.dln.DlnApplication           : Starting DlnApplication using Java 17.0.18 with PID 15592 (F:\OneDrive\Desktop\DLN\target\classes started by Rain in F:\OneDrive\Desktop\DLN)
+2026-05-01T15:31:53.443+08:00  INFO 15592 --- [DLN] [           main] org.example.dln.DlnApplication           : No active profile set, falling back to 1 default profile: "default"
+2026-05-01T15:31:53.443+08:00 DEBUG 15592 --- [DLN] [           main] o.s.boot.SpringApplication               : Loading source class org.example.dln.DlnApplication
+2026-05-01T15:31:53.482+08:00 DEBUG 15592 --- [DLN] [           main] ConfigServletWebServerApplicationContext : Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@3899782c
+2026-05-01T15:31:53.993+08:00  INFO 15592 --- [DLN] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-05-01T15:31:54.001+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.a.AutoConfigurationPackages        : @EnableAutoConfiguration was declared on a class in the package 'org.example.dln'. Automatic @Repository and @Entity scanning is enabled.
+2026-05-01T15:31:54.010+08:00  INFO 15592 --- [DLN] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 12 ms. Found 0 JDBC repository interfaces.
+2026-05-01T15:31:54.388+08:00 DEBUG 15592 --- [DLN] [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: E:\apache-maven-3.9.12\repository\org\springframework\boot\spring-boot\3.5.11\spring-boot-3.5.11.jar
+2026-05-01T15:31:54.391+08:00 DEBUG 15592 --- [DLN] [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: E:\apache-maven-3.9.12\repository\org\springframework\boot\spring-boot\3.5.11\spring-boot-3.5.11.jar
+2026-05-01T15:31:54.391+08:00 DEBUG 15592 --- [DLN] [           main] .s.b.w.e.t.TomcatServletWebServerFactory : None of the document roots [src/main/webapp, public, static] point to a directory and will be ignored.
+2026-05-01T15:31:54.413+08:00  INFO 15592 --- [DLN] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-01T15:31:54.426+08:00  INFO 15592 --- [DLN] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-01T15:31:54.426+08:00  INFO 15592 --- [DLN] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-05-01T15:31:54.467+08:00  INFO 15592 --- [DLN] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-01T15:31:54.467+08:00 DEBUG 15592 --- [DLN] [           main] w.s.c.ServletWebServerApplicationContext : Published root WebApplicationContext as ServletContext attribute with name [org.springframework.web.context.WebApplicationContext.ROOT]
+2026-05-01T15:31:54.468+08:00  INFO 15592 --- [DLN] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 985 ms
+2026-05-01T15:31:54.481+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.w.s.ServletContextInitializerBeans : Mapping filters: springSecurityFilterChain urls=[/*] order=-100, characterEncodingFilter urls=[/*] order=-2147483648, formContentFilter urls=[/*] order=-9900, requestContextFilter urls=[/*] order=-105
+2026-05-01T15:31:54.481+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.w.s.ServletContextInitializerBeans : Mapping servlets: dispatcherServlet urls=[/]
+2026-05-01T15:31:54.502+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.w.s.f.OrderedRequestContextFilter  : Filter 'requestContextFilter' configured for use
+2026-05-01T15:31:54.507+08:00 DEBUG 15592 --- [DLN] [           main] s.b.w.s.f.OrderedCharacterEncodingFilter : Filter 'characterEncodingFilter' configured for use
+2026-05-01T15:31:54.507+08:00 DEBUG 15592 --- [DLN] [           main] .DelegatingFilterProxyRegistrationBean$1 : Filter 'springSecurityFilterChain' configured for use
+2026-05-01T15:31:54.507+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.w.s.f.OrderedFormContentFilter     : Filter 'formContentFilter' configured for use
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+Get /192.168.3.16 network interface 
+Get network interface info: name:wlan2 (Intel(R) Wi-Fi 6E AX210 160MHz)
+Initialization Sequence datacenterId:17 workerId:4
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-05-01T15:31:55.200+08:00 DEBUG 15592 --- [DLN] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 47 mappings in 'requestMappingHandlerMapping'
+2026-05-01T15:31:55.254+08:00 DEBUG 15592 --- [DLN] [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /avatars/**] in 'resourceHandlerMapping'
+2026-05-01T15:31:55.262+08:00  WARN 15592 --- [DLN] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 37cae5a7-e74d-465c-b7f5-d0b135204771
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-01T15:31:55.271+08:00  INFO 15592 --- [DLN] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-01T15:31:55.361+08:00 DEBUG 15592 --- [DLN] [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-05-01T15:31:55.395+08:00 DEBUG 15592 --- [DLN] [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-05-01T15:31:55.395+08:00  INFO 15592 --- [DLN] [           main] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@3899782c
+2026-05-01T15:31:55.432+08:00  INFO 15592 --- [DLN] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-01T15:31:55.542+08:00  INFO 15592 --- [DLN] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@702096ef
+2026-05-01T15:31:55.542+08:00  INFO 15592 --- [DLN] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-01T15:31:55.651+08:00  INFO 15592 --- [DLN] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-01T15:31:55.661+08:00 DEBUG 15592 --- [DLN] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+
+============================
+CONDITIONS EVALUATION REPORT
+============================
+
+
+Positive matches:
+-----------------
+
+   AopAutoConfiguration matched:
+      - @ConditionalOnBooleanProperty (spring.aop.auto=true) matched (OnPropertyCondition)
+
+   AopAutoConfiguration.ClassProxyingConfiguration matched:
+      - @ConditionalOnMissingClass did not find unwanted class 'org.aspectj.weaver.Advice' (OnClassCondition)
+      - @ConditionalOnBooleanProperty (spring.aop.proxy-target-class=true) matched (OnPropertyCondition)
+
+   ApplicationAvailabilityAutoConfiguration#applicationAvailability matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.availability.ApplicationAvailability; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourceAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'javax.sql.DataSource', 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType' (OnClassCondition)
+      - @ConditionalOnMissingBean (types: io.r2dbc.spi.ConnectionFactory; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourceAutoConfiguration.PooledDataSourceConfiguration matched:
+      - AnyNestedCondition 1 matched 1 did not; NestedCondition on DataSourceAutoConfiguration.PooledDataSourceCondition.PooledDataSourceAvailable PooledDataSource found supported DataSource; NestedCondition on DataSourceAutoConfiguration.PooledDataSourceCondition.ExplicitType @ConditionalOnProperty (spring.datasource.type) did not find property 'spring.datasource.type' (DataSourceAutoConfiguration.PooledDataSourceCondition)
+      - @ConditionalOnMissingBean (types: javax.sql.DataSource,javax.sql.XADataSource; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourceAutoConfiguration.PooledDataSourceConfiguration#jdbcConnectionDetails matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourceConfiguration.Hikari matched:
+      - @ConditionalOnClass found required class 'com.zaxxer.hikari.HikariDataSource' (OnClassCondition)
+      - @ConditionalOnProperty (spring.datasource.type=com.zaxxer.hikari.HikariDataSource) matched (OnPropertyCondition)
+      - @ConditionalOnMissingBean (types: javax.sql.DataSource; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourceInitializationConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.jdbc.datasource.init.DatabasePopulator' (OnClassCondition)
+      - @ConditionalOnSingleCandidate (types: javax.sql.DataSource; SearchStrategy: all) found a single bean 'dataSource'; @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer,org.springframework.boot.autoconfigure.sql.init.SqlR2dbcScriptDatabaseInitializer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DataSourcePoolMetadataProvidersConfiguration.HikariPoolDataSourceMetadataProviderConfiguration matched:
+      - @ConditionalOnClass found required class 'com.zaxxer.hikari.HikariDataSource' (OnClassCondition)
+
+   DataSourceTransactionManagerAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'javax.sql.DataSource', 'org.springframework.jdbc.core.JdbcTemplate', 'org.springframework.transaction.TransactionManager' (OnClassCondition)
+
+   DataSourceTransactionManagerAutoConfiguration.JdbcTransactionManagerConfiguration matched:
+      - @ConditionalOnSingleCandidate (types: javax.sql.DataSource; SearchStrategy: all) found a single bean 'dataSource' (OnBeanCondition)
+
+   DataSourceTransactionManagerAutoConfiguration.JdbcTransactionManagerConfiguration#transactionManager matched:
+      - @ConditionalOnMissingBean (types: org.springframework.transaction.TransactionManager; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   DdlAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'com.baomidou.mybatisplus.extension.ddl.IDdl' (OnClassCondition)
+
+   DispatcherServletAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.servlet.DispatcherServlet' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   DispatcherServletAutoConfiguration.DispatcherServletConfiguration matched:
+      - @ConditionalOnClass found required class 'jakarta.servlet.ServletRegistration' (OnClassCondition)
+      - Default DispatcherServlet did not find dispatcher servlet beans (DispatcherServletAutoConfiguration.DefaultDispatcherServletCondition)
+
+   DispatcherServletAutoConfiguration.DispatcherServletRegistrationConfiguration matched:
+      - @ConditionalOnClass found required class 'jakarta.servlet.ServletRegistration' (OnClassCondition)
+      - DispatcherServlet Registration did not find servlet registration bean (DispatcherServletAutoConfiguration.DispatcherServletRegistrationCondition)
+
+   DispatcherServletAutoConfiguration.DispatcherServletRegistrationConfiguration#dispatcherServletRegistration matched:
+      - @ConditionalOnBean (names: dispatcherServlet types: org.springframework.web.servlet.DispatcherServlet; SearchStrategy: all) found bean 'dispatcherServlet' (OnBeanCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration matched:
+      - @ConditionalOnWebApplication (required) found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnWarDeployment the application is not deployed as a WAR file. (OnWarDeploymentCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration.TomcatWebServerFactoryCustomizerConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.apache.catalina.startup.Tomcat', 'org.apache.coyote.UpgradeProtocol' (OnClassCondition)
+
+   ErrorMvcAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.springframework.web.servlet.DispatcherServlet' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   ErrorMvcAutoConfiguration#basicErrorController matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.web.servlet.error.ErrorController; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   ErrorMvcAutoConfiguration#errorAttributes matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.web.servlet.error.ErrorAttributes; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   ErrorMvcAutoConfiguration.DefaultErrorViewResolverConfiguration#conventionErrorViewResolver matched:
+      - @ConditionalOnBean (types: org.springframework.web.servlet.DispatcherServlet; SearchStrategy: all) found bean 'dispatcherServlet'; @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   ErrorMvcAutoConfiguration.WhitelabelErrorViewConfiguration matched:
+      - @ConditionalOnBooleanProperty (server.error.whitelabel.enabled=true) matched (OnPropertyCondition)
+      - ErrorTemplate Missing did not find error template view (ErrorMvcAutoConfiguration.ErrorTemplateMissingCondition)
+
+   ErrorMvcAutoConfiguration.WhitelabelErrorViewConfiguration#beanNameViewResolver matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.servlet.view.BeanNameViewResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   ErrorMvcAutoConfiguration.WhitelabelErrorViewConfiguration#defaultErrorView matched:
+      - @ConditionalOnMissingBean (names: error; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   GenericCacheConfiguration matched:
+      - Cache org.springframework.boot.autoconfigure.cache.GenericCacheConfiguration automatic cache type (CacheCondition)
+
+   HttpClientAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.client.ClientHttpRequestFactory' (OnClassCondition)
+      - NoneNestedConditions 0 matched 1 did not; NestedCondition on NotReactiveWebApplicationCondition.ReactiveWebApplication did not find reactive web application classes (NotReactiveWebApplicationCondition)
+
+   HttpClientAutoConfiguration#clientHttpRequestFactoryBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder<?>; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   HttpClientAutoConfiguration#clientHttpRequestFactorySettings matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.http.client.ClientHttpRequestFactorySettings; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   HttpEncodingAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.filter.CharacterEncodingFilter' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnBooleanProperty (server.servlet.encoding.enabled=true) matched (OnPropertyCondition)
+
+   HttpEncodingAutoConfiguration#characterEncodingFilter matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.filter.CharacterEncodingFilter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   HttpMessageConvertersAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.converter.HttpMessageConverter' (OnClassCondition)
+      - NoneNestedConditions 0 matched 1 did not; NestedCondition on HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.ReactiveWebApplication did not find reactive web application classes (HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition)
+
+   HttpMessageConvertersAutoConfiguration#messageConverters matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.http.HttpMessageConverters; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   HttpMessageConvertersAutoConfiguration.StringHttpMessageConverterConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.converter.StringHttpMessageConverter' (OnClassCondition)
+
+   HttpMessageConvertersAutoConfiguration.StringHttpMessageConverterConfiguration#stringHttpMessageConverter matched:
+      - @ConditionalOnMissingBean (types: org.springframework.http.converter.StringHttpMessageConverter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JacksonAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'com.fasterxml.jackson.databind.ObjectMapper' (OnClassCondition)
+
+   JacksonAutoConfiguration.Jackson2ObjectMapperBuilderCustomizerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.converter.json.Jackson2ObjectMapperBuilder' (OnClassCondition)
+
+   JacksonAutoConfiguration.JacksonObjectMapperBuilderConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.converter.json.Jackson2ObjectMapperBuilder' (OnClassCondition)
+
+   JacksonAutoConfiguration.JacksonObjectMapperBuilderConfiguration#jacksonObjectMapperBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.http.converter.json.Jackson2ObjectMapperBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JacksonAutoConfiguration.JacksonObjectMapperConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.http.converter.json.Jackson2ObjectMapperBuilder' (OnClassCondition)
+
+   JacksonAutoConfiguration.JacksonObjectMapperConfiguration#jacksonObjectMapper matched:
+      - @ConditionalOnMissingBean (types: com.fasterxml.jackson.databind.ObjectMapper; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JacksonAutoConfiguration.ParameterNamesModuleConfiguration matched:
+      - @ConditionalOnClass found required class 'com.fasterxml.jackson.module.paramnames.ParameterNamesModule' (OnClassCondition)
+
+   JacksonAutoConfiguration.ParameterNamesModuleConfiguration#parameterNamesModule matched:
+      - @ConditionalOnMissingBean (types: com.fasterxml.jackson.module.paramnames.ParameterNamesModule; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JacksonHttpMessageConvertersConfiguration.MappingJackson2HttpMessageConverterConfiguration matched:
+      - @ConditionalOnClass found required class 'com.fasterxml.jackson.databind.ObjectMapper' (OnClassCondition)
+      - @ConditionalOnPreferredJsonMapper JACKSON no property was configured and Jackson is the default (OnPreferredJsonMapperCondition)
+      - @ConditionalOnBean (types: com.fasterxml.jackson.databind.ObjectMapper; SearchStrategy: all) found bean 'jacksonObjectMapper' (OnBeanCondition)
+
+   JacksonHttpMessageConvertersConfiguration.MappingJackson2HttpMessageConverterConfiguration#mappingJackson2HttpMessageConverter matched:
+      - @ConditionalOnMissingBean (types: org.springframework.http.converter.json.MappingJackson2HttpMessageConverter ignored: org.springframework.hateoas.server.mvc.TypeConstrainedMappingJackson2HttpMessageConverter,org.springframework.data.rest.webmvc.alps.AlpsJsonHttpMessageConverter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcClientAutoConfiguration matched:
+      - @ConditionalOnSingleCandidate (types: org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate; SearchStrategy: all) found a single bean 'namedParameterJdbcTemplate'; @ConditionalOnMissingBean (types: org.springframework.jdbc.core.simple.JdbcClient; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations', 'org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration' (OnClassCondition)
+      - @ConditionalOnBooleanProperty (spring.data.jdbc.repositories.enabled=true) matched (OnPropertyCondition)
+      - @ConditionalOnBean (types: org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations,org.springframework.transaction.PlatformTransactionManager; SearchStrategy: all) found beans 'transactionManager', 'namedParameterJdbcTemplate' (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.JdbcRepositoriesConfiguration matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.repository.config.JdbcRepositoryConfigExtension; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#dataAccessStrategyBean matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.core.convert.DataAccessStrategy; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcAggregateTemplate matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.core.JdbcAggregateTemplate; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcConverter matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.core.convert.JdbcConverter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcCustomConversions matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.core.convert.JdbcCustomConversions; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcDialect matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.relational.core.dialect.Dialect; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcManagedTypes matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.relational.RelationalManagedTypes; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcRepositoriesAutoConfiguration.SpringBootJdbcConfiguration#jdbcMappingContext matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.jdbc.core.mapping.JdbcMappingContext; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   JdbcTemplateAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'javax.sql.DataSource', 'org.springframework.jdbc.core.JdbcTemplate' (OnClassCondition)
+      - @ConditionalOnSingleCandidate (types: javax.sql.DataSource; SearchStrategy: all) found a single bean 'dataSource' (OnBeanCondition)
+
+   JdbcTemplateConfiguration matched:
+      - @ConditionalOnMissingBean (types: org.springframework.jdbc.core.JdbcOperations; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   LifecycleAutoConfiguration#defaultLifecycleProcessor matched:
+      - @ConditionalOnMissingBean (names: lifecycleProcessor; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   MultipartAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.springframework.web.multipart.support.StandardServletMultipartResolver', 'jakarta.servlet.MultipartConfigElement' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnBooleanProperty (spring.servlet.multipart.enabled=true) matched (OnPropertyCondition)
+
+   MultipartAutoConfiguration#multipartConfigElement matched:
+      - @ConditionalOnMissingBean (types: jakarta.servlet.MultipartConfigElement; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MultipartAutoConfiguration#multipartResolver matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.multipart.MultipartResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MybatisPlusAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.apache.ibatis.session.SqlSessionFactory', 'org.mybatis.spring.SqlSessionFactoryBean' (OnClassCondition)
+      - @ConditionalOnSingleCandidate (types: javax.sql.DataSource; SearchStrategy: all) found a single bean 'dataSource' (OnBeanCondition)
+
+   MybatisPlusAutoConfiguration#mybatisPlusSpringApplicationContextAware matched:
+      - @ConditionalOnMissingBean (types: com.baomidou.mybatisplus.extension.spring.MybatisPlusApplicationContextAware; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MybatisPlusAutoConfiguration#sqlSessionFactory matched:
+      - @ConditionalOnMissingBean (types: org.apache.ibatis.session.SqlSessionFactory; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MybatisPlusAutoConfiguration#sqlSessionTemplate matched:
+      - @ConditionalOnMissingBean (types: org.mybatis.spring.SqlSessionTemplate; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.apache.ibatis.scripting.LanguageDriver' (OnClassCondition)
+
+   NamedParameterJdbcTemplateConfiguration matched:
+      - @ConditionalOnSingleCandidate (types: org.springframework.jdbc.core.JdbcTemplate; SearchStrategy: all) found a single bean 'jdbcTemplate'; @ConditionalOnMissingBean (types: org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   NoOpCacheConfiguration matched:
+      - Cache org.springframework.boot.autoconfigure.cache.NoOpCacheConfiguration automatic cache type (CacheCondition)
+
+   PersistenceExceptionTranslationAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor' (OnClassCondition)
+
+   PersistenceExceptionTranslationAutoConfiguration#persistenceExceptionTranslationPostProcessor matched:
+      - @ConditionalOnBooleanProperty (spring.dao.exceptiontranslation.enabled=true) matched (OnPropertyCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.context.support.PropertySourcesPlaceholderConfigurer; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   RestClientAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.client.RestClient' (OnClassCondition)
+      - AnyNestedCondition 1 matched 1 did not; NestedCondition on NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition.VirtualThreadsExecutorEnabled found non-matching nested conditions @ConditionalOnThreading did not find VIRTUAL; NestedCondition on NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition.NotReactiveWebApplication NoneNestedConditions 0 matched 1 did not; NestedCondition on NotReactiveWebApplicationCondition.ReactiveWebApplication did not find reactive web application classes (NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition)
+
+   RestClientAutoConfiguration#httpMessageConvertersRestClientCustomizer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.web.client.HttpMessageConvertersRestClientCustomizer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   RestClientAutoConfiguration#restClientBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.client.RestClient$Builder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   RestClientAutoConfiguration#restClientBuilderConfigurer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.web.client.RestClientBuilderConfigurer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   RestClientAutoConfiguration#restClientSsl matched:
+      - @ConditionalOnBean (types: org.springframework.boot.ssl.SslBundles; SearchStrategy: all) found bean 'sslBundleRegistry'; @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.web.client.RestClientSsl; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   RestTemplateAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.client.RestTemplate' (OnClassCondition)
+      - NoneNestedConditions 0 matched 1 did not; NestedCondition on NotReactiveWebApplicationCondition.ReactiveWebApplication did not find reactive web application classes (NotReactiveWebApplicationCondition)
+
+   RestTemplateAutoConfiguration#restTemplateBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.web.client.RestTemplateBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SecurityAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.authentication.DefaultAuthenticationEventPublisher' (OnClassCondition)
+
+   SecurityAutoConfiguration#authenticationEventPublisher matched:
+      - @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationEventPublisher; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SecurityFilterAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer', 'org.springframework.security.config.http.SessionCreationPolicy' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   SecurityFilterAutoConfiguration#securityFilterChainRegistration matched:
+      - @ConditionalOnBean (names: springSecurityFilterChain; SearchStrategy: all) found bean 'springSecurityFilterChain' (OnBeanCondition)
+
+   ServletWebServerFactoryAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'jakarta.servlet.ServletRequest' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   ServletWebServerFactoryAutoConfiguration.TomcatConfiguration matched:
+      - @ConditionalOnClass found required class 'org.apache.catalina.startup.Tomcat' (OnClassCondition)
+
+   ServletWebServerFactoryConfiguration.EmbeddedTomcat matched:
+      - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.apache.catalina.startup.Tomcat', 'org.apache.coyote.UpgradeProtocol' (OnClassCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.boot.web.servlet.server.ServletWebServerFactory; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   SimpleCacheConfiguration matched:
+      - Cache org.springframework.boot.autoconfigure.cache.SimpleCacheConfiguration automatic cache type (CacheCondition)
+
+   SpringBootWebSecurityConfiguration matched:
+      - found 'session' scope (OnWebApplicationCondition)
+
+   SpringDataWebAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.springframework.data.web.PageableHandlerMethodArgumentResolver', 'org.springframework.web.servlet.config.annotation.WebMvcConfigurer' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.data.web.PageableHandlerMethodArgumentResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SpringDataWebAutoConfiguration#pageableCustomizer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.web.config.PageableHandlerMethodArgumentResolverCustomizer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SpringDataWebAutoConfiguration#sortCustomizer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.web.config.SortHandlerMethodArgumentResolverCustomizer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SpringDataWebAutoConfiguration#springDataWebSettings matched:
+      - @ConditionalOnMissingBean (types: org.springframework.data.web.config.SpringDataWebSettings; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   SqlInitializationAutoConfiguration matched:
+      - @ConditionalOnBooleanProperty (spring.sql.init.enabled=true) matched (OnPropertyCondition)
+      - NoneNestedConditions 0 matched 1 did not; NestedCondition on SqlInitializationAutoConfiguration.SqlInitializationModeCondition.ModeIsNever @ConditionalOnProperty (spring.sql.init.mode=never) did not find property 'spring.sql.init.mode' (SqlInitializationAutoConfiguration.SqlInitializationModeCondition)
+
+   SslAutoConfiguration#sslBundleRegistry matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.ssl.SslBundleRegistry,org.springframework.boot.ssl.SslBundles; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskExecutionAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor' (OnClassCondition)
+
+   TaskExecutorConfigurations.AsyncConfigurerConfiguration matched:
+      - @ConditionalOnMissingBean (types: org.springframework.scheduling.annotation.AsyncConfigurer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskExecutorConfigurations.AsyncConfigurerConfiguration#applicationTaskExecutorAsyncConfigurer matched:
+      - @ConditionalOnMissingBean (types: org.springframework.scheduling.annotation.AsyncConfigurer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskExecutorConfigurations.SimpleAsyncTaskExecutorBuilderConfiguration#simpleAsyncTaskExecutorBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.task.SimpleAsyncTaskExecutorBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+      - @ConditionalOnThreading found PLATFORM (OnThreadingCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration matched:
+      - AnyNestedCondition 1 matched 1 did not; NestedCondition on TaskExecutorConfigurations.OnExecutorCondition.ModelCondition @ConditionalOnProperty (spring.task.execution.mode=force) did not find property 'spring.task.execution.mode'; NestedCondition on TaskExecutorConfigurations.OnExecutorCondition.ExecutorBeanCondition @ConditionalOnMissingBean (types: java.util.concurrent.Executor; SearchStrategy: all) did not find any beans (TaskExecutorConfigurations.OnExecutorCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration#applicationTaskExecutor matched:
+      - @ConditionalOnThreading found PLATFORM (OnThreadingCondition)
+
+   TaskExecutorConfigurations.ThreadPoolTaskExecutorBuilderConfiguration#threadPoolTaskExecutorBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.task.ThreadPoolTaskExecutorBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskSchedulingAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler' (OnClassCondition)
+
+   TaskSchedulingConfigurations.SimpleAsyncTaskSchedulerBuilderConfiguration#simpleAsyncTaskSchedulerBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.task.SimpleAsyncTaskSchedulerBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+      - @ConditionalOnThreading found PLATFORM (OnThreadingCondition)
+
+   TaskSchedulingConfigurations.ThreadPoolTaskSchedulerBuilderConfiguration#threadPoolTaskSchedulerBuilder matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.task.ThreadPoolTaskSchedulerBuilder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TransactionAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.transaction.PlatformTransactionManager' (OnClassCondition)
+
+   TransactionAutoConfiguration.EnableTransactionManagementConfiguration matched:
+      - @ConditionalOnBean (types: org.springframework.transaction.TransactionManager; SearchStrategy: all) found bean 'transactionManager'; @ConditionalOnMissingBean (types: org.springframework.transaction.annotation.AbstractTransactionManagementConfiguration; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TransactionAutoConfiguration.EnableTransactionManagementConfiguration.CglibAutoProxyConfiguration matched:
+      - @ConditionalOnBooleanProperty (spring.aop.proxy-target-class=true) matched (OnPropertyCondition)
+
+   TransactionAutoConfiguration.TransactionTemplateConfiguration matched:
+      - @ConditionalOnSingleCandidate (types: org.springframework.transaction.PlatformTransactionManager; SearchStrategy: all) found a single bean 'transactionManager' (OnBeanCondition)
+
+   TransactionAutoConfiguration.TransactionTemplateConfiguration#transactionTemplate matched:
+      - @ConditionalOnMissingBean (types: org.springframework.transaction.support.TransactionOperations; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TransactionManagerCustomizationAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.transaction.PlatformTransactionManager' (OnClassCondition)
+
+   TransactionManagerCustomizationAutoConfiguration#platformTransactionManagerCustomizers matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   UserDetailsServiceAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.authentication.AuthenticationManager' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - AnyNestedCondition 1 matched 2 did not; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'spring.security.user.password'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'spring.security.user.name'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector', 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
+      - @ConditionalOnBean (types: org.springframework.security.config.ObjectPostProcessor; SearchStrategy: all) found beans 'objectPostProcessor', 'webAuthorizationManagerPostProcessor', 'filterChainDecoratorPostProcessor', 'authenticationManagerPostProcessor'; @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationManager,org.springframework.security.authentication.AuthenticationProvider,org.springframework.security.core.userdetails.UserDetailsService,org.springframework.security.authentication.AuthenticationManagerResolver,org.springframework.security.oauth2.jwt.JwtDecoder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   ValidationAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'jakarta.validation.executable.ExecutableValidator' (OnClassCondition)
+      - @ConditionalOnResource found location classpath:META-INF/services/jakarta.validation.spi.ValidationProvider (OnResourceCondition)
+
+   ValidationAutoConfiguration#defaultValidator matched:
+      - @ConditionalOnMissingBean (types: jakarta.validation.Validator; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   ValidationAutoConfiguration#methodValidationPostProcessor matched:
+      - @ConditionalOnMissingBean (types: org.springframework.validation.beanvalidation.MethodValidationPostProcessor; SearchStrategy: current) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'org.springframework.web.servlet.DispatcherServlet', 'org.springframework.web.servlet.config.annotation.WebMvcConfigurer' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration#formContentFilter matched:
+      - @ConditionalOnBooleanProperty (spring.mvc.formcontent.filter.enabled=true) matched (OnPropertyCondition)
+      - @ConditionalOnMissingBean (types: org.springframework.web.filter.FormContentFilter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.EnableWebMvcConfiguration#flashMapManager matched:
+      - @ConditionalOnMissingBean (names: flashMapManager; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.EnableWebMvcConfiguration#localeResolver matched:
+      - @ConditionalOnMissingBean (names: localeResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.EnableWebMvcConfiguration#themeResolver matched:
+      - @ConditionalOnMissingBean (names: themeResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.EnableWebMvcConfiguration#viewNameTranslator matched:
+      - @ConditionalOnMissingBean (names: viewNameTranslator; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter#defaultViewResolver matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.servlet.view.InternalResourceViewResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter#requestContextFilter matched:
+      - @ConditionalOnMissingBean (types: org.springframework.web.context.request.RequestContextListener,org.springframework.web.filter.RequestContextFilter; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter#viewResolver matched:
+      - @ConditionalOnBean (types: org.springframework.web.servlet.ViewResolver; SearchStrategy: all) found beans 'defaultViewResolver', 'beanNameViewResolver', 'mvcViewResolver'; @ConditionalOnMissingBean (names: viewResolver types: org.springframework.web.servlet.view.ContentNegotiatingViewResolver; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   WebSocketServletAutoConfiguration matched:
+      - @ConditionalOnClass found required classes 'jakarta.servlet.Servlet', 'jakarta.websocket.server.ServerContainer' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+
+   WebSocketServletAutoConfiguration.TomcatWebSocketConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.apache.catalina.startup.Tomcat', 'org.apache.tomcat.websocket.server.WsSci' (OnClassCondition)
+
+   WebSocketServletAutoConfiguration.TomcatWebSocketConfiguration#websocketServletWebServerCustomizer matched:
+      - @ConditionalOnMissingBean (names: websocketServletWebServerCustomizer; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+   ActiveMQAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.jms.ConnectionFactory' (OnClassCondition)
+
+   AopAutoConfiguration.AspectJAutoProxyingConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.aspectj.weaver.Advice' (OnClassCondition)
+
+   ArtemisAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.jms.ConnectionFactory' (OnClassCondition)
+
+   BatchAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.batch.core.launch.JobLauncher' (OnClassCondition)
+
+   Cache2kCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.cache2k.Cache2kBuilder' (OnClassCondition)
+
+   CacheAutoConfiguration:
+      Did not match:
+         - @ConditionalOnBean (types: org.springframework.cache.interceptor.CacheAspectSupport; SearchStrategy: all) did not find any beans of type org.springframework.cache.interceptor.CacheAspectSupport (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.cache.CacheManager' (OnClassCondition)
+
+   CacheAutoConfiguration.CacheManagerEntityManagerFactoryDependsOnPostProcessor:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean' (OnClassCondition)
+         - Ancestor org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration did not match (ConditionEvaluationReport.AncestorsMatchedCondition)
+
+   CaffeineCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.github.benmanes.caffeine.cache.Caffeine' (OnClassCondition)
+
+   CassandraAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.datastax.oss.driver.api.core.CqlSession' (OnClassCondition)
+
+   CassandraDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.datastax.oss.driver.api.core.CqlSession' (OnClassCondition)
+
+   CassandraReactiveDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.datastax.oss.driver.api.core.CqlSession' (OnClassCondition)
+
+   CassandraReactiveRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.cassandra.ReactiveSession' (OnClassCondition)
+
+   CassandraRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.datastax.oss.driver.api.core.CqlSession' (OnClassCondition)
+
+   org.springframework.boot.autoconfigure.http.client.reactive.ClientHttpConnectorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Mono' (OnClassCondition)
+
+   org.springframework.boot.autoconfigure.web.reactive.function.client.ClientHttpConnectorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.function.client.WebClient' (OnClassCondition)
+
+   CodecsAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.function.client.WebClient' (OnClassCondition)
+
+   CouchbaseAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Cluster' (OnClassCondition)
+
+   CouchbaseCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Cluster' (OnClassCondition)
+
+   CouchbaseDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Bucket' (OnClassCondition)
+
+   CouchbaseReactiveDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Cluster' (OnClassCondition)
+
+   CouchbaseReactiveRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Cluster' (OnClassCondition)
+
+   CouchbaseRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.couchbase.client.java.Bucket' (OnClassCondition)
+
+   DataSourceAutoConfiguration.EmbeddedDatabaseConfiguration:
+      Did not match:
+         - EmbeddedDataSource spring.datasource.url is set (DataSourceAutoConfiguration.EmbeddedDatabaseCondition)
+
+   DataSourceCheckpointRestoreConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.crac.Resource' (OnClassCondition)
+
+   DataSourceConfiguration.Dbcp2:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.commons.dbcp2.BasicDataSource' (OnClassCondition)
+
+   DataSourceConfiguration.Generic:
+      Did not match:
+         - @ConditionalOnProperty (spring.datasource.type) did not find property 'spring.datasource.type' (OnPropertyCondition)
+
+   DataSourceConfiguration.OracleUcp:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'oracle.ucp.jdbc.PoolDataSourceImpl', 'oracle.jdbc.OracleConnection' (OnClassCondition)
+
+   DataSourceConfiguration.Tomcat:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.tomcat.jdbc.pool.DataSource' (OnClassCondition)
+
+   DataSourceJmxConfiguration:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.jmx.enabled=true) did not find property 'spring.jmx.enabled' (OnPropertyCondition)
+
+   DataSourcePoolMetadataProvidersConfiguration.CommonsDbcp2PoolDataSourceMetadataProviderConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.commons.dbcp2.BasicDataSource' (OnClassCondition)
+
+   DataSourcePoolMetadataProvidersConfiguration.OracleUcpPoolDataSourceMetadataProviderConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'oracle.ucp.jdbc.PoolDataSource', 'oracle.jdbc.OracleConnection' (OnClassCondition)
+
+   DataSourcePoolMetadataProvidersConfiguration.TomcatDataSourcePoolMetadataProviderConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.tomcat.jdbc.pool.DataSource' (OnClassCondition)
+
+   DdlAutoConfiguration#ddlApplicationRunner:
+      Did not match:
+         - @ConditionalOnBean (types: com.baomidou.mybatisplus.extension.ddl.IDdl; SearchStrategy: all) did not find any beans of type com.baomidou.mybatisplus.extension.ddl.IDdl (OnBeanCondition)
+
+   DispatcherServletAutoConfiguration.DispatcherServletConfiguration#multipartResolver:
+      Did not match:
+         - @ConditionalOnBean (types: org.springframework.web.multipart.MultipartResolver; SearchStrategy: all) did not find any beans of type org.springframework.web.multipart.MultipartResolver (OnBeanCondition)
+
+   ElasticsearchClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'co.elastic.clients.elasticsearch.ElasticsearchClient' (OnClassCondition)
+
+   ElasticsearchDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate' (OnClassCondition)
+
+   ElasticsearchRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.elasticsearch.repository.ElasticsearchRepository' (OnClassCondition)
+
+   ElasticsearchRestClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.elasticsearch.client.RestClientBuilder' (OnClassCondition)
+
+   EmbeddedLdapAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.unboundid.ldap.listener.InMemoryDirectoryServer' (OnClassCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration.JettyWebServerFactoryCustomizerConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'org.eclipse.jetty.server.Server', 'org.eclipse.jetty.util.Loader', 'org.eclipse.jetty.ee10.webapp.WebAppContext' (OnClassCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration.NettyWebServerFactoryCustomizerConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.netty.http.server.HttpServer' (OnClassCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration.TomcatWebServerFactoryCustomizerConfiguration#tomcatVirtualThreadsProtocolHandlerCustomizer:
+      Did not match:
+         - @ConditionalOnThreading did not find VIRTUAL (OnThreadingCondition)
+
+   EmbeddedWebServerFactoryCustomizerAutoConfiguration.UndertowWebServerFactoryCustomizerConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'io.undertow.Undertow', 'org.xnio.SslClientAuthMode' (OnClassCondition)
+
+   ErrorWebFluxAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.config.WebFluxConfigurer' (OnClassCondition)
+
+   FlywayAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.flywaydb.core.Flyway' (OnClassCondition)
+
+   FreeMarkerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'freemarker.template.Configuration' (OnClassCondition)
+
+   GraphQlAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlQueryByExampleAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlQuerydslAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.querydsl.core.Query' (OnClassCondition)
+
+   GraphQlRSocketAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlReactiveQueryByExampleAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlReactiveQuerydslAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.querydsl.core.Query' (OnClassCondition)
+
+   GraphQlWebFluxAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlWebFluxSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlWebMvcAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GraphQlWebMvcSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   GroovyTemplateAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'groovy.text.markup.MarkupTemplateEngine' (OnClassCondition)
+
+   GsonAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.google.gson.Gson' (OnClassCondition)
+
+   GsonHttpMessageConvertersConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.google.gson.Gson' (OnClassCondition)
+
+   H2ConsoleAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.h2.server.web.JakartaWebServlet' (OnClassCondition)
+
+   HazelcastAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.hazelcast.core.HazelcastInstance' (OnClassCondition)
+
+   HazelcastCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.hazelcast.core.HazelcastInstance' (OnClassCondition)
+
+   HazelcastJpaDependencyAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.hazelcast.core.HazelcastInstance' (OnClassCondition)
+
+   HibernateJpaAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.persistence.EntityManager' (OnClassCondition)
+
+   HttpHandlerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.DispatcherHandler' (OnClassCondition)
+
+   HypermediaAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.hateoas.EntityModel' (OnClassCondition)
+
+   IdentifierGeneratorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.cloud.commons.util.InetUtils' (OnClassCondition)
+
+   InfinispanCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.infinispan.spring.embedded.provider.SpringEmbeddedCacheManager' (OnClassCondition)
+
+   IntegrationAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.integration.config.EnableIntegration' (OnClassCondition)
+
+   JCacheCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'javax.cache.Caching' (OnClassCondition)
+
+   JacksonHttpMessageConvertersConfiguration.MappingJackson2XmlHttpMessageConverterConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.fasterxml.jackson.dataformat.xml.XmlMapper' (OnClassCondition)
+
+   JerseyAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.glassfish.jersey.server.spring.SpringComponentProvider' (OnClassCondition)
+
+   JmsAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.jms.Message' (OnClassCondition)
+
+   JmxAutoConfiguration:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.jmx.enabled=true) did not find property 'spring.jmx.enabled' (OnPropertyCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.jmx.export.MBeanExporter' (OnClassCondition)
+
+   JndiConnectionFactoryAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.jms.core.JmsTemplate' (OnClassCondition)
+
+   JndiDataSourceAutoConfiguration:
+      Did not match:
+         - @ConditionalOnProperty (spring.datasource.jndi-name) did not find property 'spring.datasource.jndi-name' (OnPropertyCondition)
+      Matched:
+         - @ConditionalOnClass found required classes 'javax.sql.DataSource', 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType' (OnClassCondition)
+
+   JooqAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.jooq.DSLContext' (OnClassCondition)
+
+   JpaRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.jpa.repository.JpaRepository' (OnClassCondition)
+
+   JsonbAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.json.bind.Jsonb' (OnClassCondition)
+
+   JsonbHttpMessageConvertersConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.json.bind.Jsonb' (OnClassCondition)
+
+   JtaAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.transaction.Transaction' (OnClassCondition)
+
+   KafkaAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.kafka.core.KafkaTemplate' (OnClassCondition)
+
+   LdapAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.ldap.core.ContextSource' (OnClassCondition)
+
+   LdapRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.ldap.repository.LdapRepository' (OnClassCondition)
+
+   LiquibaseAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'liquibase.change.DatabaseChange' (OnClassCondition)
+
+   MailSenderAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.activation.MimeType' (OnClassCondition)
+
+   MailSenderValidatorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnSingleCandidate did not find required type 'org.springframework.mail.javamail.JavaMailSenderImpl' (OnBeanCondition)
+
+   MessageSourceAutoConfiguration:
+      Did not match:
+         - ResourceBundle did not find bundle with basename messages (MessageSourceAutoConfiguration.ResourceBundleCondition)
+
+   MongoAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.client.MongoClient' (OnClassCondition)
+
+   MongoDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.client.MongoClient' (OnClassCondition)
+
+   MongoReactiveAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.reactivestreams.client.MongoClient' (OnClassCondition)
+
+   MongoReactiveDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.reactivestreams.client.MongoClient' (OnClassCondition)
+
+   MongoReactiveRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.reactivestreams.client.MongoClient' (OnClassCondition)
+
+   MongoRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.mongodb.client.MongoClient' (OnClassCondition)
+
+   MustacheAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.samskivert.mustache.Mustache' (OnClassCondition)
+
+   MybatisPlusAutoConfiguration.MapperScannerRegistrarNotFoundConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (types: org.mybatis.spring.mapper.MapperFactoryBean,org.mybatis.spring.mapper.MapperScannerConfigurer; SearchStrategy: all) found beans of type 'org.mybatis.spring.mapper.MapperScannerConfigurer' org.example.dln.DlnApplication#MapperScannerRegistrar#0 (OnBeanCondition)
+
+   MybatisPlusInnerInterceptorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnBean (types: com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor; SearchStrategy: all) did not find any beans of type com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor (OnBeanCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration.FreeMarkerConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'org.mybatis.scripting.freemarker.FreeMarkerLanguageDriver', 'org.mybatis.scripting.freemarker.FreeMarkerLanguageDriverConfig' (OnClassCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration.LegacyFreeMarkerConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.mybatis.scripting.freemarker.FreeMarkerLanguageDriver' (OnClassCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration.LegacyVelocityConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.mybatis.scripting.velocity.Driver' (OnClassCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration.ThymeleafConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.mybatis.scripting.thymeleaf.ThymeleafLanguageDriver' (OnClassCondition)
+
+   MybatisPlusLanguageDriverAutoConfiguration.VelocityConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'org.mybatis.scripting.velocity.VelocityLanguageDriver', 'org.mybatis.scripting.velocity.VelocityLanguageDriverConfig' (OnClassCondition)
+
+   Neo4jAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
+
+   Neo4jDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
+
+   Neo4jReactiveDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
+
+   Neo4jReactiveRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
+
+   Neo4jRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.neo4j.driver.Driver' (OnClassCondition)
+
+   NettyAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.netty.util.NettyRuntime' (OnClassCondition)
+
+   OAuth2AuthorizationServerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.server.authorization.OAuth2Authorization' (OnClassCondition)
+
+   OAuth2AuthorizationServerJwtAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.nimbusds.jose.jwk.source.JWKSource' (OnClassCondition)
+
+   OAuth2ClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.client.registration.ClientRegistration' (OnClassCondition)
+
+   OAuth2ClientWebSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository' (OnClassCondition)
+
+   OAuth2ResourceServerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken' (OnClassCondition)
+
+   ProjectInfoAutoConfiguration#buildProperties:
+      Did not match:
+         - @ConditionalOnResource did not find resource '${spring.info.build.location:classpath:META-INF/build-info.properties}' (OnResourceCondition)
+
+   ProjectInfoAutoConfiguration#gitProperties:
+      Did not match:
+         - GitResource did not find git info at classpath:git.properties (ProjectInfoAutoConfiguration.GitResourceAvailableCondition)
+
+   PulsarAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.pulsar.client.api.PulsarClient' (OnClassCondition)
+
+   PulsarReactiveAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.apache.pulsar.client.api.PulsarClient' (OnClassCondition)
+
+   QuartzAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.quartz.Scheduler' (OnClassCondition)
+
+   R2dbcAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.r2dbc.spi.ConnectionFactory' (OnClassCondition)
+
+   R2dbcDataAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.r2dbc.core.R2dbcEntityTemplate' (OnClassCondition)
+
+   R2dbcInitializationConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'io.r2dbc.spi.ConnectionFactory', 'org.springframework.r2dbc.connection.init.DatabasePopulator' (OnClassCondition)
+
+   R2dbcProxyAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.r2dbc.proxy.ProxyConnectionFactory' (OnClassCondition)
+
+   R2dbcRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.r2dbc.spi.ConnectionFactory' (OnClassCondition)
+
+   R2dbcTransactionManagerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.r2dbc.connection.R2dbcTransactionManager' (OnClassCondition)
+
+   RSocketGraphQlClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'graphql.GraphQL' (OnClassCondition)
+
+   RSocketMessagingAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.rsocket.RSocket' (OnClassCondition)
+
+   RSocketRequesterAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.rsocket.RSocket' (OnClassCondition)
+
+   RSocketSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor' (OnClassCondition)
+
+   RSocketServerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.rsocket.core.RSocketServer' (OnClassCondition)
+
+   RSocketStrategiesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.netty.buffer.PooledByteBufAllocator' (OnClassCondition)
+
+   RabbitAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.rabbitmq.client.Channel' (OnClassCondition)
+
+   ReactiveElasticsearchClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'co.elastic.clients.transport.ElasticsearchTransport' (OnClassCondition)
+
+   ReactiveElasticsearchRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Mono' (OnClassCondition)
+
+   ReactiveMultipartAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.config.WebFluxConfigurer' (OnClassCondition)
+
+   ReactiveOAuth2ClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Flux' (OnClassCondition)
+
+   ReactiveOAuth2ClientWebSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Flux' (OnClassCondition)
+
+   ReactiveOAuth2ResourceServerAutoConfiguration:
+      Did not match:
+         - @ConditionalOnWebApplication did not find reactive web application classes (OnWebApplicationCondition)
+
+   ReactiveSecurityAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Flux' (OnClassCondition)
+
+   ReactiveUserDetailsServiceAutoConfiguration:
+      Did not match:
+         - AnyNestedCondition 0 matched 2 did not; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication.ReactiveWebApplicationCondition did not find reactive web application classes; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication.RSocketSecurityEnabledCondition @ConditionalOnBean (types: org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler; SearchStrategy: all) did not find any beans of type org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler (ReactiveUserDetailsServiceAutoConfiguration.RSocketEnabledOrReactiveWebApplication)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.authentication.ReactiveAuthenticationManager' (OnClassCondition)
+         - AnyNestedCondition 1 matched 2 did not; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'spring.security.user.password'; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'spring.security.user.name'; NestedCondition on ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector' (ReactiveUserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
+
+   ReactiveWebServerFactoryAutoConfiguration:
+      Did not match:
+         - @ConditionalOnWebApplication did not find reactive web application classes (OnWebApplicationCondition)
+
+   ReactorAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Hooks' (OnClassCondition)
+
+   RedisAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.redis.core.RedisOperations' (OnClassCondition)
+
+   RedisCacheConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.redis.connection.RedisConnectionFactory' (OnClassCondition)
+
+   RedisReactiveAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Flux' (OnClassCondition)
+
+   RedisRepositoriesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.redis.repository.configuration.EnableRedisRepositories' (OnClassCondition)
+
+   RepositoryRestMvcAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration' (OnClassCondition)
+
+   Saml2RelyingPartyAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (OnClassCondition)
+
+   SecurityDataConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.security.data.repository.query.SecurityEvaluationContextExtension' (OnClassCondition)
+
+   SendGridAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'com.sendgrid.SendGrid' (OnClassCondition)
+
+   ServletWebServerFactoryAutoConfiguration.ForwardedHeaderFilterConfiguration:
+      Did not match:
+         - @ConditionalOnProperty (server.forward-headers-strategy=framework) did not find property 'server.forward-headers-strategy' (OnPropertyCondition)
+
+   ServletWebServerFactoryConfiguration.EmbeddedJetty:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'org.eclipse.jetty.server.Server', 'org.eclipse.jetty.util.Loader', 'org.eclipse.jetty.ee10.webapp.WebAppContext' (OnClassCondition)
+
+   ServletWebServerFactoryConfiguration.EmbeddedUndertow:
+      Did not match:
+         - @ConditionalOnClass did not find required classes 'io.undertow.Undertow', 'org.xnio.SslClientAuthMode' (OnClassCondition)
+
+   SessionAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.session.Session' (OnClassCondition)
+
+   SpringApplicationAdminJmxAutoConfiguration:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.application.admin.enabled=true) did not find property 'spring.application.admin.enabled' (OnPropertyCondition)
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' filterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+   TaskExecutorConfigurations.SimpleAsyncTaskExecutorBuilderConfiguration#simpleAsyncTaskExecutorBuilderVirtualThreads:
+      Did not match:
+         - @ConditionalOnMissingBean (types: org.springframework.boot.task.SimpleAsyncTaskExecutorBuilder; SearchStrategy: all) found beans of type 'org.springframework.boot.task.SimpleAsyncTaskExecutorBuilder' simpleAsyncTaskExecutorBuilder (OnBeanCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration#applicationTaskExecutorVirtualThreads:
+      Did not match:
+         - @ConditionalOnThreading did not find VIRTUAL (OnThreadingCondition)
+
+   TaskSchedulingAutoConfiguration#scheduledBeanLazyInitializationExcludeFilter:
+      Did not match:
+         - @ConditionalOnBean (names: org.springframework.context.annotation.internalScheduledAnnotationProcessor; SearchStrategy: all) did not find any beans named org.springframework.context.annotation.internalScheduledAnnotationProcessor (OnBeanCondition)
+
+   TaskSchedulingConfigurations.SimpleAsyncTaskSchedulerBuilderConfiguration#simpleAsyncTaskSchedulerBuilderVirtualThreads:
+      Did not match:
+         - @ConditionalOnMissingBean (types: org.springframework.boot.task.SimpleAsyncTaskSchedulerBuilder; SearchStrategy: all) found beans of type 'org.springframework.boot.task.SimpleAsyncTaskSchedulerBuilder' simpleAsyncTaskSchedulerBuilder (OnBeanCondition)
+
+   TaskSchedulingConfigurations.TaskSchedulerConfiguration:
+      Did not match:
+         - @ConditionalOnBean (names: org.springframework.context.annotation.internalScheduledAnnotationProcessor; SearchStrategy: all) did not find any beans named org.springframework.context.annotation.internalScheduledAnnotationProcessor (OnBeanCondition)
+
+   ThymeleafAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.thymeleaf.spring6.SpringTemplateEngine' (OnClassCondition)
+
+   TransactionAutoConfiguration#transactionalOperator:
+      Did not match:
+         - @ConditionalOnSingleCandidate (types: org.springframework.transaction.ReactiveTransactionManager; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TransactionAutoConfiguration.AspectJTransactionManagementConfiguration:
+      Did not match:
+         - @ConditionalOnBean did not find required type 'org.springframework.transaction.aspectj.AbstractTransactionAspect' (OnBeanCondition)
+         - @ConditionalOnBean (types: org.springframework.transaction.aspectj.AbstractTransactionAspect; SearchStrategy: all) did not find any beans of type org.springframework.transaction.aspectj.AbstractTransactionAspect (OnBeanCondition)
+
+   TransactionAutoConfiguration.EnableTransactionManagementConfiguration.JdkDynamicAutoProxyConfiguration:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.aop.proxy-target-class=false) did not find property 'spring.aop.proxy-target-class' (OnPropertyCondition)
+
+   WebClientAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.function.client.WebClient' (OnClassCondition)
+
+   WebFluxAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.reactive.config.WebFluxConfigurer' (OnClassCondition)
+
+   WebMvcAutoConfiguration#hiddenHttpMethodFilter:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.mvc.hiddenmethod.filter.enabled=true) did not find property 'spring.mvc.hiddenmethod.filter.enabled' (OnPropertyCondition)
+
+   WebMvcAutoConfiguration.ProblemDetailsErrorHandlingConfiguration:
+      Did not match:
+         - @ConditionalOnBooleanProperty (spring.mvc.problemdetails.enabled=true) did not find property 'spring.mvc.problemdetails.enabled' (OnPropertyCondition)
+
+   WebMvcAutoConfiguration.ResourceChainCustomizerConfiguration:
+      Did not match:
+         - @ConditionalOnEnabledResourceChain did not find class org.webjars.WebJarVersionLocator (OnEnabledResourceChainCondition)
+
+   WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter#beanNameViewResolver:
+      Did not match:
+         - @ConditionalOnMissingBean (types: org.springframework.web.servlet.view.BeanNameViewResolver; SearchStrategy: all) found beans of type 'org.springframework.web.servlet.view.BeanNameViewResolver' beanNameViewResolver (OnBeanCondition)
+
+   WebServiceTemplateAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.oxm.Marshaller' (OnClassCondition)
+
+   WebServicesAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.ws.transport.http.MessageDispatcherServlet' (OnClassCondition)
+
+   WebSessionIdResolverAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'reactor.core.publisher.Mono' (OnClassCondition)
+
+   WebSocketMessagingAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer' (OnClassCondition)
+
+   WebSocketReactiveAutoConfiguration:
+      Did not match:
+         - @ConditionalOnWebApplication did not find reactive web application classes (OnWebApplicationCondition)
+
+   WebSocketServletAutoConfiguration.JettyWebSocketConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer' (OnClassCondition)
+
+   WebSocketServletAutoConfiguration.UndertowWebSocketConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'io.undertow.websockets.jsr.Bootstrap' (OnClassCondition)
+
+   XADataSourceAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.transaction.TransactionManager' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
+
+    org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration
+
+    org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration
+
+    org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration
+
+    org.springframework.boot.autoconfigure.availability.ApplicationAvailabilityAutoConfiguration
+
+    org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration
+
+
+
+2026-05-01T15:31:55.661+08:00  INFO 15592 --- [DLN] [           main] org.example.dln.DlnApplication           : Started DlnApplication in 2.58 seconds (process running for 2.833)
+2026-05-01T15:31:55.661+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.a.ApplicationAvailabilityBean      : Application availability state LivenessState changed to CORRECT
+2026-05-01T15:31:55.661+08:00 DEBUG 15592 --- [DLN] [           main] o.s.b.a.ApplicationAvailabilityBean      : Application availability state ReadinessState changed to ACCEPTING_TRAFFIC
+2026-05-01T15:33:22.148+08:00  INFO 15592 --- [DLN] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-01T15:33:22.159+08:00  INFO 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected StandardServletMultipartResolver
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected AcceptHeaderLocaleResolver
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected FixedThemeResolver
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@7769d216
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.support.SessionFlashMapManager@62d2be03
+2026-05-01T15:33:22.159+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2026-05-01T15:33:22.159+08:00  INFO 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-05-01T15:33:22.179+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : POST "/login", parameters={}
+2026-05-01T15:33:22.179+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.example.dln.controller.UserController#login(LoginDTO)
+2026-05-01T15:33:22.252+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [LoginDTO(username=demo_link, password=123456)]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@33406a38] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1646382802 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_user WHERE username = ?
+==> Parameters: demo_link(String)
+<==    Columns: id, username, email, password, nickname, avatar_url, status, is_admin, created_time, updated_time
+<==        Row: 820260501000000001, demo_link, demo_link@example.com, $2a$10$jCOJPfYDLSxYCRV4RLvK8OIa6Sj6LGDnj4mcbTwGv2mmxCgNJ4qom, 双链演示用户, null, 1, 0, 2026-05-01 10:00:00, 2026-05-01 10:00:00
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@33406a38]
+2026-05-01T15:33:22.580+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-05-01T15:33:22.585+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Writing [Result(code=200, message=登录成功, data=LoginVO(id=820260501000000001, username=demo_link, email=demo_li (truncated)...]
+2026-05-01T15:33:22.593+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2026-05-01T15:33:22.647+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-6] o.s.web.servlet.DispatcherServlet        : GET "/knowledgeBases", parameters={}
+2026-05-01T15:33:22.647+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.example.dln.controller.KnowledgeBaseController#listKnowledgeBases(Long)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@18403e3a] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@952883768 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_knowledge_base WHERE user_id = ? AND status = 1 AND delete_token = 0 ORDER BY updated_time DESC
+==> Parameters: 820260501000000001(Long)
+<==    Columns: id, user_id, name, description, status, delete_token, deleted_time, created_time, updated_time
+<==        Row: 820260501000000010, 820260501000000001, 答辩演示知识库, 通过登录认证模块说明双链在项目功能和技术知识之间的连接作用。, 1, 0, null, 2026-05-01 10:00:00, 2026-05-01 10:00:00
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@18403e3a]
+2026-05-01T15:33:22.687+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-6] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-05-01T15:33:22.687+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-6] m.m.a.RequestResponseBodyMethodProcessor : Writing [Result(code=200, message=操作成功, data=[KnowledgeBaseVO(id=820260501000000010, name=答辩演示知识库, descriptio (truncated)...]
+2026-05-01T15:33:22.689+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-6] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2026-05-01T15:33:22.693+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-8] o.s.web.servlet.DispatcherServlet        : GET "/knowledgeBases/820260501000000010/graph", parameters={}
+2026-05-01T15:33:22.694+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.example.dln.controller.KnowledgeBaseController#getKnowledgeGraph(Long, Long)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f7598f8] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2126386745 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_knowledge_base WHERE id = ?
+==> Parameters: 820260501000000010(Long)
+<==    Columns: id, user_id, name, description, status, delete_token, deleted_time, created_time, updated_time
+<==        Row: 820260501000000010, 820260501000000001, 答辩演示知识库, 通过登录认证模块说明双链在项目功能和技术知识之间的连接作用。, 1, 0, null, 2026-05-01 10:00:00, 2026-05-01 10:00:00
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f7598f8]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@37002f0f] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1953616719 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_note WHERE user_id = ? AND knowledge_base_id = ? AND status = 1 AND delete_token = 0 ORDER BY title ASC
+==> Parameters: 820260501000000001(Long), 820260501000000010(Long)
+<==    Columns: id, user_id, knowledge_base_id, folder_id, title, status, delete_token, deleted_time, created_time, updated_time
+<==        Row: 820260501000000106, 820260501000000001, 820260501000000010, 820260501000000020, BCrypt密码加密, 1, 0, null, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000107, 820260501000000001, 820260501000000010, 820260501000000020, JwtInterceptor拦截器, 1, 0, null, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000103, 820260501000000001, 820260501000000010, 820260501000000020, JWT身份认证, 1, 0, null, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000104, 820260501000000001, 820260501000000010, 820260501000000020, MyBatis-Plus, 1, 0, null, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000102, 820260501000000001, 820260501000000010, 820260501000000020, Spring Security, 1, 0, null, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000105, 820260501000000001, 820260501000000010, 820260501000000020, 用户表t_user, 1, 0, null, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000101, 820260501000000001, 820260501000000010, 820260501000000020, 登录认证模块, 1, 0, null, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000108, 820260501000000001, 820260501000000010, 820260501000000020, 知识图谱展示, 1, 0, null, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==      Total: 8
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@37002f0f]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4b33d9f9] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1753112350 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_note_link WHERE knowledge_base_id = ?
+==> Parameters: 820260501000000010(Long)
+<==    Columns: id, knowledge_base_id, source_note_id, target_note_id, target_note_name, anchor_text, context_snippet, is_broken, created_time, updated_time
+<==        Row: 820260501000000401, 820260501000000010, 820260501000000101, 820260501000000102, Spring Security, Spring Security, 后端基于[[Spring Security]]做安全处理, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000402, 820260501000000010, 820260501000000101, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 使用[[MyBatis-Plus]]查询[[用户表t_user]]中的账号数据, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000403, 820260501000000010, 820260501000000101, 820260501000000105, 用户表t_user, 用户表t_user, 查询[[用户表t_user]]中的账号数据, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000404, 820260501000000010, 820260501000000101, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 通过[[BCrypt密码加密]]校验密码是否正确, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000405, 820260501000000010, 820260501000000101, 820260501000000103, JWT身份认证, JWT身份认证, 系统生成[[JWT身份认证]]所需的Token, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000406, 820260501000000010, 820260501000000101, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, 经过[[JwtInterceptor拦截器]]完成身份校验, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000407, 820260501000000010, 820260501000000101, null, Redis缓存, Redis缓存, 可以考虑加入[[Redis缓存]], 1, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000408, 820260501000000010, 820260501000000102, 820260501000000101, 登录认证模块, 登录认证模块, 主要服务于[[登录认证模块]], 0, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000409, 820260501000000010, 820260501000000102, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 配合[[BCrypt密码加密]]保存密码摘要, 0, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000410, 820260501000000010, 820260501000000103, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]负责生成Token, 0, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000411, 820260501000000010, 820260501000000103, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, [[JwtInterceptor拦截器]]负责解析和校验Token, 0, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000412, 820260501000000010, 820260501000000104, 820260501000000101, 登录认证模块, 登录认证模块, 本系统在[[登录认证模块]]中需要根据用户名查询用户信息, 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000413, 820260501000000010, 820260501000000104, 820260501000000105, 用户表t_user, 用户表t_user, 这一过程会访问[[用户表t_user]], 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000414, 820260501000000010, 820260501000000104, 820260501000000102, Spring Security, Spring Security, 更方便和[[Spring Security]]相关业务逻辑配合, 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000415, 820260501000000010, 820260501000000105, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]会根据用户名读取这张表, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000416, 820260501000000010, 820260501000000105, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 交给[[BCrypt密码加密]]相关逻辑进行校验, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000417, 820260501000000010, 820260501000000105, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 数据库访问部分由[[MyBatis-Plus]]完成, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000418, 820260501000000010, 820260501000000106, 820260501000000105, 用户表t_user, 用户表t_user, 保存到[[用户表t_user]], 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000419, 820260501000000010, 820260501000000106, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]会把输入密码和数据库中的密码摘要进行匹配, 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000420, 820260501000000010, 820260501000000106, 820260501000000102, Spring Security, Spring Security, 和[[Spring Security]]配合使用, 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000421, 820260501000000010, 820260501000000107, 820260501000000103, JWT身份认证, JWT身份认证, 解析[[JWT身份认证]]生成的Token, 0, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000422, 820260501000000010, 820260501000000107, 820260501000000101, 登录认证模块, 登录认证模块, 它和[[登录认证模块]]是一前一后的关系, 0, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000423, 820260501000000010, 820260501000000108, 820260501000000101, 登录认证模块, 登录认证模块, 以[[登录认证模块]]为例, 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000424, 820260501000000010, 820260501000000108, 820260501000000102, Spring Security, Spring Security, 连接到[[Spring Security]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000425, 820260501000000010, 820260501000000108, 820260501000000103, JWT身份认证, JWT身份认证, 连接到[[JWT身份认证]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000426, 820260501000000010, 820260501000000108, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 连接到[[MyBatis-Plus]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000427, 820260501000000010, 820260501000000108, 820260501000000105, 用户表t_user, 用户表t_user, 连接到[[用户表t_user]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000428, 820260501000000010, 820260501000000108, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 连接到[[BCrypt密码加密]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000429, 820260501000000010, 820260501000000108, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, 连接到[[JwtInterceptor拦截器]]等节点, 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==      Total: 29
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4b33d9f9]
+2026-05-01T15:33:22.749+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-8] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-05-01T15:33:22.750+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-8] m.m.a.RequestResponseBodyMethodProcessor : Writing [Result(code=200, message=操作成功, data=KnowledgeGraphVO(knowledgeBaseId=820260501000000010, nodes=[Know (truncated)...]
+2026-05-01T15:33:22.756+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-8] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2026-05-01T15:38:56.745+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] o.s.web.servlet.DispatcherServlet        : POST "/login", parameters={}
+2026-05-01T15:38:56.745+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.example.dln.controller.UserController#login(LoginDTO)
+2026-05-01T15:38:56.745+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [LoginDTO(username=demo_link, password=123456)]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@51facd9b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1597848020 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_user WHERE username = ?
+==> Parameters: demo_link(String)
+<==    Columns: id, username, email, password, nickname, avatar_url, status, is_admin, created_time, updated_time
+<==        Row: 820260501000000001, demo_link, demo_link@example.com, $2a$10$jCOJPfYDLSxYCRV4RLvK8OIa6Sj6LGDnj4mcbTwGv2mmxCgNJ4qom, 双链演示用户, null, 1, 0, 2026-05-01 10:00:00, 2026-05-01 10:00:00
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@51facd9b]
+2026-05-01T15:38:56.835+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-05-01T15:38:56.835+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] m.m.a.RequestResponseBodyMethodProcessor : Writing [Result(code=200, message=登录成功, data=LoginVO(id=820260501000000001, username=demo_link, email=demo_li (truncated)...]
+2026-05-01T15:38:56.845+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-7] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+2026-05-01T15:38:56.895+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-9] o.s.web.servlet.DispatcherServlet        : GET "/knowledgeBases/820260501000000010/graph", parameters={}
+2026-05-01T15:38:56.895+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.example.dln.controller.KnowledgeBaseController#getKnowledgeGraph(Long, Long)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@416a39f1] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1336790956 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_knowledge_base WHERE id = ?
+==> Parameters: 820260501000000010(Long)
+<==    Columns: id, user_id, name, description, status, delete_token, deleted_time, created_time, updated_time
+<==        Row: 820260501000000010, 820260501000000001, 答辩演示知识库, 通过登录认证模块说明双链在项目功能和技术知识之间的连接作用。, 1, 0, null, 2026-05-01 10:00:00, 2026-05-01 10:00:00
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@416a39f1]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@e90c597] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@505790469 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_note WHERE user_id = ? AND knowledge_base_id = ? AND status = 1 AND delete_token = 0 ORDER BY title ASC
+==> Parameters: 820260501000000001(Long), 820260501000000010(Long)
+<==    Columns: id, user_id, knowledge_base_id, folder_id, title, status, delete_token, deleted_time, created_time, updated_time
+<==        Row: 820260501000000106, 820260501000000001, 820260501000000010, 820260501000000020, BCrypt密码加密, 1, 0, null, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000107, 820260501000000001, 820260501000000010, 820260501000000020, JwtInterceptor拦截器, 1, 0, null, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000103, 820260501000000001, 820260501000000010, 820260501000000020, JWT身份认证, 1, 0, null, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000104, 820260501000000001, 820260501000000010, 820260501000000020, MyBatis-Plus, 1, 0, null, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000102, 820260501000000001, 820260501000000010, 820260501000000020, Spring Security, 1, 0, null, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000112, 820260501000000001, 820260501000000010, 820260501000000020, t_note_link双链关系表, 1, 0, null, 2026-05-01 10:12:00, 2026-05-01 10:12:00
+<==        Row: 820260501000000113, 820260501000000001, 820260501000000010, 820260501000000020, Vditor编辑器, 1, 0, null, 2026-05-01 10:13:00, 2026-05-01 10:13:00
+<==        Row: 820260501000000109, 820260501000000001, 820260501000000010, 820260501000000020, 个人双链笔记系统总览, 1, 0, null, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000111, 820260501000000001, 820260501000000010, 820260501000000020, 双链解析机制, 1, 0, null, 2026-05-01 10:11:00, 2026-05-01 10:11:00
+<==        Row: 820260501000000105, 820260501000000001, 820260501000000010, 820260501000000020, 用户表t_user, 1, 0, null, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000101, 820260501000000001, 820260501000000010, 820260501000000020, 登录认证模块, 1, 0, null, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000108, 820260501000000001, 820260501000000010, 820260501000000020, 知识图谱展示, 1, 0, null, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000110, 820260501000000001, 820260501000000010, 820260501000000020, 笔记编辑模块, 1, 0, null, 2026-05-01 10:10:00, 2026-05-01 10:10:00
+<==      Total: 13
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@e90c597]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@38f54c21] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2011593726 wrapping com.mysql.cj.jdbc.ConnectionImpl@702096ef] will not be managed by Spring
+==>  Preparing: SELECT * FROM t_note_link WHERE knowledge_base_id = ?
+==> Parameters: 820260501000000010(Long)
+<==    Columns: id, knowledge_base_id, source_note_id, target_note_id, target_note_name, anchor_text, context_snippet, is_broken, created_time, updated_time
+<==        Row: 820260501000000401, 820260501000000010, 820260501000000101, 820260501000000102, Spring Security, Spring Security, 后端基于[[Spring Security]]做安全处理, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000402, 820260501000000010, 820260501000000101, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 使用[[MyBatis-Plus]]查询[[用户表t_user]]中的账号数据, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000403, 820260501000000010, 820260501000000101, 820260501000000105, 用户表t_user, 用户表t_user, 查询[[用户表t_user]]中的账号数据, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000404, 820260501000000010, 820260501000000101, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 通过[[BCrypt密码加密]]校验密码是否正确, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000405, 820260501000000010, 820260501000000101, 820260501000000103, JWT身份认证, JWT身份认证, 系统生成[[JWT身份认证]]所需的Token, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000406, 820260501000000010, 820260501000000101, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, 经过[[JwtInterceptor拦截器]]完成身份校验, 0, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000407, 820260501000000010, 820260501000000101, null, Redis缓存, Redis缓存, 可以考虑加入[[Redis缓存]], 1, 2026-05-01 10:01:00, 2026-05-01 10:01:00
+<==        Row: 820260501000000408, 820260501000000010, 820260501000000102, 820260501000000101, 登录认证模块, 登录认证模块, 主要服务于[[登录认证模块]], 0, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000409, 820260501000000010, 820260501000000102, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 配合[[BCrypt密码加密]]保存密码摘要, 0, 2026-05-01 10:02:00, 2026-05-01 10:02:00
+<==        Row: 820260501000000410, 820260501000000010, 820260501000000103, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]负责生成Token, 0, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000411, 820260501000000010, 820260501000000103, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, [[JwtInterceptor拦截器]]负责解析和校验Token, 0, 2026-05-01 10:03:00, 2026-05-01 10:03:00
+<==        Row: 820260501000000412, 820260501000000010, 820260501000000104, 820260501000000101, 登录认证模块, 登录认证模块, 本系统在[[登录认证模块]]中需要根据用户名查询用户信息, 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000413, 820260501000000010, 820260501000000104, 820260501000000105, 用户表t_user, 用户表t_user, 这一过程会访问[[用户表t_user]], 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000414, 820260501000000010, 820260501000000104, 820260501000000102, Spring Security, Spring Security, 更方便和[[Spring Security]]相关业务逻辑配合, 0, 2026-05-01 10:04:00, 2026-05-01 10:04:00
+<==        Row: 820260501000000415, 820260501000000010, 820260501000000105, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]会根据用户名读取这张表, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000416, 820260501000000010, 820260501000000105, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 交给[[BCrypt密码加密]]相关逻辑进行校验, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000417, 820260501000000010, 820260501000000105, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 数据库访问部分由[[MyBatis-Plus]]完成, 0, 2026-05-01 10:05:00, 2026-05-01 10:05:00
+<==        Row: 820260501000000418, 820260501000000010, 820260501000000106, 820260501000000105, 用户表t_user, 用户表t_user, 保存到[[用户表t_user]], 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000419, 820260501000000010, 820260501000000106, 820260501000000101, 登录认证模块, 登录认证模块, [[登录认证模块]]会把输入密码和数据库中的密码摘要进行匹配, 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000420, 820260501000000010, 820260501000000106, 820260501000000102, Spring Security, Spring Security, 和[[Spring Security]]配合使用, 0, 2026-05-01 10:06:00, 2026-05-01 10:06:00
+<==        Row: 820260501000000421, 820260501000000010, 820260501000000107, 820260501000000103, JWT身份认证, JWT身份认证, 解析[[JWT身份认证]]生成的Token, 0, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000422, 820260501000000010, 820260501000000107, 820260501000000101, 登录认证模块, 登录认证模块, 它和[[登录认证模块]]是一前一后的关系, 0, 2026-05-01 10:07:00, 2026-05-01 10:07:00
+<==        Row: 820260501000000423, 820260501000000010, 820260501000000108, 820260501000000101, 登录认证模块, 登录认证模块, 以[[登录认证模块]]为例, 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000424, 820260501000000010, 820260501000000108, 820260501000000102, Spring Security, Spring Security, 连接到[[Spring Security]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000425, 820260501000000010, 820260501000000108, 820260501000000103, JWT身份认证, JWT身份认证, 连接到[[JWT身份认证]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000426, 820260501000000010, 820260501000000108, 820260501000000104, MyBatis-Plus, MyBatis-Plus, 连接到[[MyBatis-Plus]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000427, 820260501000000010, 820260501000000108, 820260501000000105, 用户表t_user, 用户表t_user, 连接到[[用户表t_user]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000428, 820260501000000010, 820260501000000108, 820260501000000106, BCrypt密码加密, BCrypt密码加密, 连接到[[BCrypt密码加密]], 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000429, 820260501000000010, 820260501000000108, 820260501000000107, JwtInterceptor拦截器, JwtInterceptor拦截器, 连接到[[JwtInterceptor拦截器]]等节点, 0, 2026-05-01 10:08:00, 2026-05-01 10:08:00
+<==        Row: 820260501000000430, 820260501000000010, 820260501000000109, 820260501000000110, 笔记编辑模块, 笔记编辑模块, 核心流程包括[[笔记编辑模块]], 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000431, 820260501000000010, 820260501000000109, 820260501000000111, 双链解析机制, 双链解析机制, 核心流程包括[[笔记编辑模块]]、[[双链解析机制]], 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000432, 820260501000000010, 820260501000000109, 820260501000000108, 知识图谱展示, 知识图谱展示, 核心流程包括[[笔记编辑模块]]、[[双链解析机制]]、[[知识图谱展示]], 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000433, 820260501000000010, 820260501000000109, 820260501000000101, 登录认证模块, 登录认证模块, 核心流程包括[[笔记编辑模块]]、[[双链解析机制]]、[[知识图谱展示]]和[[登录认证模块]], 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000434, 820260501000000010, 820260501000000109, 820260501000000113, Vditor编辑器, Vditor编辑器, 可以通过[[Vditor编辑器]]输入Markdown内容, 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000435, 820260501000000010, 820260501000000109, 820260501000000112, t_note_link双链关系表, t_note_link双链关系表, 保存到[[t_note_link双链关系表]], 0, 2026-05-01 10:09:00, 2026-05-01 10:09:00
+<==        Row: 820260501000000436, 820260501000000010, 820260501000000110, 820260501000000113, Vditor编辑器, Vditor编辑器, 正文编辑使用[[Vditor编辑器]]完成, 0, 2026-05-01 10:10:00, 2026-05-01 10:10:00
+<==        Row: 820260501000000437, 820260501000000010, 820260501000000110, 820260501000000111, 双链解析机制, 双链解析机制, 保存时会触发[[双链解析机制]], 0, 2026-05-01 10:10:00, 2026-05-01 10:10:00
+<==        Row: 820260501000000438, 820260501000000010, 820260501000000110, 820260501000000112, t_note_link双链关系表, t_note_link双链关系表, 并把结果写入[[t_note_link双链关系表]], 0, 2026-05-01 10:10:00, 2026-05-01 10:10:00
+<==        Row: 820260501000000439, 820260501000000010, 820260501000000110, 820260501000000108, 知识图谱展示, 知识图谱展示, 这个模块和[[知识图谱展示]]也有关, 0, 2026-05-01 10:10:00, 2026-05-01 10:10:00
+<==        Row: 820260501000000440, 820260501000000010, 820260501000000111, 820260501000000110, 笔记编辑模块, 笔记编辑模块, 当[[笔记编辑模块]]保存正文后, 0, 2026-05-01 10:11:00, 2026-05-01 10:11:00
+<==        Row: 820260501000000441, 820260501000000010, 820260501000000111, 820260501000000112, t_note_link双链关系表, t_note_link双链关系表, 最后把源笔记、目标笔记和失效状态写入[[t_note_link双链关系表]], 0, 2026-05-01 10:11:00, 2026-05-01 10:11:00
+<==        Row: 820260501000000442, 820260501000000010, 820260501000000111, 820260501000000108, 知识图谱展示, 知识图谱展示, 后续[[知识图谱展示]]只展示有效边, 0, 2026-05-01 10:11:00, 2026-05-01 10:11:00
+<==        Row: 820260501000000443, 820260501000000010, 820260501000000112, 820260501000000111, 双链解析机制, 双链解析机制, [[双链解析机制]]会向这张表写入数据, 0, 2026-05-01 10:12:00, 2026-05-01 10:12:00
+<==        Row: 820260501000000444, 820260501000000010, 820260501000000112, 820260501000000108, 知识图谱展示, 知识图谱展示, [[知识图谱展示]]会读取这张表生成图谱边, 0, 2026-05-01 10:12:00, 2026-05-01 10:12:00
+<==        Row: 820260501000000445, 820260501000000010, 820260501000000113, 820260501000000110, 笔记编辑模块, 笔记编辑模块, 用户通过[[笔记编辑模块]]使用Vditor编辑器编写内容, 0, 2026-05-01 10:13:00, 2026-05-01 10:13:00
+<==        Row: 820260501000000446, 820260501000000010, 820260501000000113, 820260501000000111, 双链解析机制, 双链解析机制, 触发[[双链解析机制]], 0, 2026-05-01 10:13:00, 2026-05-01 10:13:00
+<==      Total: 46
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@38f54c21]
+2026-05-01T15:38:56.945+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-9] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2026-05-01T15:38:56.945+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-9] m.m.a.RequestResponseBodyMethodProcessor : Writing [Result(code=200, message=操作成功, data=KnowledgeGraphVO(knowledgeBaseId=820260501000000010, nodes=[Know (truncated)...]
+2026-05-01T15:38:56.945+08:00 DEBUG 15592 --- [DLN] [nio-8080-exec-9] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10:33 min
+[INFO] Finished at: 2026-05-01T15:42:23+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.11:run (default-cli) on project DLN: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

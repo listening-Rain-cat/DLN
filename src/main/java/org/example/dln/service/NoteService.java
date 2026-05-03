@@ -74,6 +74,9 @@ public class NoteService {
     @Autowired
     private NoteTemplateService noteTemplateService;
 
+    @Autowired
+    private NoteLinkCandidateCacheService noteLinkCandidateCacheService;
+
     /**
     * 创建笔记。
      * @param userId 用户ID
@@ -142,14 +145,14 @@ public class NoteService {
     public List<NoteLinkCandidateVO> listLinkCandidates(Long userId, Long noteId, String keyword) {
         Note note = getNoteOrThrow(userId, noteId);
         String normalizedKeyword = keyword == null ? "" : keyword.trim().toLowerCase();
-        List<Note> notes = noteMapper.selectActiveByUserIdAndKnowledgeBaseIdOrderByTitleAsc(
+        List<NoteLinkCandidateVO> candidates = noteLinkCandidateCacheService.listKnowledgeBaseCandidates(
                 userId,
                 note.getKnowledgeBaseId()
         );
 
         List<NoteLinkCandidateVO> result = new ArrayList<>();
-        for (Note item : notes) {
-            String title = item.getTitle();
+        for (NoteLinkCandidateVO candidate : candidates) {
+            String title = candidate.getTitle();
             if (title == null || title.isBlank()) {
                 continue;
             }
@@ -158,10 +161,6 @@ public class NoteService {
                 continue;
             }
 
-            NoteLinkCandidateVO candidate = new NoteLinkCandidateVO();
-            candidate.setNoteId(LongStringUtils.toStringValue(item.getId()));
-            candidate.setFolderId(LongStringUtils.toStringValue(item.getFolderId()));
-            candidate.setTitle(title);
             result.add(candidate);
 
             if (result.size() >= LINK_CANDIDATE_LIMIT) {

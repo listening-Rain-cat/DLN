@@ -1866,9 +1866,12 @@ async function openLinkPreview(title: string, rect: DOMRect) {
 
     linkPreviewCache.set(normalizedTitle, previewData)
     linkPreviewState.data = previewData
+    linkPreviewState.loading = false
     if (previewData && !previewData.isBroken) {
       await nextTick()
-      await renderLinkPreviewContent()
+      if (requestId === linkPreviewRequestId && linkPreviewState.title === normalizedTitle) {
+        await renderLinkPreviewContent()
+      }
     }
   } catch {
     if (requestId !== linkPreviewRequestId) {
@@ -1876,10 +1879,7 @@ async function openLinkPreview(title: string, rect: DOMRect) {
     }
 
     linkPreviewState.data = null
-  } finally {
-    if (requestId === linkPreviewRequestId) {
-      linkPreviewState.loading = false
-    }
+    linkPreviewState.loading = false
   }
 }
 

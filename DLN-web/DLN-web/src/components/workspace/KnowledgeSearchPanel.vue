@@ -41,7 +41,6 @@ const dateTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
 const scopeOptions: Array<{ value: SearchScope; label: string }> = [
   { value: 'all', label: '综合' },
   { value: 'title', label: '标题' },
-  { value: 'content', label: '正文' },
   { value: 'tag', label: '标签' },
 ]
 

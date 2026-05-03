@@ -1,5 +1,6 @@
 package org.example.dln.service;
 
+import org.example.dln.config.CacheNames;
 import org.example.dln.dto.CreateFolderDTO;
 import org.example.dln.dto.CreateKnowledgeBaseDTO;
 import org.example.dln.dto.UpdateFolderDTO;
@@ -29,6 +30,7 @@ import org.example.dln.vo.TagVO;
 import org.example.dln.vo.TreeNodeVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +74,9 @@ public class KnowledgeBaseService {
 
     @Autowired
     private TagMapper tagMapper;
+
+    @Autowired
+    private CacheInvalidationService cacheInvalidationService;
 
     /**
     * 创建知识库。
@@ -167,6 +172,7 @@ public class KnowledgeBaseService {
         if (knowledgeBaseMapper.updateById(knowledgeBase) <= 0) {
             throw new BusinessException("删除知识库失败");
         }
+        cacheInvalidationService.evictKnowledgeBaseCaches(userId, knowledgeBaseId);
     }
 
     /**
@@ -174,6 +180,7 @@ public class KnowledgeBaseService {
      * @param userId 用户ID
      * @param knowledgeBaseId 知识库ID
     */
+    @Cacheable(cacheNames = CacheNames.KNOWLEDGE_BASE_TREE, key = "#userId + ':' + #knowledgeBaseId", sync = true)
     public List<TreeNodeVO> getKnowledgeBaseTree(Long userId, Long knowledgeBaseId) {
         getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
         //获取知识库下的文件夹和笔记
@@ -239,6 +246,7 @@ public class KnowledgeBaseService {
      * @param userId 用户ID
      * @param knowledgeBaseId 知识库ID
     */
+    @Cacheable(cacheNames = CacheNames.KNOWLEDGE_GRAPH, key = "#userId + ':' + #knowledgeBaseId", sync = true)
     public KnowledgeGraphVO getKnowledgeGraph(Long userId, Long knowledgeBaseId) {
         //判存在和合法性
         getKnowledgeBaseOrThrow(userId, knowledgeBaseId);
@@ -540,6 +548,10 @@ public class KnowledgeBaseService {
         }
         if (knowledgeBaseMapper.touchUpdatedTime(knowledgeBaseId) <= 0) {
             throw new BusinessException("更新知识库更新时间失败");
+        }
+        KnowledgeBase knowledgeBase = knowledgeBaseMapper.selectByKnowledgeBaseId(knowledgeBaseId);
+        if (knowledgeBase != null) {
+            cacheInvalidationService.evictKnowledgeBaseCaches(knowledgeBase.getUserId(), knowledgeBaseId);
         }
     }
 

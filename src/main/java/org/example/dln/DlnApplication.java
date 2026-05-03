@@ -1,9 +1,9 @@
 package org.example.dln;
 
-import org.example.dln.entity.User;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * 包名：org.example.dln
@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 创建人：@author Rain_润
  */
 @SpringBootApplication
+@EnableCaching
 @MapperScan("org.example.dln.mapper")
 public class DlnApplication {
 
