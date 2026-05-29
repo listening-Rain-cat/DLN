@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import org.example.dln.entity.NoteAttachment;
 import org.example.dln.exception.BusinessException;
 import org.example.dln.service.AttachmentService;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,7 +51,7 @@ public class AttachmentController {
     public Result<NoteAttachmentVO> uploadAttachment(@PathVariable Long noteId,
                                                      @RequestParam("file") MultipartFile file,
                                                      @RequestParam(value = "fileType", required = false) String fileType,
-                                                     @RequestAttribute("userId") Long userId) {
+                                                     @CurrentUserId Long userId) {
         return Result.success("上传附件成功", attachmentService.uploadAttachment(userId, noteId, file, fileType));
     }
 
@@ -66,7 +66,7 @@ public class AttachmentController {
     public VditorUploadResponseVO uploadVditorImages(@PathVariable Long noteId,
                                                      @RequestParam(value = "file[]", required = false) MultipartFile[] files,
                                                      @RequestParam(value = "file", required = false) MultipartFile singleFile,
-                                                     @RequestAttribute("userId") Long userId) {
+                                                     @CurrentUserId Long userId) {
         VditorUploadResponseVO response = new VditorUploadResponseVO();
         List<MultipartFile> uploadFiles = new ArrayList<>();
 
@@ -126,7 +126,7 @@ public class AttachmentController {
     */
     @GetMapping("/notes/{noteId}/attachments")
     public Result<List<NoteAttachmentVO>> listNoteAttachments(@PathVariable Long noteId,
-                                                              @RequestAttribute("userId") Long userId) {
+                                                              @CurrentUserId Long userId) {
         return Result.success(attachmentService.listNoteAttachments(userId, noteId));
     }
 
@@ -137,7 +137,7 @@ public class AttachmentController {
     */
     @DeleteMapping("/attachments/{attachmentId}")
     public Result<Void> deleteAttachment(@PathVariable Long attachmentId,
-                                         @RequestAttribute("userId") Long userId) {
+                                         @CurrentUserId Long userId) {
         attachmentService.deleteAttachment(userId, attachmentId);
         return Result.success("删除附件成功", null);
     }
@@ -149,7 +149,7 @@ public class AttachmentController {
     */
     @GetMapping("/attachments/{attachmentId}/download")
     public ResponseEntity<Resource> downloadAttachment(@PathVariable Long attachmentId,
-                                                       @RequestAttribute("userId") Long userId) {
+                                                       @CurrentUserId Long userId) {
         NoteAttachment attachment = attachmentService.getAttachmentForDownload(userId, attachmentId);
         Resource resource = attachmentService.loadAsResource(attachment);
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;

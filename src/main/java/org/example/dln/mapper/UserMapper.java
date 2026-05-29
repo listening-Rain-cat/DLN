@@ -9,7 +9,7 @@ import org.example.dln.entity.User;
 /**
  * 包名：org.example.dln.mapper
  * 类名：UserMapper
- * 类描述：提供用户数据访问操作。
+ * 类描述：提供用户数据访问操作。全部注解一律使用文本块
  * 创建人：@author Rain_润
  */
 @Mapper
@@ -24,6 +24,7 @@ public interface UserMapper extends BaseMapper<User> {
             WHERE id = #{userId}
             """)
     User selectByUserId(@Param("userId") Long userId);
+
 
     /**
     * 根据用户名查询用户。

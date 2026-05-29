@@ -85,6 +85,7 @@ public class KnowledgeBaseService {
     */
     public KnowledgeBaseVO createKnowledgeBase(Long userId, CreateKnowledgeBaseDTO dto) {
         String name = dto.getName().trim();
+        //先业务层检验一遍唯一性
         checkKnowledgeBaseNameExists(userId, name, null);
         KnowledgeBase knowledgeBase = new KnowledgeBase();
         knowledgeBase.setUserId(userId);

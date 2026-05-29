@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class UserService {
 
     @Autowired
     private UserSettingsService userSettingsService;
-
+    // 头像上传目录
     @Value("${app.avatar.upload-dir:uploads/avatars}")
     private String avatarUploadDir;
 
@@ -78,7 +79,6 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setEmail(email);
         user.setNickname(nickname);
-        //TODO 要不要管理员？
         user.setStatus(1);
 
         if (userMapper.insert(user) <= 0) {
@@ -93,7 +93,7 @@ public class UserService {
      * @param loginDTO 登录请求参数
     */
     public LoginVO login(LoginDTO loginDTO) {
-        String username = loginDTO.getUsername().trim();
+        String username = loginDTO.getUsername();
         User user = userMapper.selectByUsername(username);
         if (user == null || !passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
             throw new BusinessException("用户名或密码错误");
@@ -101,7 +101,6 @@ public class UserService {
         if (user.getStatus() == null || user.getStatus() != 1) {
             throw new BusinessException("账号已被禁用");
         }
-
         LoginVO loginVO = new LoginVO();
         //所有实体类拷贝到VO视图对象中，long因前端数字精度问题，所有数字全部单独处理
         BeanUtils.copyProperties(user, loginVO);
@@ -161,7 +160,9 @@ public class UserService {
             case "image/webp" -> ".webp";
             default -> throw new BusinessException("仅支持 jpg、png、gif、webp 格式的头像图片");
         };
+        //文件名最后为UUID+文件格式
         String fileName = UUID.randomUUID() + extension;
+        //构建绝对路径，保证路径规范化
         Path absolutePath = Paths.get(avatarUploadDir)
                 .toAbsolutePath()
                 .normalize()
@@ -177,7 +178,7 @@ public class UserService {
         }
 
         user.setAvatarUrl("/avatars/" + fileName);
-
+        //如果数据库没有更新成功，则删除本地上传的文件
         try {
             if (userMapper.updateById(user) <= 0) {
                 try {
@@ -208,8 +209,8 @@ public class UserService {
             throw new BusinessException("用户不存在");
         }
 
-        boolean hasOldPassword = hasText(updateUserDTO.getOldPassword());
-        boolean hasNewPassword = hasText(updateUserDTO.getNewPassword());
+        boolean hasOldPassword = StringUtils.hasText(updateUserDTO.getOldPassword());
+        boolean hasNewPassword = StringUtils.hasText(updateUserDTO.getNewPassword());
         //TODO 做邮箱认证后再改密码
         if (hasOldPassword != hasNewPassword) {
             throw new BusinessException("修改密码时必须同时填写旧密码和新密码");
@@ -225,7 +226,7 @@ public class UserService {
             }
             user.setPassword(passwordEncoder.encode(newPassword));
         }
-
+        //业务层验证邮箱唯一性
         String email = updateUserDTO.getEmail().trim();
         User existingEmail = userMapper.selectByEmail(email);
         if (existingEmail != null && !existingEmail.getId().equals(userId)) {
@@ -234,19 +235,10 @@ public class UserService {
 
         user.setNickname(updateUserDTO.getNickname().trim());
         user.setEmail(email);
-        user.setAvatarUrl(hasText(updateUserDTO.getAvatarUrl()) ? updateUserDTO.getAvatarUrl().trim() : null);
+        user.setAvatarUrl(StringUtils.hasText(updateUserDTO.getAvatarUrl()) ? updateUserDTO.getAvatarUrl().trim() : null);
 
         if (userMapper.updateById(user) <= 0) {
             throw new BusinessException("更新失败，请稍后重试");
         }
-    }
-
-
-    /**
-    * 判断字符串是否包含有效文本。
-     * @param value 待处理的值
-    */
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 }

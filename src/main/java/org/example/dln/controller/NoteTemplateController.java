@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import jakarta.validation.Valid;
 import org.example.dln.dto.CreateNoteTemplateDTO;
 import org.example.dln.dto.UpdateNoteTemplateDTO;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +36,7 @@ public class NoteTemplateController {
      * @param userId 用户ID
     */
     @GetMapping
-    public Result<List<NoteTemplateVO>> listTemplates(@RequestAttribute("userId") Long userId) {
+    public Result<List<NoteTemplateVO>> listTemplates(@CurrentUserId Long userId) {
         return Result.success(noteTemplateService.listTemplates(userId));
     }
 
@@ -47,7 +47,7 @@ public class NoteTemplateController {
     */
     @PostMapping
     public Result<NoteTemplateVO> createTemplate(@Valid @RequestBody CreateNoteTemplateDTO dto,
-                                                 @RequestAttribute("userId") Long userId) {
+                                                 @CurrentUserId Long userId) {
         return Result.success("创建模板成功", noteTemplateService.createTemplate(userId, dto));
     }
 
@@ -60,7 +60,7 @@ public class NoteTemplateController {
     @PutMapping("/{templateId}")
     public Result<NoteTemplateVO> updateTemplate(@PathVariable Long templateId,
                                                  @Valid @RequestBody UpdateNoteTemplateDTO dto,
-                                                 @RequestAttribute("userId") Long userId) {
+                                                 @CurrentUserId Long userId) {
         return Result.success("更新模板成功", noteTemplateService.updateTemplate(userId, templateId, dto));
     }
 
@@ -71,7 +71,7 @@ public class NoteTemplateController {
     */
     @DeleteMapping("/{templateId}")
     public Result<Void> deleteTemplate(@PathVariable Long templateId,
-                                       @RequestAttribute("userId") Long userId) {
+                                       @CurrentUserId Long userId) {
         noteTemplateService.deleteTemplate(userId, templateId);
         return Result.success("删除模板成功", null);
     }

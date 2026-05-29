@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import jakarta.validation.Valid;
 import org.example.dln.dto.CreateTagDTO;
 import org.example.dln.dto.SetNoteTagsDTO;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +40,7 @@ public class TagController {
     @PostMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<TagVO> createTag(@PathVariable Long knowledgeBaseId,
                                    @Valid @RequestBody CreateTagDTO dto,
-                                   @RequestAttribute("userId") Long userId) {
+                                   @CurrentUserId Long userId) {
         return Result.success("创建标签成功", tagService.createTag(userId, knowledgeBaseId, dto));
     }
 
@@ -51,7 +51,7 @@ public class TagController {
     */
     @GetMapping("/knowledgeBases/{knowledgeBaseId}/tags")
     public Result<List<TagVO>> listKnowledgeBaseTags(@PathVariable Long knowledgeBaseId,
-                                                     @RequestAttribute("userId") Long userId) {
+                                                     @CurrentUserId Long userId) {
         return Result.success(tagService.listKnowledgeBaseTags(userId, knowledgeBaseId));
     }
 
@@ -62,7 +62,7 @@ public class TagController {
     */
     @DeleteMapping("/tags/{tagId}")
     public Result<Void> deleteTag(@PathVariable Long tagId,
-                                  @RequestAttribute("userId") Long userId) {
+                                  @CurrentUserId Long userId) {
         tagService.deleteTag(userId, tagId);
         return Result.success("删除标签成功", null);
     }
@@ -74,7 +74,7 @@ public class TagController {
     */
     @GetMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> listNoteTags(@PathVariable Long noteId,
-                                            @RequestAttribute("userId") Long userId) {
+                                            @CurrentUserId Long userId) {
         return Result.success(tagService.listNoteTags(userId, noteId));
     }
 
@@ -87,7 +87,7 @@ public class TagController {
     @PutMapping("/notes/{noteId}/tags")
     public Result<List<TagVO>> setNoteTags(@PathVariable Long noteId,
                                            @RequestBody SetNoteTagsDTO dto,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         return Result.success("设置笔记标签成功", tagService.setNoteTags(userId, noteId, dto.getTagIds()));
     }
 }

@@ -15,27 +15,21 @@ import java.util.Date;
  * 创建人：@author Rain_润
  */
 public class JwtUtil {
-    /**
-     * JWT由三部分组成：
-     * Header（头部）：算法和类型
-     * Payload（载荷）：即 Claims，存储实际数据
-     * Signature（签名）：验证完整性
-     */
+
 
     //密钥必须至少256位
     private static final String SECRET_KEY = "Rain_Run_Secret_Key_For_JWT_Token_Generation_And_Verification_Must_Be_Long_Enough";
     private static final long EXPIRE_TIME = 1000 * 60 * 60 * 24;
 
-    //生成签名密钥
     /**
     * 获取 JWT 签名密钥。
     */
     private static SecretKey getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes();
+        //创建密钥，用于生成签名
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    //生成
     /**
     * 生成 JWT 令牌。
      * @param userId 用户ID
@@ -51,11 +45,14 @@ public class JwtUtil {
                 .compact();
     }
 
-    //解析
     /**
     * 解析 JWT 令牌。
+     * JWT由三部分组成：
+     * Header（头部）：算法和类型
+     * Payload（载荷）：即 Claims，存储实际数据
+     * Signature（签名）：验证完整性
      * @param token JWT令牌
-    */
+     */
     public static Claims parseToken(String token) {
         try {
             return Jwts.parser()
@@ -70,7 +67,6 @@ public class JwtUtil {
         }
     }
 
-    //验证有效性
     /**
     * 校验 JWT 令牌是否有效。
      * @param token JWT令牌
@@ -85,7 +81,6 @@ public class JwtUtil {
         }
     }
 
-    //拿用户ID和用户名
     /**
     * 从 JWT 令牌中提取用户 ID。
      * @param token JWT令牌
@@ -94,6 +89,7 @@ public class JwtUtil {
         Claims claims = parseToken(token);
         String id = claims.getId();
         try {
+            //Long下的转化方法可能会有格式转换错误
             return Long.parseLong(id);
         } catch (NumberFormatException e) {
             throw new RuntimeException("用户 ID 格式错误", e);

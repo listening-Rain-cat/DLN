@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import jakarta.validation.Valid;
 import org.example.dln.dto.CreateFolderDTO;
 import org.example.dln.dto.CreateKnowledgeBaseDTO;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,7 +44,7 @@ public class KnowledgeBaseController {
      */
     @PostMapping
     public Result<KnowledgeBaseVO> createKnowledgeBase(@Valid @RequestBody CreateKnowledgeBaseDTO dto,
-                                                       @RequestAttribute("userId") Long userId) {
+                                                       @CurrentUserId Long userId) {
         return Result.success("创建知识库成功", knowledgeBaseService.createKnowledgeBase(userId, dto));
     }
 
@@ -53,7 +53,7 @@ public class KnowledgeBaseController {
      * @param userId 用户ID
      */
     @GetMapping
-    public Result<List<KnowledgeBaseVO>> listKnowledgeBases(@RequestAttribute("userId") Long userId) {
+    public Result<List<KnowledgeBaseVO>> listKnowledgeBases(@CurrentUserId Long userId) {
         return Result.success(knowledgeBaseService.listKnowledgeBases(userId));
     }
 
@@ -66,7 +66,7 @@ public class KnowledgeBaseController {
     @PutMapping("/{knowledgeBaseId}")
     public Result<KnowledgeBaseVO> updateKnowledgeBase(@PathVariable Long knowledgeBaseId,
                                                        @Valid @RequestBody UpdateKnowledgeBaseDTO dto,
-                                                       @RequestAttribute("userId") Long userId) {
+                                                       @CurrentUserId Long userId) {
         return Result.success("更新知识库成功",
                 knowledgeBaseService.updateKnowledgeBase(userId, knowledgeBaseId, dto));
     }
@@ -78,7 +78,7 @@ public class KnowledgeBaseController {
      */
     @DeleteMapping("/{knowledgeBaseId}")
     public Result<Void> deleteKnowledgeBase(@PathVariable Long knowledgeBaseId,
-                                            @RequestAttribute("userId") Long userId) {
+                                            @CurrentUserId Long userId) {
         knowledgeBaseService.deleteKnowledgeBase(userId, knowledgeBaseId);
         return Result.success("删除知识库成功", null);
     }
@@ -90,7 +90,7 @@ public class KnowledgeBaseController {
      */
     @GetMapping("/{knowledgeBaseId}/tree")
     public Result<List<TreeNodeVO>> getKnowledgeBaseTree(@PathVariable Long knowledgeBaseId,
-                                                         @RequestAttribute("userId") Long userId) {
+                                                         @CurrentUserId Long userId) {
         return Result.success(knowledgeBaseService.getKnowledgeBaseTree(userId, knowledgeBaseId));
     }
 
@@ -101,7 +101,7 @@ public class KnowledgeBaseController {
      */
     @GetMapping("/{knowledgeBaseId}/graph")
     public Result<KnowledgeGraphVO> getKnowledgeGraph(@PathVariable Long knowledgeBaseId,
-                                                      @RequestAttribute("userId") Long userId) {
+                                                      @CurrentUserId Long userId) {
         return Result.success(knowledgeBaseService.getKnowledgeGraph(userId, knowledgeBaseId));
     }
 
@@ -120,7 +120,7 @@ public class KnowledgeBaseController {
                                                         @RequestParam(required = false, defaultValue = "all") String scope,
                                                         @RequestParam(required = false) Long folderId,
                                                         @RequestParam(required = false) List<Long> tagIds,
-                                                        @RequestAttribute("userId") Long userId) {
+                                                        @CurrentUserId Long userId) {
         return Result.success(
                 knowledgeBaseService.searchNotes(userId, knowledgeBaseId, keyword, scope, folderId, tagIds)
         );
@@ -133,7 +133,7 @@ public class KnowledgeBaseController {
      */
     @PostMapping("/folders")
     public Result<TreeNodeVO> createFolder(@Valid @RequestBody CreateFolderDTO dto,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         return Result.success("创建文件夹成功", knowledgeBaseService.createFolder(userId, dto));
     }
 
@@ -146,7 +146,7 @@ public class KnowledgeBaseController {
     @PutMapping("/folders/{folderId}")
     public Result<TreeNodeVO> updateFolder(@PathVariable Long folderId,
                                            @Valid @RequestBody UpdateFolderDTO dto,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         return Result.success("更新文件夹成功", knowledgeBaseService.updateFolder(userId, folderId, dto));
     }
 
@@ -157,7 +157,7 @@ public class KnowledgeBaseController {
      */
     @DeleteMapping("/folders/{folderId}")
     public Result<Void> deleteFolder(@PathVariable Long folderId,
-                                     @RequestAttribute("userId") Long userId) {
+                                     @CurrentUserId Long userId) {
         knowledgeBaseService.deleteFolder(userId, folderId);
         return Result.success("删除文件夹成功", null);
     }

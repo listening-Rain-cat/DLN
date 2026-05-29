@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import org.example.dln.dto.LoginDTO;
 import org.example.dln.dto.RegisterDTO;
 import org.example.dln.dto.UpdateUserDTO;
@@ -16,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,7 +61,7 @@ public class UserController {
      * @param userId 用户ID
     */
     @GetMapping("/userInfo")
-    public Result<UserInfoVO> getUserInfo(@RequestAttribute("userId") Long userId) {
+    public Result<UserInfoVO> getUserInfo(@CurrentUserId Long userId) {
         UserInfoVO userInfo = userService.getUserInfo(userId);
         return Result.success(userInfo);
     }
@@ -71,7 +71,7 @@ public class UserController {
      * @param userId 用户ID
     */
     @GetMapping("/user/settings")
-    public Result<UserSettingsVO> getUserSettings(@RequestAttribute("userId") Long userId) {
+    public Result<UserSettingsVO> getUserSettings(@CurrentUserId Long userId) {
         UserSettingsVO userSettingsVO = userSettingsService.getUserSettings(userId);
         return Result.success(userSettingsVO);
     }
@@ -92,7 +92,7 @@ public class UserController {
     */
     @PutMapping("/user")
     public Result<Void> updateUser(@Validated @RequestBody UpdateUserDTO updateUserDTO,
-                                   @RequestAttribute("userId") Long userId) {
+                                   @CurrentUserId Long userId) {
         userService.updateUser(userId, updateUserDTO);
         return Result.success("用户信息更新成功", null);
     }
@@ -104,7 +104,7 @@ public class UserController {
     */
     @PutMapping("/user/settings")
     public Result<UserSettingsVO> updateUserSettings(@Validated @RequestBody UpdateUserSettingsDTO updateUserSettingsDTO,
-                                                     @RequestAttribute("userId") Long userId) {
+                                                     @CurrentUserId Long userId) {
         UserSettingsVO userSettingsVO = userSettingsService.updateUserSettings(userId, updateUserSettingsDTO);
         return Result.success("用户设置更新成功", userSettingsVO);
     }
@@ -116,7 +116,7 @@ public class UserController {
     */
     @PostMapping("/user/avatar")
     public Result<UserInfoVO> uploadAvatar(@RequestParam(value = "file") MultipartFile file,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         UserInfoVO userInfoVO = userService.uploadAvatar(userId, file);
         return Result.success("头像上传成功", userInfoVO);
     }

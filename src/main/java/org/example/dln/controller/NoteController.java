@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import jakarta.validation.Valid;
 import org.example.dln.dto.AutoSaveNoteContentDTO;
 import org.example.dln.dto.AutoSaveNoteTitleDTO;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +43,7 @@ public class NoteController {
     */
     @PostMapping
     public Result<NoteDetailVO> createNote(@Valid @RequestBody CreateNoteDTO dto,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         return Result.success("创建笔记成功", noteService.createNote(userId, dto));
     }
 
@@ -54,7 +54,7 @@ public class NoteController {
     */
     @GetMapping("/{noteId}")
     public Result<NoteDetailVO> getNoteDetail(@PathVariable Long noteId,
-                                              @RequestAttribute("userId") Long userId) {
+                                              @CurrentUserId Long userId) {
         return Result.success(noteService.getNoteDetail(userId, noteId));
     }
 
@@ -67,7 +67,7 @@ public class NoteController {
     @GetMapping("/{noteId}/links/candidates")
     public Result<List<NoteLinkCandidateVO>> listLinkCandidates(@PathVariable Long noteId,
                                                                 @RequestParam(required = false) String keyword,
-                                                                @RequestAttribute("userId") Long userId) {
+                                                                @CurrentUserId Long userId) {
         return Result.success(noteService.listLinkCandidates(userId, noteId, keyword));
     }
 
@@ -80,7 +80,7 @@ public class NoteController {
     @GetMapping("/{noteId}/links/preview")
     public Result<NoteLinkPreviewVO> getLinkPreview(@PathVariable Long noteId,
                                                     @RequestParam String title,
-                                                    @RequestAttribute("userId") Long userId) {
+                                                    @CurrentUserId Long userId) {
         return Result.success(noteService.getLinkPreview(userId, noteId, title));
     }
 
@@ -93,7 +93,7 @@ public class NoteController {
     @PutMapping("/{noteId}")
     public Result<NoteDetailVO> updateNote(@PathVariable Long noteId,
                                            @Valid @RequestBody UpdateNoteDTO dto,
-                                           @RequestAttribute("userId") Long userId) {
+                                           @CurrentUserId Long userId) {
         return Result.success("更新笔记成功", noteService.updateNote(userId, noteId, dto));
     }
 
@@ -106,7 +106,7 @@ public class NoteController {
     @PutMapping("/{noteId}/content/autosave")
     public Result<Void> autoSaveNoteContent(@PathVariable Long noteId,
                                             @RequestBody AutoSaveNoteContentDTO dto,
-                                            @RequestAttribute("userId") Long userId) {
+                                            @CurrentUserId Long userId) {
         noteService.autoSaveNoteContent(userId, noteId, dto);
         return Result.success("自动保存笔记正文成功", null);
     }
@@ -120,7 +120,7 @@ public class NoteController {
     @PutMapping("/{noteId}/title/autosave")
     public Result<Void> autoSaveNoteTitle(@PathVariable Long noteId,
                                           @RequestBody AutoSaveNoteTitleDTO dto,
-                                          @RequestAttribute("userId") Long userId) {
+                                          @CurrentUserId Long userId) {
         noteService.autoSaveNoteTitle(userId, noteId, dto);
         return Result.success("自动保存笔记标题成功", null);
     }
@@ -132,7 +132,7 @@ public class NoteController {
     */
     @DeleteMapping("/{noteId}")
     public Result<Void> deleteNote(@PathVariable Long noteId,
-                                   @RequestAttribute("userId") Long userId) {
+                                   @CurrentUserId Long userId) {
         noteService.deleteNote(userId, noteId);
         return Result.success("删除笔记成功", null);
     }

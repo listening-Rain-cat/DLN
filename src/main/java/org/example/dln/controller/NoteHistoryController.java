@@ -1,5 +1,6 @@
 package org.example.dln.controller;
 
+import org.example.dln.security.CurrentUserId;
 import org.example.dln.service.NoteHistoryService;
 import org.example.dln.vo.NoteDetailVO;
 import org.example.dln.vo.NoteHistoryDetailVO;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +29,7 @@ public class NoteHistoryController {
     */
     @GetMapping
     public Result<List<NoteHistoryVO>> listNoteHistories(@PathVariable Long noteId,
-                                                         @RequestAttribute("userId") Long userId) {
+                                                         @CurrentUserId Long userId) {
         return Result.success(noteHistoryService.listNoteHistories(userId, noteId));
     }
 
@@ -42,7 +42,7 @@ public class NoteHistoryController {
     @GetMapping("/{historyId}")
     public Result<NoteHistoryDetailVO> getNoteHistoryDetail(@PathVariable Long noteId,
                                                             @PathVariable Long historyId,
-                                                            @RequestAttribute("userId") Long userId) {
+                                                            @CurrentUserId Long userId) {
         return Result.success(noteHistoryService.getNoteHistoryDetail(userId, noteId, historyId));
     }
 
@@ -53,7 +53,7 @@ public class NoteHistoryController {
     */
     @PostMapping("/snapshot")
     public Result<NoteHistoryVO> createHistorySnapshot(@PathVariable Long noteId,
-                                                       @RequestAttribute("userId") Long userId) {
+                                                       @CurrentUserId Long userId) {
         return Result.success("创建历史版本成功", noteHistoryService.createHistorySnapshot(userId, noteId));
     }
 
@@ -66,7 +66,7 @@ public class NoteHistoryController {
     @PostMapping("/{historyId}/restore")
     public Result<NoteDetailVO> restoreNoteHistory(@PathVariable Long noteId,
                                                    @PathVariable Long historyId,
-                                                   @RequestAttribute("userId") Long userId) {
+                                                   @CurrentUserId Long userId) {
         return Result.success("恢复历史版本成功", noteHistoryService.restoreNoteHistory(userId, noteId, historyId));
     }
 
@@ -79,7 +79,7 @@ public class NoteHistoryController {
     @DeleteMapping("/{historyId}")
     public Result<Void> deleteNoteHistory(@PathVariable Long noteId,
                                           @PathVariable Long historyId,
-                                          @RequestAttribute("userId") Long userId) {
+                                          @CurrentUserId Long userId) {
         noteHistoryService.deleteNoteHistory(userId, noteId, historyId);
         return Result.success("删除历史版本成功", null);
     }
